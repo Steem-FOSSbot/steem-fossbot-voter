@@ -1,0 +1,28 @@
+{
+  "name": "FOSSbot",
+  "version": "0.0.1",
+  "description": "A general purpose curation bot built for the Steemit social media platform",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evm2p/fossbot"
+  },
+  "keywords": [
+    "node", "foss", "server", "steemit", "curation", "voting"
+  ],
+  "author": "evm2p",
+  "license": "CC0",
+  "bugs": {
+    "url": "https://github.com/evm2p/fossbot"
+  },
+  "homepage": "https://github.com/evm2p/fossbot",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "steem": "0.3.31"
+  }
+}

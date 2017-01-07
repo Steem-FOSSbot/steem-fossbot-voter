@@ -1,0 +1,6 @@
+{
+  "name": "FOSSbot",
+  "description": "A general purpose curation bot built for the Steemit social media platform",
+  "repository": "https://github.com/evm2p/fossbot",
+  "keywords": ["node", "foss", "server", "steemit", "curation", "voting"]
+}

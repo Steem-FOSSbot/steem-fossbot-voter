@@ -20,6 +20,7 @@ _Note, the dashboard is not currently functional, instead you'll find a placehol
 
 1. Create a Heroku account
 2. Deploy this project to the Heroku using the Heroku Button above
+3. Choose a name for your _Voter_ bot (if you want) and click the Deploy button
 4. In the newly created Heroku app, go to the _Settings_ tab and click on **Reveal Config Vars** to add the following Config Variables. Make sure to use the key name exactly as it appears here.
 	1. **STEEM_USER**, with the value set to your user name, without a preceding "@" symbol.
 	2. **POSTING_KEY_PRV**, with the value set to your private Steemit posting key, used to cast votes

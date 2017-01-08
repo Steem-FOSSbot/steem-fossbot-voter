@@ -6,11 +6,11 @@
 
 _Voter_ is a bot for Steem, built as a Node.js server and intended for deployment on Heroku or compatible.
 
-For more information about the Steem FOSSbot ecosystem, check out [the docs](/docs/steemfossbot.md).
+For more information about the Steem FOSSbot ecosystem, check out [the doc on Steem FOSSbot](/docs/steemfossbot.md).
 
 ## How it works
 
-Please see [the docs](/docs/main.md) for more details on how the curation algorithm works and how to use it to create a custom bot.
+Please see [the main docs page](/docs/main.md) for more details on how the curation algorithm works and how to use it to create a custom bot.
 
 ## Installation
 
@@ -39,11 +39,10 @@ Open the bot dashboard using your Heroku app root URL, as above. All operations 
 
 The operations you can perform are:
 
-- Set Steemit posting key
-- Edit curation algorithm values and weight
-- Run algorithm test
 - Check bot status and stats
 - Modify bot status (i.e. start / stop)
+- Edit curation algorithm values and weight
+- Run algorithm test
 
 ## License and acknowledgements
 

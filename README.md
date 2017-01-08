@@ -20,14 +20,14 @@ _Note, the dashboard is not currently functional, instead you'll find a placehol
 
 1. Create a Heroku account
 2. Deploy this project to the Heroku using the Heroku Button above
-3. Choose a name for your _Voter_ bot (if you want) and click the Deploy button, then after the setup process finishes, click on the Manage App button. If you view the server now it will not work as we haven't finished the set up yet.
-4. In the newly created Heroku app, go to the _Settings_ tab and click on **Reveal Config Vars** to add the following Config Variables. Make sure to use the key name exactly as it appears here.
+3. Choose a name for your Voter bot (if you want) and click the _Deploy_ button
+4. After the setup process finishes, click on the _Manage App_ button. If you view the server now it will not work as we haven't finished the set up yet.
+5. In the newly created Heroku app, go to the _Settings_ tab and click on _Reveal Config Vars button to add the following Config Variables. Make sure to use the key name exactly as it appears here.
 	1. **STEEM_USER**, with the value set to your user name, without a preceding "@" symbol.
 	2. **POSTING_KEY_PRV**, with the value set to your private Steemit posting key, used to cast votes
 	3. **API_KEY**, with the value set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
 	4. **EMAIL_ADDRESS** (optional), with the value set to your email address for notifications
-5. In the app _Deploy_ tab, click on the Deploy button, located towards the bottom of the screen. This starts the server but note that your bot will not be immediately active.
-6. If you set an email address, you will receive a notification that your server has started.
+6. Each time you set a Config variable it restarts the server, so the change can take effect. If you set an email address, you will receive a notification that your server has started.
 7. Open the bot dashboard to access your dashboard and confirm it works correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
 
 Now you can access your bot's settings using the bot dashboard. You'll be asked for the API key you set above to authenticate every time you perform an operation.

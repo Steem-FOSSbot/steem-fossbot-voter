@@ -93,6 +93,10 @@ app.listen(app.get('port'), function() {
   initSteem();
   if (!fatalError) {
     console.log("Bot initialized successfully");
+  } else {
+    // kill node server to stop dashboard from showing and let owner know there is a problem without
+    // giving any information away
+    process.exit();
   }
 });
 

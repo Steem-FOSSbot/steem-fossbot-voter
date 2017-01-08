@@ -26,13 +26,19 @@ function testEnvVars() {
   if (showFatalError()) {
     return;
   }
-  console.log("email address: "+process.env.EMAIL_ADDRESS);
-  console.log("private posting key?: "+(process.env.POSTING_KEY_PRV ? "true" : "false"));
-  console.log("api key?: "+(process.env.API_KEY ? "true" : "false"));
   console.log("steem user: "+process.env.STEEM_USER);
   if (!process.env.STEEM_USER) {
-    setError("init_error", true, "No STEEM_USER env var set, minimum env vars requirements not met");
+    setError("init_error", true, "No STEEM_USER config var set, minimum env vars requirements not met");
   }
+  console.log("private posting key?: "+(process.env.POSTING_KEY_PRV ? "true" : "false"));
+  if (!process.env.POSTING_KEY_PRV) {
+    setError("init_error", true, "No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
+  }
+  console.log("api key?: "+(process.env.API_KEY ? "true" : "false"));
+  if (!process.env.API_KEY) {
+    setError("init_error", true, "No API_KEY config var set, minimum env vars requirements not met");
+  }
+  console.log("email address: "+process.env.EMAIL_ADDRESS);
 }
 
 /*

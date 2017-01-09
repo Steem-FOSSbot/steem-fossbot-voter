@@ -4,7 +4,8 @@ const
   express = require("express"),
   path = require("path"),
   bodyParser = require("body-parser"),
-  steem = require("steem");
+  steem = require("steem"),
+  schedule = require('node-schedule');
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -13,6 +14,21 @@ app.use(bodyParser.json());
 
 var fatalError = false;
 var serverState = "stopped";
+
+var MAIN_LOOP_CALL_FREQ = 10;
+
+/*
+* Main loop
+*/
+
+/*
+mainLoop():
+* Called every MAIN_LOOP_CALL_FREQ minutes
+*/
+function mainLoop() {
+  console.log("mainLoop: started");
+}
+
 
 /*
 * Tests
@@ -93,6 +109,10 @@ app.listen(app.get('port'), function() {
   initSteem();
   if (!fatalError) {
     console.log("Bot initialized successfully");
+    // start time delayed mainLoop function call timer
+    schedule.scheduleJob("*/"+MAIN_LOOP_CALL_FREQ+" * * * *", mainLoop);
+    // first time call mainLoop now
+    mainLoop();
   } else {
     // kill node server to stop dashboard from showing and let owner know there is a problem without
     // giving any information away

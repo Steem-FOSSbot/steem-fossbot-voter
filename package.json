@@ -23,7 +23,6 @@
   "dependencies": {
     "body-parser": "^1.13.3",
     "express": "^4.13.3",
-    "steem": "0.3.31",
-    "node-schedule": "^1.2.0"
+    "steem": "0.3.31"
   }
 }

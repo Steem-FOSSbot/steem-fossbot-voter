@@ -1,9 +1,7 @@
 'use strict';
 
-var exports = module.exports;
-
-exports.fatalError = false;
-exports.serverState = "stopped";
+var fatalError = false;
+var serverState = "stopped";
 
 
 /*
@@ -14,7 +12,7 @@ exports.serverState = "stopped";
 testEnvVars():
 * Test environment variables and log results
 */
-exports.testEnvVars = function () {
+function testEnvVars() {
   if (showFatalError()) {
     return;
   }
@@ -37,7 +35,7 @@ exports.testEnvVars = function () {
 initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
-exports.initSteem = function () {
+function initSteem() {
   if (showFatalError()) {
     return;
   }
@@ -60,7 +58,7 @@ exports.initSteem = function () {
 setError(status, isFatal, message):
 * Set general error for server
 */
-exports.setError = function (status, isFatal, message) {
+function setError(status, isFatal, message) {
   serverState = status;
   fatalError = !fatalError && isFatal;
   console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
@@ -69,14 +67,14 @@ exports.setError = function (status, isFatal, message) {
 /*
 hasFatalError():
 */
-exports.hasFatalError = function () {
+function hasFatalError() {
 	return fatalError;
 }
 
 /*
 getServerState():
 */
-exports.getServerState = function () {
+function getServerState() {
 	return serverState;
 }
 
@@ -85,9 +83,18 @@ showFatalError()
 * Show message for fatal error check.
 * return: true if fatal error
 */
-exports.showFatalError = function () {
+function showFatalError() {
   if (fatalError) {
     console.log("cannot process initSteem function, fatal error has already occured. Please fix and restart server");
   }
   return fatalError;
 }
+
+
+/* Set public API */
+module.exports.testEnvVars = testEnvVars;
+module.exports.initSteem = initSteem;
+module.exports.setError = setError;
+module.exports.hasFatalError = hasFatalError;
+module.exports.getServerState = getServerState;
+module.exports.showFatalError = showFatalError;

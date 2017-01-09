@@ -4,9 +4,7 @@ const
   lib = require("./lib.js"),
   express = require("express"),
   path = require("path"),
-  bodyParser = require("body-parser"),
-  steem = require("steem"),
-  schedule = require('node-schedule');
+  bodyParser = require("body-parser");
 
 var app = express();
 app.set('port', process.env.PORT || 5000);

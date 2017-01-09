@@ -1,11 +1,15 @@
 'use strict';
 
+const
+	steem = require("steem");
+
+/* Private variables */
 var fatalError = false;
 var serverState = "stopped";
 
 
 /*
-* Tests
+* Test functions
 */
 
 /*

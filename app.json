@@ -8,7 +8,7 @@
   	"STEEM_USER": "",
   	"POSTING_KEY_PRV": "",
   	"BOT_API_KEY": "",
-  	"EMAIL_ADDRESS_TO": "",
-  	"EMAIL_ADDRESS_SENDER": ""
+  	"EMAIL_ADDRESS_TO": "none",
+  	"EMAIL_ADDRESS_SENDER": "none"
   }
 }

@@ -105,12 +105,14 @@ function showFatalError() {
 */
 
 function sendEmail(subject, message) {
-	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO) {
+	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
+    || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
 		return false;
 	}
 	var helper = require('sendgrid').mail;
-	var from_email = new helper.Email(process.env.EMAIL_ADDRESS_SENDER 
+	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
+      && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
 		? process.env.EMAIL_ADDRESS_SENDER : 'bot@fossbot.org');
 	var to_email = new helper.Email(process.env.EMAIL_ADDRESS_TO);
 	var content = new helper.Content('text/plain', message);

@@ -1,5 +1,5 @@
 {
-  "name": "FOSSbot",
+  "name": "Voter",
   "description": "A curation bot built for the Steemit social media platform, decides which posts to vote for and casts vote on behalf of a registered user",
   "repository": "https://github.com/evm2p/fossbot",
   "keywords": ["node", "foss", "server", "steemit", "curation", "voting"],

@@ -1,6 +1,6 @@
 {
-  "name": "FOSSbot",
-  "version": "0.0.1",
+  "name": "Voter",
+  "version": "0.0.2",
   "description": "A curation bot built for the Steemit social media platform, decides which posts to vote for and casts vote on behalf of a registered user",
   "main": "server.js",
   "scripts": {

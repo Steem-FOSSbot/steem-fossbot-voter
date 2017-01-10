@@ -81,7 +81,7 @@ function getUserAccount() {
         */
         owner.steem_power = power;
         // log owner object
-        console.log("owner: "JSON.stringify(owner));
+        console.log("owner: "+JSON.stringify(owner));
         // TEMP : do test to find props
         console.log("** getConfig **");
         steem.api.getConfig(function(err, result) {

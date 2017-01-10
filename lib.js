@@ -80,7 +80,7 @@ function getUserAccount() {
               owner.steem_power = steem.formatter.vestToSteem(
                 result[0].vesting_shares,
                 parseFloat(properties.total_vesting_shares),
-                parseFloat(properties.result.total_vesting_fund_steem)
+                parseFloat(properties.total_vesting_fund_steem)
               );
             //} catch(err) {
             //  setError("init_error", false, "Error formatting owner vest shares to Steem");

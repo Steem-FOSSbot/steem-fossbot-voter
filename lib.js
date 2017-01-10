@@ -91,10 +91,12 @@ function getUserAccount() {
         steem.api.getDynamicGlobalProperties(function(err, result) {
           console.log(err, result);
         });
+        /*
         console.log("** getChainProperties **");
         steem.api.getChainProperties(after, limit, function(err, result) {
           console.log(err, result);
         });
+*/
         console.log("** getCurrentMedianHistoryPrice **");
         steem.api.getCurrentMedianHistoryPrice(function(err, result) {
           console.log(err, result);

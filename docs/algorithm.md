@@ -32,7 +32,8 @@ Let ```M``` be the set of metrics such that ```m[1]``` is the first metric, ```m
 
 If range is to be applied, let ```l``` be the lower bound value and ```u``` be the upper value. Then apply the following:
 
-```for each m at index i
+```
+for each m at index i
 	if m[i] < l then m[i] = l
 	if m[i] > u then m[i] = u
 ```

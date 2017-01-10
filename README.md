@@ -100,7 +100,7 @@ If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER i
 
 You'll need an API key for SendGrid. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up. You will access the add-on settings in the _Resources_ tab on the Heroku Dashboard, and click on the SendGrid add-on to do this.
 
-After you have obtained an API key for SendGrid, go to the _Settings_ tab and click on _Reveal Config Vars button. Set the API key as the value for the variable **SENDGRID_API_KEY**.
+After you have obtained an API key for SendGrid, copy it and go to the _Settings_ tab and click on _Reveal Config Vars_ button. Create a new variable called **SENDGRID_API_KEY** and set the SendGrid API key as the value.
 
 ## License and acknowledgements
 

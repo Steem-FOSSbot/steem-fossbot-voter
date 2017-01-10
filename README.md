@@ -56,8 +56,6 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 
 You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
 
-#### Set Configuration Variables
-
 Open the bot dashboard to access your dashboard and confirm it works correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
 
 Now you can access your bot's settings using the bot dashboard. You'll be asked for the API key you set above to authenticate every time you perform an operation.

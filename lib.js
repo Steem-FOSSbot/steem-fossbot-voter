@@ -63,7 +63,42 @@ function getUserAccount() {
       if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
       } else {
-        // TODO : save some values about this user in owner object
+        // check if user can vote, if not this app is useless
+        if (!result.can_vote) {
+          setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");
+          return;
+        }
+        // save some values about this user in owner object
+        owner.voting_power = result.voting_power;
+        owner.last_post_time = (new Date() - result.last_root_post) / 60000; // convert ms to mins
+        // TODO : get props here, from where?
+        /*
+        var power = steem.formatter.vestToSteem(
+          result.vesting_shares,
+          props.total_vesting_shares,
+          props.total_vesting_fund_steem
+        );
+        */
+        owner.steem_power = power;
+        // log owner object
+        console.log("owner: "JSON.stringify(owner));
+        // TEMP : do test to find props
+        console.log("** getConfig **");
+        steem.api.getConfig(function(err, result) {
+          console.log(err, result);
+        });
+        console.log("** getDynamicGlobalProperties **");
+        steem.api.getDynamicGlobalProperties(function(err, result) {
+          console.log(err, result);
+        });
+        console.log("** getChainProperties **");
+        steem.api.getChainProperties(after, limit, function(err, result) {
+          console.log(err, result);
+        });
+        console.log("** getCurrentMedianHistoryPrice **");
+        steem.api.getCurrentMedianHistoryPrice(function(err, result) {
+          console.log(err, result);
+        });
       }
     });
   }

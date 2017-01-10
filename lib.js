@@ -70,7 +70,7 @@ function getUserAccount() {
         }
         // save some values about this user in owner object
         owner.voting_power = result[0].voting_power;
-        owner.last_post_time = (new Date() - getEpochMillis(time)) / 60000; // convert ms to mins
+        owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
         steem.api.getDynamicGlobalProperties(function(err, properties) {
           console.log(err, properties);
           if (err) {

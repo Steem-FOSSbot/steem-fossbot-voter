@@ -70,21 +70,23 @@ function getUserAccount() {
         }
         // save some values about this user in owner object
         owner.voting_power = result[0].voting_power;
-        owner.last_post_time = (new Date() - result[0].last_root_post) / 60000; // convert ms to mins
+        var parts = result[0].last_root_post.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+        var time = Date.UTC(+parts[3], parts[2]-1, +parts[1], +parts[4], +parts[5]);
+        owner.last_post_time = (new Date() - time) / 60000; // convert ms to mins
         steem.api.getDynamicGlobalProperties(function(err, properties) {
           console.log(err, properties);
           if (err) {
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
           } else {
-            try {
+            //try {
               owner.steem_power = steem.formatter.vestToSteem(
                 result[0].vesting_shares,
                 parseFloat(properties.total_vesting_shares),
                 parseFloat(properties.result.total_vesting_fund_steem)
               );
-            } catch(err) {
-              setError("init_error", false, "Error formatting owner vest shares to Steem");
-            }
+            //} catch(err) {
+            //  setError("init_error", false, "Error formatting owner vest shares to Steem");
+            //}
           }
           // log owner object
           console.log("owner: "+JSON.stringify(owner));

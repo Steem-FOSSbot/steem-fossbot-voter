@@ -52,17 +52,16 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 	3. **BOT_API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
 	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
 	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
-4. After the setup process finishes, click on the _Manage App_ button. If you view the server now it will not work as we haven't finished the set up yet.
 
 You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
 
-Open the bot dashboard to access your dashboard and confirm it works correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
+After the app finishes deploying as a server, you can view the dashboard by clicking the **View ->** button and confirm it was set up correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
 
-Now you can access your bot's settings using the bot dashboard. You'll be asked for the API key you set above to authenticate every time you perform an operation.
+Please see the usage information above this section for more information about the dashboard.
 
-#### Configure bot to run periodically
+#### IMPORTANT! Configure bot to run periodically
 
-**This a very important step.** To allow the Heroku "dyno" (app instance) to idle and not take up clock cycles, and so play by the rules with free accounts, we need to set a scheduled task which will run the bot periodally.
+A free Heroku app (called a "dyno") will idle after a certain amount of time, and so we cannot run a continuous code on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
 
 The **Heroku Scheduler** add-on was created with the app (if you had a verified account), so we'll add a scheduled task there with these steps:
 
@@ -75,7 +74,7 @@ The **Heroku Scheduler** add-on was created with the app (if you had a verified 
 
 The task has now been created.
 
-If you set an email address, when the bot runs for the first time after server restart, it you will get a notification.
+If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after 10 minutes to confirm the script was run, as it shows the last time the scheduler was activated here.
 
 #### (Optional) Set up email notifications
 

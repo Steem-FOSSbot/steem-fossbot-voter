@@ -80,7 +80,15 @@ If you set an email address, when the bot runs for the first time after server r
 
 You can optionally use SendMail to send email notifications and summaries of your server and bot's activity. SendMail was chosen because it has a good add-on integration with Heroku, and seems respect data protection.
 
-##### Note on SendGrid service integration
+##### Email set up
+
+If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER if you want to also, you can set up email notifications. There are few more steps to get notifications fully set up.
+
+You'll need an API key for SendGrid. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up. You will access the add-on settings in the _Resources_ tab on the Heroku Dashboard, and click on the SendGrid add-on to do this.
+
+After you have obtained an API key for SendGrid, copy it and go to the _Settings_ tab and click on _Reveal Config Vars_ button. Create a new variable called **SENDGRID_API_KEY** and set the SendGrid API key as the value.
+
+##### Note on SendGrid service integration security and privacy
 
 From their [Terms of Service](https://sendgrid.com/policies/tos/), section 13.2 (Content, Your Content)
 
@@ -93,14 +101,6 @@ And while the [Privacy Policy](https://sendgrid.com/policies/privacy/) does admi
 > If you register for the Site or Services through a third-party, the personally identifiable information you have provided in connection with your registration may be imported into your account on for the Services. The personally identifiable information we may collect from you will also include any information imported from any such third-party.
 
 We recommend you do not supply personal information to SendGrid (or any other service) and use email aliases, anonymous remailers or dead drops where possible. You should assume that any personally identifiable information supplied to Heroku is also shared with SendGrid.
-
-##### Email set up
-
-If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER if you want to also, you can set up email notifications. There are few more steps to get notifications fully set up.
-
-You'll need an API key for SendGrid. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up. You will access the add-on settings in the _Resources_ tab on the Heroku Dashboard, and click on the SendGrid add-on to do this.
-
-After you have obtained an API key for SendGrid, copy it and go to the _Settings_ tab and click on _Reveal Config Vars_ button. Create a new variable called **SENDGRID_API_KEY** and set the SendGrid API key as the value.
 
 ## License and acknowledgements
 

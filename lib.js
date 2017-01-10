@@ -78,8 +78,8 @@ function getUserAccount() {
           props.total_vesting_shares,
           props.total_vesting_fund_steem
         );
-        */
         owner.steem_power = power;
+        */
         // log owner object
         console.log("owner: "+JSON.stringify(owner));
         // TEMP : do test to find props

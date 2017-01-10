@@ -34,7 +34,8 @@ If range is to be applied, let ```l``` be the lower bound value and ```u``` be t
 
 ```for each m at index i
 	if m[i] < l then m[i] = l
-	if m[i] > u then m[i] = u```
+	if m[i] > u then m[i] = u
+```
 
 Let ```W``` be the set of weights applied to each metric, also of size ```n```.
 

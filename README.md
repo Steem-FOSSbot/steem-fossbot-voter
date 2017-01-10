@@ -4,7 +4,7 @@ A Steem FOSSbot
 
 **Please note that the bot is still in planning and development and is not yet functional.**
 
-Documentaiton is [available here](/docs/index.md).
+Documentation is [available here](/docs/index.md).
 
 ## What is this?
 

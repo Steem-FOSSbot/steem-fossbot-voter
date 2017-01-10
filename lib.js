@@ -7,6 +7,10 @@ const
 var fatalError = false;
 var serverState = "stopped";
 
+var metrics = {};
+var owner = {};
+var posts = [];
+
 
 /*
 * Test functions
@@ -43,16 +47,24 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem() {
+  getUserAccount();
+}
+
+/*
+getUserAccount():
+*/
+function getUserAccount() {
   if (showFatalError()) {
     return;
   }
   if (process.env.STEEM_USER) {
     steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-      //console.log(err, result);
-      if(err || result.length < 1) {
+      console.log(err, result);
+      if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
+      } else {
+        // TODO : save some values about this user in owner object
       }
-
     });
   }
 }

@@ -1,26 +1,28 @@
 # Algorithm and metrics
 
-The factors influencing whether or not a post is choosen to be voted on _must be measureable_. These measurements are called **metrics**.
+The factors influencing whether or not a post is choosen to be voted on _must be measureable_, and not abstract, as they may exist in our own personal reasoning. These measurements are called **metrics**.
 
-Metrics are facts of the Steem posts and environment, such as word count, number of votes already cast, whether the author is followed, etc.
+A metric is a transformation of the facts (i.e. data) of the Steem posts and environment, such as word count, number of votes already cast, whether the author is followed, etc. into a value which can be used independently of the data, and exists in form which renders disparate data usable by the same set of operations. We transform any data into numeric values for simplicity of score calculation.
 
 The **algorithm** is a customizable process which each user can tweak to make their own bot curate as they would like it to curation. It is intended to be an approximate model of how you usually vote.
 
-Most strategic metrics are simply readable from the API, but cultural metrics are harder to quantify, necessarily requiring the use of Natural Language Processing (NLP) and other tools.
+Most strategic metrics are simply readable from the API, but cultural metrics are harder to quantify, necessarily requiring the use of Natural Language Processing (NLP).
 
 ### Metrics
 
-Each metric must be either numeric or boolean (true or false). Numeric metrics are values like the number of words in a post, the number of votes, the . Boolean metrics come from questions like "Does the user follow the author of this post?".
+Some metrics use data directly where it is already numeric, such as the number of words in a post, the number of votes, etc.
 
-The actual metrics used are detailed below.
+Since each metric must be numeric, we will give boolean assign boolean values ```0``` if false and ```1``` if true. Boolean metrics come from questions like "Does the user follow the author of this post?"
+
+The actual metrics used are detailed at the end of this document.
 
 ### Algorithm
 
-The algorithm combines metrics into a single score using metric values at a certain weight (i.e. multiplication factor) and optionally within a certain range. It is also useful to add some conditions to the algorithm in general.
+The algorithm combines metrics into a single score using metric values at a certain weight (i.e. multiplication factor) and optionally _within_ a certain range.
 
-The weights scale metric values in order to change the contributing effect of a metric. They can also be used to make a  value more reasonable.
+The weights scale metric values in order to change the contributing effect of a metric. They can also be used to make a  value more (or even less!) reasonable.
 
-Bounding a metric value to a range also makes the value more reasonable. You may want to cap the word count having an effect on a increasing the overall score at 2000 words for example.
+Bounding a metric value _within_ a range can also makes the value more reasonable. You may want to cap the word count having an effect on a increasing the overall score at 2000 words for example.
 
 #### Polynomial
 
@@ -40,65 +42,115 @@ Then, the algorithm which produces a score ```s``` would be
 
 ```s = w[1]*m[1] + w[2]*m[2] + ... + w[n-1]*m[n-1] + w[n]*m[n]```
 
-#### Conditions
+#### Conditions as value
 
-It is also useful to have a set of conditions which will veto the above weighted metric scoring. For example, we may not want to vote for a post with too few words or with video links, or to always vote for a post by a certain author. This is a similar concept to a black and white list respectively.
+For our boolean values, you can think of their usage in the polynomial as adding a certain value if the condition is true. The value will be the weight directly, since if it is false we will have
 
-To test numeric metric values, we can use the usual operators to turn values into boolean, such as equality, inequality, less than (or equal to) and greater than (or equal to).
+```w[i]*m[i] = w[i]*0 = 0```
 
-However, to further complicate this, what if an author on the white list has a video post? Perhaps we want the author to be voted for more than we want to exclude video posts. To allow for this, we can use **priority** levels for conditions.
+but if true we will have
 
-Thus we have the possibilities:
+```w[i]*m[i] = w[i]*1 = w[i]```
 
-```[White / Black]-list : [mostly / always]```
+We could potentially use this completely drop or maximise the score, by using either a maximally negative or positive weight respectively. For example, we may want to always vote for a post by a certain author. In that case we would set the weight for metric ```matrics.author.whitelisted``` to a very large value, such as ```2^32```. Conversely, if we wanted to never vote for a post with a certiain word as keyword, we would set the weight for the metric ```metrics.post.num_keywords_blacklisted``` to a very large _negative_ value, such as ```-2^32```. However it doesn't have to be that extreme.
 
-To apply this to our example, video posts should be mostly black-listed and posts by a certain author always white-listed. If there is a video post by a different author, it will be black-listed. If it's by our preferred author, it will be white-listed.
+##### Possible feature additions
 
-Blacklisting will have the effect of setting the score to the minimum possible value, i.e. ```0```. Whitelisting will set the score to the maximum value (probably for an unsigned 32 bit integer, i.e. ```(2^32)-1```).
+1. Add non-linear scaling option for metric values.
+2. Add other kind of range which excludes (i.e. zeros) value if value falls outside range
 
-## Metrics used
+## Metrics
+
+All metrics show the key name first, then a short description
 
 ### Strategic metrics
 
-_Note: All metrics current at time of metric sample_
+_Note: All data current at time of sample_
 
-#### About the post
+_Note: Metric key in object access format, and roughly maps to an internal JavaScript object, but should be considered an arbitrary String key_
 
-1. Time since post
-2. Estimated payout
-3. Number of votes
-4. Number of flags / downvotes
+#### Post
 
-#### About this user
-1. Number of posts today
-2. Time since last post
+1. ```metrics.post.alive_time```: Time since post, in minutes
+2. ```metrics.post.est_payout```: Estimated payout
+3. ```metrics.post.num_votes```: Number of votes
+4. ```metrics.post.num_downvotes```: Number of flags / downvotes
+
+#### Bot Owner (user running the bot)
+1. ```metrics.owner.num_posts_today```: Number of posts today
+2. ```metrics.owner.last_post_time```: Time since last post in minutes
+
+#### Author (user who authored post in question)
+1. ```metrics.author.num_posts_today```: Number of posts today
+2. ```metrics.author.last_post_time```: Time since last post in minutes
 
 ### Cultural metrics
 
+A whitelist and blacklist is supplied for the following:
+
+- Content words
+- Authors
+- Domains
+
+The way these are used depends on the metric. They can be empty and will then have no effect.
+
 #### Content - Text
 
-_Using NLP_
+Using NLP, we can parse the text content and get the topic, keywords and _sentiment_, a single value score of positivity / negativity, sometimes also called an emotional score.
 
-1. Topic
-2. Keywords
-3. Sentiment / emotional score
-4. Length
-5. Presence of any / number of whitelist words
-6. Presence of any / number of blacklist words
+##### Numeric
+
+1. ```metrics.post.num_chars``` and ```metrics.post.num_words```: Length in characters, words
+3. ```metrics.post.sentiment__val```: Sentiment / emotional score
+5. ```metrics.post.num_keywords_whitelisted```: Number of unique whitelisted words
+6. ```metrics.post.num_keywords_blacklisted```: Number of unique blacklisted words
+7. ```metrics.post.num_words_whitelisted```: Number of unique whitelist words in entire content text
+8. ```metrics.post.num_words_blacklisted```: Number of unique blacklist words in entire content text
+
+##### Boolean
+
+1. ```metrics.post.topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
+2. ```metrics.post.topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
+3. ```metrics.post.any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
+4. ```metrics.post.any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
 
 #### Content - Links
-1. Number of video links
-2. Number of photo links
-3. Number of webpage links
-4. Total number of links
-5. Presence of any / number of whitelist domains
-6. Presence of any / number of blacklist domains
 
-#### Poster
+##### Numeric
 
-1. Reputation
-2. Capital (either by value or by category, whale, dolphin, minnow)
-3. Last post payout
-4. Average / median post payout
-5. Presence of author on whitelist
-6. Presence of author on blacklist
+1. ```metrics.post.num_links_video```: Number of video links
+2. ```metrics.post.num_links_photo```: Number of photo links
+3. ```metrics.post.num_links_page```: Number of webpage links
+4. ```metrics.post.num_links_total```: Total number of links
+5. ```metrics.post.num_link_domains_whitelisted```: Number of link domains on whitelist
+6. ```metrics.post.num_link_domains_blacklisted```: Number of link domains on blacklist
+
+##### Boolean
+
+1. ```metrics.post.any_link_domains_whitelisted```: Any link domains on whitelist (false = 0, true = 1)
+2. ```metrics.post.any_link_domains_blacklisted```: Any link domains on blacklist (false = 0, true = 1)
+
+#### Author
+
+##### Numeric
+
+1. ```metrics.author.repuation```: Reputation (Stemit version, not direct from blockchain)
+2. ```metrics.author.capital_val```: Capital (Steem Power) by value 
+3. ```metrics.author.last_post_payout```: Last post payout
+4. ```metrics.author.all_post_payout_avg```: Average post payout for all posts by author
+5. ```metrics.author.total_post_payout_median```: Average post payout for all posts by author
+
+##### Boolean
+
+Note, author capital category (minnow, dolphin, whale) is defined as
+
+- _Minnow_ has capital < 25,000 Steem Power
+- _Dolphin_ has capital >= 25,000 and < 100,000 Steem Power
+- _Whale_ has as capital >= 100,000 Steem Power
+
+1. ```metrics.author.is_minnow```: Capital category is _minnow_ (false = 0, true = 1)
+2. ```metrics.author.is_dolphin```: Capital category is _dolphin_ (false = 0, true = 1)
+3. ```metrics.author.is_whale```: Capital category is _whale_ (false = 0, true = 1)
+4. ```matrics.author.is_followed```: Author is followed (false = 0, true = 1)
+5. ```matrics.author.is_whitelisted```: Presence of author on whitelist (false = 0, true = 1)
+6. ```matrics.author.is_blacklisted```: Presence of author on blacklist (false = 0, true = 1)

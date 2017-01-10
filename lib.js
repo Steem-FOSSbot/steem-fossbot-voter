@@ -71,35 +71,23 @@ function getUserAccount() {
         // save some values about this user in owner object
         owner.voting_power = result[0].voting_power;
         owner.last_post_time = (new Date() - result[0].last_root_post) / 60000; // convert ms to mins
-        // TODO : get props here, from where?
-        /*
-        var power = steem.formatter.vestToSteem(
-          result[0].vesting_shares,
-          props.total_vesting_shares,
-          props.total_vesting_fund_steem
-        );
-        owner.steem_power = power;
-        */
-        // log owner object
-        console.log("owner: "+JSON.stringify(owner));
-        // TEMP : do test to find props
-        console.log("** getConfig **");
-        steem.api.getConfig(function(err, result) {
-          console.log(err, result);
-        });
-        console.log("** getDynamicGlobalProperties **");
         steem.api.getDynamicGlobalProperties(function(err, result) {
           console.log(err, result);
-        });
-        /*
-        console.log("** getChainProperties **");
-        steem.api.getChainProperties(after, limit, function(err, result) {
-          console.log(err, result);
-        });
-*/
-        console.log("** getCurrentMedianHistoryPrice **");
-        steem.api.getCurrentMedianHistoryPrice(function(err, result) {
-          console.log(err, result);
+          if (err) {
+            setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
+          } else {
+            try {
+              owner.steem_power = steem.formatter.vestToSteem(
+                result[0].vesting_shares,
+                parseFloat(result.total_vesting_shares.replace(" VESTS", "")),
+                parseFloat(result.result.total_vesting_fund_steem.replace(" STEEM", ""))
+              );
+            } catch(err) {
+              setError("init_error", false, "Error formatting owner vest shares to Steem");
+            }
+          }
+          // log owner object
+          console.log("owner: "+JSON.stringify(owner));
         });
       }
     });

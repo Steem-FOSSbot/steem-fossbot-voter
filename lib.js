@@ -32,7 +32,10 @@ function testEnvVars() {
   if (!process.env.API_KEY) {
     setError("init_error", true, "No API_KEY config var set, minimum env vars requirements not met");
   }
-  console.log("email address: "+process.env.EMAIL_ADDRESS);
+
+  console.log("email address to: "+process.env.SENDGRID_API_KEY);
+  console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
+  console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 }
 
 /*
@@ -55,7 +58,7 @@ function initSteem() {
 }
 
 /*
-* Utils
+* Manage internal state
 */
 
 /*
@@ -63,9 +66,11 @@ setError(status, isFatal, message):
 * Set general error for server
 */
 function setError(status, isFatal, message) {
-  serverState = status;
-  fatalError = !fatalError && isFatal;
-  console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
+	if (status) {
+  		serverState = status;
+  	}
+  	fatalError = !fatalError && isFatal;
+  	console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
 }
 
 /*
@@ -95,6 +100,38 @@ function showFatalError() {
 }
 
 
+/*
+* Email
+*/
+
+function sendEmail(subject, message) {
+	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO) {
+		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
+		return false;
+	}
+	var helper = require('sendgrid').mail;
+	var from_email = new helper.Email(process.env.EMAIL_ADDRESS_SENDER 
+		? process.env.EMAIL_ADDRESS_SENDER : 'bot@fossbot.org');
+	var to_email = new helper.Email(process.env.EMAIL_ADDRESS_TO);
+	var content = new helper.Content('text/plain', message);
+	var mail = new helper.Mail(from_email, subject, to_email, content);
+
+	var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+	var request = sg.emptyRequest({
+		method: 'POST',
+		path: '/v3/mail/send',
+		body: mail.toJSON(),
+	});
+
+	console.log("sending email");
+	sg.API(request, function(error, response) {
+		console.log(" - "+response.statusCode);
+		console.log(" - "+response.body);
+		console.log(" - "+response.headers);
+	});
+}
+
+
 /* Set public API */
 module.exports.testEnvVars = testEnvVars;
 module.exports.initSteem = initSteem;
@@ -102,3 +139,4 @@ module.exports.setError = setError;
 module.exports.hasFatalError = hasFatalError;
 module.exports.getServerState = getServerState;
 module.exports.showFatalError = showFatalError;
+module.exports.sendEmail = sendEmail;

@@ -13,6 +13,7 @@ mainLoop():
 */
 function mainLoop() {
   console.log("mainLoop: started, state: "+lib.getServerState());
+  lib.sendEmail("Voter bot", "Update: Main loop debug test");
 }
 
 

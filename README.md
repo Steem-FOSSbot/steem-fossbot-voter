@@ -66,7 +66,7 @@ Now you can access your bot's settings using the bot dashboard. You'll be asked 
 
 #### Configure bot to run periodically
 
-This a very important step. To allow the Heroky "dyno" (app instance) to idle and not take up clock cycles, and so play by the rules with free accounts, we need to set a scheduled task which will run the bot periodally.
+**This a very important step.** To allow the Heroku "dyno" (app instance) to idle and not take up clock cycles, and so play by the rules with free accounts, we need to set a scheduled task which will run the bot periodally.
 
 The **Heroku Scheduler** add-on was created with the app (if you had a verified account), so we'll add a scheduled task there with these steps:
 

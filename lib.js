@@ -28,9 +28,9 @@ function testEnvVars() {
   if (!process.env.POSTING_KEY_PRV) {
     setError("init_error", true, "No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
   }
-  console.log("api key?: "+(process.env.API_KEY ? "true" : "false"));
-  if (!process.env.API_KEY) {
-    setError("init_error", true, "No API_KEY config var set, minimum env vars requirements not met");
+  console.log("api key?: "+(process.env.BOT_API_KEY ? "true" : "false"));
+  if (!process.env.BOT_API_KEY) {
+    setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
   }
 
   console.log("email address to: "+process.env.SENDGRID_API_KEY);

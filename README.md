@@ -46,19 +46,17 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 1. Create a Heroku account
 2. Deploy this project to the Heroku using the Heroku Button above
 3. Choose a name for your Voter bot (if you want) and click the _Deploy_ button
+4. Set Configuration Variables. Note that without the required variables, the bot and server will not start.
+	1. **STEEM_USER**, set to your user name, without a preceding "@" symbol.
+	2. **POSTING_KEY_PRV**, set to your private Steemit posting key, used to cast votes
+	3. **BOT_API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
+	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
+	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
 4. After the setup process finishes, click on the _Manage App_ button. If you view the server now it will not work as we haven't finished the set up yet.
 
+You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
+
 #### Set Configuration Variables
-
-In the newly created Heroku app, go to the _Settings_ tab and click on _Reveal Config Vars button. You need to modify there variables to set up your bot and server.
-
-_Note that without the required variables, the bot and server will not start._
-
-1. **STEEM_USER**, set to your user name, without a preceding "@" symbol.
-2. **POSTING_KEY_PRV**, set to your private Steemit posting key, used to cast votes
-3. **API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
-
-Each time you set a Config variable it restarts the server, so the change can take effect. If you set an email address, you will receive a notification that your server has started.
 
 Open the bot dashboard to access your dashboard and confirm it works correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
 
@@ -101,9 +99,11 @@ We recommend you do not supply personal information to SendGrid (or any other se
 
 ##### Email set up
 
-1. **SENDGRID_API_KEY**, set to API key. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up.
-2. **EMAIL_ADDRESS_TO**, set to your email address for notifications
-3. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
+If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER if you want to also, you can set up email notifications. There are few more steps to get notifications fully set up.
+
+You'll need an API key for SendGrid. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up. You will access the add-on settings in the _Resources_ tab on the Heroku Dashboard, and click on the SendGrid add-on to do this.
+
+After you have obtained an API key for SendGrid, go to the _Settings_ tab and click on _Reveal Config Vars button. Set the API key as the value for the variable **SENDGRID_API_KEY**.
 
 ## License and acknowledgements
 

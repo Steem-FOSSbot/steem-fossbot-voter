@@ -7,7 +7,7 @@
   "env": {
   	"STEEM_USER": "",
   	"POSTING_KEY_PRV": "",
-  	"API_KEY": "",
+  	"BOT_API_KEY": "",
   	"EMAIL_ADDRESS_TO": "",
   	"EMAIL_ADDRESS_SENDER": ""
   }

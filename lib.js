@@ -71,16 +71,16 @@ function getUserAccount() {
         // save some values about this user in owner object
         owner.voting_power = result[0].voting_power;
         owner.last_post_time = (new Date() - result[0].last_root_post) / 60000; // convert ms to mins
-        steem.api.getDynamicGlobalProperties(function(err, result) {
-          console.log(err, result);
+        steem.api.getDynamicGlobalProperties(function(err, properties) {
+          console.log(err, properties);
           if (err) {
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
           } else {
             try {
               owner.steem_power = steem.formatter.vestToSteem(
                 result[0].vesting_shares,
-                parseFloat(result.total_vesting_shares.replace(" VESTS", "")),
-                parseFloat(result.result.total_vesting_fund_steem.replace(" STEEM", ""))
+                parseFloat(properties.total_vesting_shares),
+                parseFloat(properties.result.total_vesting_fund_steem)
               );
             } catch(err) {
               setError("init_error", false, "Error formatting owner vest shares to Steem");

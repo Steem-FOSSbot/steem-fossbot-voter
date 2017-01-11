@@ -71,6 +71,7 @@ function runBot(messageCallback) {
     return processes.reduce(function(nextProcess, f) {
       return nextProcess.then(f);
     }, Q());
+  };
 
   overallResult()
   .then(function(response) {

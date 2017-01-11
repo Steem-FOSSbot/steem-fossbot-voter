@@ -59,7 +59,7 @@ function getUserAccount() {
   }
   if (process.env.STEEM_USER) {
     steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-      console.log(err, result);
+      //console.log(err, result);
       if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
       } else {
@@ -72,7 +72,7 @@ function getUserAccount() {
         owner.voting_power = result[0].voting_power;
         owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
         steem.api.getDynamicGlobalProperties(function(err, properties) {
-          console.log(err, properties);
+          //console.log(err, properties);
           if (err) {
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
           } else {
@@ -239,6 +239,7 @@ function testEnvVars() {
 
 
 /* Set public API */
+module.exports.runBot = runBot;
 module.exports.testEnvVars = testEnvVars;
 module.exports.initSteem = initSteem;
 module.exports.setError = setError;

@@ -54,15 +54,15 @@ app.get("/run-bot", function(req, res) {
   }
   lib.runBot(function(msg) {
     console.log("lib.runBot message: " + msg);
-    if (!msg || msg.localeCompare("failed")) {
-      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
-    } else {
+    if (msg && msg.localeCompare("ok")) {
       res.status(200).json(
         {
           "result": "success",
           "message": "GET /run-bot has started bot iteration"
         }
       );
+    } else {
+      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
     }
   });
 });

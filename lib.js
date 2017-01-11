@@ -58,7 +58,7 @@ function runBot(messageCallback) {
       return deferred.promise;
     },
     // clean posts and update last fetched post
-    {
+    function () {
       console.log("Q.deffered: clean posts");
       var deferred = Q.defer();
       // TODO : clean and update

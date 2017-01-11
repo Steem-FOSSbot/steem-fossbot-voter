@@ -235,6 +235,10 @@ function testEnvVars() {
   console.log("email address to: "+process.env.SENDGRID_API_KEY);
   console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
   console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
+
+  if (!fatalError) {
+    serverState = "started";
+  }
 }
 
 

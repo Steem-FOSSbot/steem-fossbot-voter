@@ -52,6 +52,7 @@ function runBot(messageCallback) {
           throw {message: "Error reading posts from steem: "+err.message};
         }
         posts = result;
+        console.log(" - num fetched posts: "+posts.length);
         deferred.resolve(true);
         // TODO : save posts
       });
@@ -61,7 +62,65 @@ function runBot(messageCallback) {
     function () {
       console.log("Q.deffered: clean posts");
       var deferred = Q.defer();
-      // TODO : clean and update
+      // clean, only keep new posts since last post
+      if (lastFetchedPost != null) {
+        var cleanedPosts = [];
+        for (post in posts) {
+          if (post.id == lastFetchedPost.id) {
+            break;
+          }
+          cleanedPosts.push(post);
+        }
+        posts = cleanedPosts;
+      }
+      // throw nice error if no posts left
+      if (posts.length < 1) {
+        throw {message: "No new posts"};
+      }
+      // update last fetched post
+      saveLastPostToFile(posts[0]);
+      // finish
+      console.log(" - num new posts: "+posts.length);
+      deferred.resolve(true);
+      return deferred.promise;
+    },
+    // transform post data to metrics
+    function () {
+      console.log("Q.deffered: clean posts");
+      var deferred = Q.defer();
+      // TODO : work
+      console.log(" - TODO");
+      // finish
+      deferred.resolve(true);
+      return deferred.promise;
+    },
+    // calculate scores for each post
+    function () {
+      console.log("Q.deffered: clean posts");
+      var deferred = Q.defer();
+      // TODO : work
+      console.log(" - TODO");
+      // finish
+      deferred.resolve(true);
+      return deferred.promise;
+    },
+    // choose posts to vote on based on scores
+    function () {
+      console.log("Q.deffered: clean posts");
+      var deferred = Q.defer();
+      // TODO : work
+      console.log(" - TODO");
+      // finish
+      deferred.resolve(true);
+      return deferred.promise;
+    },
+    // cast votes to steem
+    function () {
+      console.log("Q.deffered: clean posts");
+      var deferred = Q.defer();
+      // TODO : work
+      console.log(" - TODO");
+      // finish
       deferred.resolve(true);
       return deferred.promise;
     }

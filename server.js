@@ -11,8 +11,6 @@ app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 
-
-
 // Start server
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
@@ -29,3 +27,48 @@ app.listen(app.get('port'), function() {
 });
 
 module.exports = app;
+
+// Utils
+function handleError(res, reason, message, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": message});
+}
+
+// public HTTPS interface
+
+/*
+ * /run-bot endpoint
+ *
+ * Starts an iteration of the bot mainLoop
+ *
+ * Example usage:
+ * /run-bot?API_KEY=1234
+ */
+app.get("/run-bot", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/run-bot Unauthorized", "Run bot: No API_KEY supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/run-bot Unauthorized", "Run bot: API_KEY invalid", 401);
+    return;
+  }
+  var Worker = require('webworker-threads').Worker;
+  var worker = new Worker(function() {
+    lib.runBot(function(msg) {
+      postMessage(msg);
+    });
+  });
+  worker.onmessage = function(event) {
+    console.log("worker.onmessage: " + event.data);
+    if (!event.data || event.data.localeCompare("failed")) {
+      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
+    } else {
+      res.status(200).json(
+        {
+          "result": "success",
+          "message": "GET /run-bot has started bot iteration"
+        }
+      );
+    }
+  };
+});

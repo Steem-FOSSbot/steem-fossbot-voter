@@ -14,34 +14,26 @@ var posts = [];
 
 
 /*
-* Test functions
+* Bot logic
 */
 
 /*
-testEnvVars():
-* Test environment variables and log results
+runBot(messageCallback):
+* Process a bot iteration
 */
-function testEnvVars() {
-  if (showFatalError()) {
-    return;
+function runBot(messageCallback) {
+  console.log("mainLoop: started, state: "+lib.getServerState());
+  lib.sendEmail("Voter bot", "Update: Main loop debug test");
+  // very important to send this message
+  if (messageCallback) {
+    messageCallback("started");
   }
-  console.log("steem user: "+process.env.STEEM_USER);
-  if (!process.env.STEEM_USER) {
-    setError("init_error", true, "No STEEM_USER config var set, minimum env vars requirements not met");
-  }
-  console.log("private posting key?: "+(process.env.POSTING_KEY_PRV ? "true" : "false"));
-  if (!process.env.POSTING_KEY_PRV) {
-    setError("init_error", true, "No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
-  }
-  console.log("api key?: "+(process.env.BOT_API_KEY ? "true" : "false"));
-  if (!process.env.BOT_API_KEY) {
-    setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
-  }
-
-  console.log("email address to: "+process.env.SENDGRID_API_KEY);
-  console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
-  console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 }
+
+
+/*
+* Steem access
+*/
 
 /*
 initSteem():
@@ -87,6 +79,16 @@ function getUserAccount() {
     });
   }
 }
+
+function getPostsSinceLastUpdate() {
+  steem.api.getDiscussionsByCreated(query, function(err, result) {
+    console.log(err, result);
+  });
+}
+
+/*
+* Steem Utils
+*/
 
 /*
 getSteemPowerFromVest(vest):
@@ -163,6 +165,10 @@ function showFatalError() {
 * Email
 */
 
+/*
+sendEmail(subject, message)
+* Send email using SendGrid, if set up. Fails cleanly if not.
+*/
 function sendEmail(subject, message) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
@@ -190,6 +196,37 @@ function sendEmail(subject, message) {
 		console.log(" - "+response.body);
 		console.log(" - "+response.headers);
 	});
+}
+
+
+/*
+* Test functions
+*/
+
+/*
+testEnvVars():
+* Test environment variables and log results
+*/
+function testEnvVars() {
+  if (showFatalError()) {
+    return;
+  }
+  console.log("steem user: "+process.env.STEEM_USER);
+  if (!process.env.STEEM_USER) {
+    setError("init_error", true, "No STEEM_USER config var set, minimum env vars requirements not met");
+  }
+  console.log("private posting key?: "+(process.env.POSTING_KEY_PRV ? "true" : "false"));
+  if (!process.env.POSTING_KEY_PRV) {
+    setError("init_error", true, "No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
+  }
+  console.log("api key?: "+(process.env.BOT_API_KEY ? "true" : "false"));
+  if (!process.env.BOT_API_KEY) {
+    setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
+  }
+
+  console.log("email address to: "+process.env.SENDGRID_API_KEY);
+  console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
+  console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 }
 
 

@@ -47,6 +47,7 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem() {
+  testEnvVars();
   getUserAccount();
 }
 

@@ -14,7 +14,6 @@ app.use(bodyParser.json());
 // Start server
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
-  lib.testEnvVars();
   lib.initSteem();
   if (!lib.hasFatalError()) {
     console.log("Dashboard min requirements met, will be active on HTTPS");

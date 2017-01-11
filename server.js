@@ -30,7 +30,7 @@ module.exports = app;
 
 // Utils
 function handleError(res, reason, message, code) {
-  console.log("ERROR: " + reason);
+  console.log("ERROR: " + reason + ", MESSAGE: "+message);
   res.status(code || 500).json({"error": message});
 }
 
@@ -54,7 +54,7 @@ app.get("/run-bot", function(req, res) {
   }
   lib.runBot(function(msg) {
     console.log("lib.runBot message: " + msg);
-    if (msg && msg.localeCompare("ok")) {
+    if (msg && msg.localeCompare("ok") == 0) {
       res.status(200).json(
         {
           "result": "success",

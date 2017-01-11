@@ -1,7 +1,12 @@
 'use strict';
 
 const
-	steem = require("steem");
+	steem = require("steem"),
+  fs = require('fs'),
+  Q = require("q");
+
+const
+  MAX_POST_TO_READ = 20;
 
 /* Private variables */
 var fatalError = false;
@@ -11,6 +16,7 @@ var steemGlobalProperties = {};
 var metrics = {};
 var owner = {};
 var posts = [];
+var lastFetchedPost = null;
 
 
 /*
@@ -34,14 +40,51 @@ function runBot(messageCallback) {
   if (messageCallback) {
     messageCallback("ok");
   }
-  // get posts
-  steem.api.getDiscussionsByCreated({limit: 5}, function(err, result) {
-    console.log(err, result);
-    // TODO : save posts
+  // begin bot logic, use promises with Q
+  var processes = [
+    // get posts
+    function () {
+      console.log("Q.deffered: get posts");
+      var deferred = Q.defer();
+      steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
+        //console.log(err, result);
+        if (err) {
+          throw {message: "Error reading posts from steem: "+err.message};
+        }
+        posts = result;
+        deferred.resolve(true);
+        // TODO : save posts
+      });
+      return deferred.promise;
+    },
+    // clean posts and update last fetched post
+    {
+      console.log("Q.deffered: clean posts");
+      var deferred = Q.defer();
+      // TODO : clean and update
+      deferred.resolve(true);
+      return deferred.promise;
+    }
+  ];
+
+  var overallResult = function() {
+    return processes.reduce(function(nextProcess, f) {
+      return nextProcess.then(f);
+    }, Q());
+
+  overallResult()
+  .then(function(response) {
+    if (response) {
+      console.log("runBot finished successfully");
+      sendEmail("Voter bot", "Update: runBot finished with these results: [test complete]");
+      // TODO : log and email details of run
+      return;
+    }
+  })
+  .catch(function (err) {
+    setError("stopped", false, err.message);
+    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
-  // TODO : process
-  // finish
-  sendEmail("Voter bot", "Update: runBot finished with these results: [test complete]");
 }
 
 
@@ -56,6 +99,7 @@ initSteem():
 function initSteem() {
   testEnvVars();
   getUserAccount();
+  readLastPostFromFile();
 }
 
 /*
@@ -95,10 +139,29 @@ function getUserAccount() {
   }
 }
 
-function getPostsSinceLastUpdate() {
-  steem.api.getDiscussionsByCreated(query, function(err, result) {
-    console.log(err, result);
+/*
+readLastPostFromFile():
+*/
+function readLastPostFromFile() {
+  fs.readFile("/data/lastpost", "utf8", function (err, data) {
+    if (err) {
+      throw err;
+    }
+    lastFetchedPost = JSON.parse(data);
   });
+}
+
+/*
+saveLastPostToFile():
+*/
+function saveLastPostToFile(post) {
+  lastFetchedPost = post;
+  fs.writeFile("/data/lastpost", JSON.stringify(post), function(err) {
+    if(err) {
+        return console.log(err);
+    }
+    console.log("Last post saved to file");
+}); 
 }
 
 /*

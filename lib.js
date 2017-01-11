@@ -7,6 +7,7 @@ const
 var fatalError = false;
 var serverState = "stopped";
 
+var steemGlobalProperties = {};
 var metrics = {};
 var owner = {};
 var posts = [];
@@ -76,15 +77,8 @@ function getUserAccount() {
           if (err) {
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
           } else {
-            //try {
-              owner.steem_power = steem.formatter.vestToSteem(
-                result[0].vesting_shares,
-                parseFloat(properties.total_vesting_shares),
-                parseFloat(properties.total_vesting_fund_steem)
-              );
-            //} catch(err) {
-            //  setError("init_error", false, "Error formatting owner vest shares to Steem");
-            //}
+            steemGlobalProperties = properties;
+            owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // log owner object
           console.log("owner: "+JSON.stringify(owner));
@@ -94,6 +88,27 @@ function getUserAccount() {
   }
 }
 
+/*
+getSteemPowerFromVest(vest):
+* converts vesting steem (from get user query) to Steem Power (as on Steemit.com website)
+*/
+function getSteemPowerFromVest(vest) {
+  try {
+    return steem.formatter.vestToSteem(
+      vest,
+      parseFloat(properties.total_vesting_shares),
+      parseFloat(properties.total_vesting_fund_steem)
+    );
+  } catch(err) {
+    setError(null, false, "Error formatting owner vest shares to Steem");
+  }
+  return 0;
+}
+
+/*
+getEpochMillis(dateStr):
+* convert steem format date string to epoch millis (unix) format
+*/
 function getEpochMillis(dateStr) {
   var r = /^\s*(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)\s*$/
     , m = (""+dateStr).match(r);

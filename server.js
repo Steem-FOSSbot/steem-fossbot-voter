@@ -46,21 +46,15 @@ function handleError(res, reason, message, code) {
  */
 app.get("/run-bot", function(req, res) {
   if (!req.query.api_key) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: No API_KEY supplied", 401);
+    handleError(res, "/run-bot Unauthorized", "Run bot: api_key not supplied", 401);
     return;
   } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: API_KEY invalid", 401);
+    handleError(res, "/run-bot Unauthorized", "Run bot: api_key invalid", 401);
     return;
   }
-  var Worker = require('webworker-threads').Worker;
-  var worker = new Worker(function() {
-    lib.runBot(function(msg) {
-      postMessage(msg);
-    });
-  });
-  worker.onmessage = function(event) {
-    console.log("worker.onmessage: " + event.data);
-    if (!event.data || event.data.localeCompare("failed")) {
+  lib.runBot(function(msg) {
+    console.log("lib.runBot message: " + msg);
+    if (!msg || msg.localeCompare("failed")) {
       handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
     } else {
       res.status(200).json(
@@ -70,5 +64,5 @@ app.get("/run-bot", function(req, res) {
         }
       );
     }
-  };
+  });
 });

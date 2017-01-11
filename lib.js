@@ -22,12 +22,19 @@ runBot(messageCallback):
 * Process a bot iteration
 */
 function runBot(messageCallback) {
-  console.log("mainLoop: started, state: "+lib.getServerState());
-  lib.sendEmail("Voter bot", "Update: Main loop debug test");
-  // very important to send this message
-  if (messageCallback) {
-    messageCallback("started");
+  console.log("mainLoop: started, state: "+serverState);
+  // first, check bot can run
+  if (fatalError) {
+    if (messageCallback) {
+      messageCallback("failed");
+    }
+    sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]");
+    return;
   }
+  if (messageCallback) {
+    messageCallback("ok");
+  }
+  sendEmail("Voter bot", "Update: runBot finished with these results: [test complete]");
 }
 
 
@@ -128,10 +135,10 @@ setError(status, isFatal, message):
 */
 function setError(status, isFatal, message) {
 	if (status) {
-  		serverState = status;
-  	}
-  	fatalError = !fatalError && isFatal;
-  	console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
+    serverState = status;
+  }
+  fatalError = !fatalError && isFatal;
+  console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
 }
 
 /*
@@ -175,6 +182,7 @@ function sendEmail(subject, message) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
 		return false;
 	}
+  console.log("sendEmail, subject: "+subject+", message: "+message);
 	var helper = require('sendgrid').mail;
 	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)

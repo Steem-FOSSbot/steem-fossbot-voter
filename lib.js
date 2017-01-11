@@ -96,8 +96,8 @@ function getSteemPowerFromVest(vest) {
   try {
     return steem.formatter.vestToSteem(
       vest,
-      parseFloat(properties.total_vesting_shares),
-      parseFloat(properties.total_vesting_fund_steem)
+      parseFloat(steemGlobalProperties.total_vesting_shares),
+      parseFloat(steemGlobalProperties.total_vesting_fund_steem)
     );
   } catch(err) {
     setError(null, false, "Error formatting owner vest shares to Steem");

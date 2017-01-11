@@ -34,6 +34,13 @@ function runBot(messageCallback) {
   if (messageCallback) {
     messageCallback("ok");
   }
+  // get posts
+  steem.api.getDiscussionsByCreated({limit: 5}, function(err, result) {
+    console.log(err, result);
+    // TODO : save posts
+  });
+  // TODO : process
+  // finish
   sendEmail("Voter bot", "Update: runBot finished with these results: [test complete]");
 }
 

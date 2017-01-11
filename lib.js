@@ -146,7 +146,7 @@ readLastPostFromFile():
 function readLastPostFromFile() {
   fs.readFile("/data/lastpost", "utf8", function (err, data) {
     if (err) {
-      setError("init_error", false, "Can't get last post from file, probably this is first server run");
+      setError(null, false, "Can't get last post from file, probably this is first server run");
     } else {
       lastFetchedPost = JSON.parse(data);
     }

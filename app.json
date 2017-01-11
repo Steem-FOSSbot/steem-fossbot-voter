@@ -9,6 +9,7 @@
   	"POSTING_KEY_PRV": "",
   	"BOT_API_KEY": "",
   	"EMAIL_ADDRESS_TO": "none",
-  	"EMAIL_ADDRESS_SENDER": "none"
+  	"EMAIL_ADDRESS_SENDER": "none",
+  	"SENDGRID_API_KEY": "none"
   }
 }

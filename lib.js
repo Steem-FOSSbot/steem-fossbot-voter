@@ -92,10 +92,22 @@ function runBot(messageCallback) {
       var deferred = Q.defer();
       // get this user's votes
       console.log(" - get this user's votes (test)");
-      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, result) {
-        console.log(err, result);
+      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
+        //console.log(err, votes);
+        var num_votes_today = 0;
+        if (err) {
+          console.log(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
+        } else {
+          for (var i = 0 ; i < votes.length ; i++) {
+            if (getEpochMillis(votes[i].time) < (1000 * 60 * 60 * 24)) {
+              num_votes_today++;
+            }
+          }
+        }
         // finish
-        deferred.resolve(true);
+        owner.num_votes_today = num_votes_today;
+        console.log(" - num_votes_today: "+num_votes_today);
+        deferred.resolve(num_votes_today > 0);
       });
       return deferred.promise;
     },

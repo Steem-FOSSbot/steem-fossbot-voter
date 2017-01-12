@@ -2,8 +2,8 @@
 
 const
 	steem = require("steem"),
-  fs = require('fs'),
-  Q = require("q");
+  Q = require("q"),
+  redis = require("redis");
 
 const
   MAX_POST_TO_READ = 20;
@@ -60,7 +60,7 @@ function runBot(messageCallback) {
     },
     // clean posts and update last fetched post
     function () {
-      console.log("Q.deffered: clean posts");
+      console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // clean, only keep new posts since last post
       if (lastFetchedPost != null) {
@@ -78,7 +78,7 @@ function runBot(messageCallback) {
         throw {message: "No new posts"};
       }
       // update last fetched post
-      saveLastPostToFile(posts[0]);
+      persistJson("lastpost", posts[0]);
       // finish
       console.log(" - num new posts: "+posts.length);
       deferred.resolve(true);
@@ -86,7 +86,7 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics
     function () {
-      console.log("Q.deffered: clean posts");
+      console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -96,7 +96,7 @@ function runBot(messageCallback) {
     },
     // calculate scores for each post
     function () {
-      console.log("Q.deffered: clean posts");
+      console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -106,7 +106,7 @@ function runBot(messageCallback) {
     },
     // choose posts to vote on based on scores
     function () {
-      console.log("Q.deffered: clean posts");
+      console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -116,7 +116,7 @@ function runBot(messageCallback) {
     },
     // cast votes to steem
     function () {
-      console.log("Q.deffered: clean posts");
+      console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -159,7 +159,15 @@ initSteem():
 function initSteem() {
   testEnvVars();
   getUserAccount();
-  readLastPostFromFile();
+  // get last post
+  getPersistentJson("lastpost", function(post) {
+    if (post != null) {
+      lastFetchedPost = post;
+      console.log("got last post, id: "+lastFetchedPost.id);
+    } else {
+      console.log("no last post, probably this is first run for server");
+    }
+  });
 }
 
 /*
@@ -200,29 +208,41 @@ function getUserAccount() {
 }
 
 /*
-readLastPostFromFile():
+persistJson(key, json):
 */
-function readLastPostFromFile() {
-  fs.readFile(__dirname + "/data/lastpost.json", "utf8", function (err, data) {
-    if (err) {
-      setError(null, false, "Can't get last post from file, probably this is first server run");
-    } else {
-      lastFetchedPost = JSON.parse(data);
+function persistJson(key, json, error) {
+  redisClient = redis.createClient();
+  redisClient.on("error", function (err) {
+    setError(null, false, "persistJson redit error for key "+key+": "+err);
+    if (error) {
+      error();
     }
   });
+  redisClient.set(key, JSON.stringify, redis.print);
+  redisClient.quit();
 }
 
 /*
-saveLastPostToFile():
+getPersistentJson(key):
 */
-function saveLastPostToFile(post) {
-  lastFetchedPost = post;
-  fs.writeFile(__dirname +"/data/lastpost.json", JSON.stringify(post), function(err) {
-    if (err) {
-        return console.log(err);
+function getPersistentJson(key, callback) {
+  redisClient = redis.createClient();
+  redisClient.on("error", function (err) {
+    setError(null, false, "getPersistentJson redit _on_ error for key "+key+": "+err);
+  });
+  client.get(key, function(err, reply) {
+    if (reply == null) {
+      setError(null, false, "getPersistentJson redit error for key "+key+": "+err);
+      if (callback) {
+        callback(null);
+      }
+    } else {
+      if (callback) {
+        callback(JSON.parse(reply));
+      }
     }
-    console.log("Last post saved to file");
-}); 
+  });
+  redisClient.quit(); 
 }
 
 /*

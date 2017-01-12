@@ -218,8 +218,9 @@ function persistJson(key, json, error) {
       error();
     }
   });
-  redisClient.set(key, JSON.stringify, redis.print);
-  redisClient.quit();
+  redisClient.set(key, JSON.stringify, function() {
+    redisClient.quit(); 
+  });
 }
 
 /*
@@ -241,8 +242,8 @@ function getPersistentJson(key, callback) {
         callback(JSON.parse(reply));
       }
     }
+    redisClient.quit(); 
   });
-  redisClient.quit(); 
 }
 
 /*

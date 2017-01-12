@@ -124,10 +124,10 @@ function runBot(messageCallback) {
       //console.log(" - ");
       postsMetrics = [];
       for (var i = 0 ; i < posts.length ; i++) {
-        console.log(" - post ["+post[i].permlink+"]");
+        console.log(" - post ["+posts[i].permlink+"]");
         var metric = {};
         // metrics.post.alive_time: Time since post, in minutes
-        var postTimeStamp = getEpochMillis(votes[i].time);
+        var postTimeStamp = getEpochMillis(posts[i].created);
         var alive_time = 0;
         if (postTimeStamp != 0) {
           alive_time = (timeNow - postTimeStamp) / (1000 * 60);
@@ -139,6 +139,7 @@ function runBot(messageCallback) {
         console.log(" - - metrics.post.est_payout: "+metric.est_payout);
         //metrics.post.num_votes: Number of votes
         metric.num_votes = posts[i].net_votes;
+        console.log(" - - metrics.post.num_votes: "+metric.num_votes);
         // finish metric
         postsMetrics.push(metric);
       }

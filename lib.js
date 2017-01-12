@@ -3,7 +3,8 @@
 const
 	steem = require("steem"),
   Q = require("q"),
-  redis = require("redis");
+  redis = require("redis"),
+  redisClient = require('redis').createClient(process.env.REDIS_URL);
 
 const
   MAX_POST_TO_READ = 20;
@@ -211,7 +212,6 @@ function getUserAccount() {
 persistJson(key, json):
 */
 function persistJson(key, json, error) {
-  var redisClient = redis.createClient();
   redisClient.on("error", function (err) {
     setError(null, false, "persistJson redit error for key "+key+": "+err);
     if (error) {
@@ -219,7 +219,7 @@ function persistJson(key, json, error) {
     }
   });
   redisClient.set(key, JSON.stringify, function() {
-    redisClient.quit(); 
+    console.log("persistJson save for key "+key);
   });
 }
 
@@ -227,7 +227,6 @@ function persistJson(key, json, error) {
 getPersistentJson(key):
 */
 function getPersistentJson(key, callback) {
-  var redisClient = redis.createClient();
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentJson redit _on_ error for key "+key+": "+err);
   });
@@ -242,7 +241,6 @@ function getPersistentJson(key, callback) {
         callback(JSON.parse(reply));
       }
     }
-    redisClient.quit(); 
   });
 }
 

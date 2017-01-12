@@ -17,7 +17,7 @@ var steemGlobalProperties = {};
 var metrics = {};
 var owner = {};
 var posts = [];
-var lastFetchedPost = null;
+var lastPost = null;
 
 
 /*
@@ -64,10 +64,10 @@ function runBot(messageCallback) {
       console.log("Q.deferred: clean posts");
       var deferred = Q.defer();
       // clean, only keep new posts since last post
-      if (lastFetchedPost != null) {
+      if (lastPost != null) {
         var cleanedPosts = [];
         for (var i = 0 ; i < posts.length ; i++) {
-          if (posts[i].id == lastFetchedPost.id) {
+          if (posts[i].id == lastPost.id) {
             break;
           }
           cleanedPosts.push(posts[i]);
@@ -79,7 +79,8 @@ function runBot(messageCallback) {
         throw {message: "No new posts"};
       }
       // update last fetched post
-      persistJson("lastpost", posts[0]);
+      lastPost = posts[0];
+      persistJson("lastpost", lastPost);
       // finish
       console.log(" - num new posts: "+posts.length);
       deferred.resolve(true);
@@ -163,8 +164,8 @@ function initSteem() {
   // get last post
   getPersistentJson("lastpost", function(post) {
     if (post != null) {
-      lastFetchedPost = post;
-      console.log("got last post, id: "+lastFetchedPost.id);
+      lastPost = post;
+      console.log("got last post, id: "+lastPost.id);
     } else {
       console.log("no last post, probably this is first run for server");
     }

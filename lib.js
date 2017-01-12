@@ -14,9 +14,11 @@ var fatalError = false;
 var serverState = "stopped";
 
 var steemGlobalProperties = {};
-var metrics = {};
+
+// data and metrics
 var owner = {};
 var posts = [];
+var postsMetrics = [];
 var lastPost = null;
 
 
@@ -91,10 +93,10 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics 1, get owner metrics 
     function () {
-      console.log("Q.deferred: transform post data to metrics");
+      console.log("Q.deferred: transform post data to metrics 1, get owner metrics ");
       var deferred = Q.defer();
       // get this user's votes
-      console.log(" - get this user's votes (test)");
+      console.log(" - count this user's votes today");
       steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
         //console.log(err, votes);
         var num_votes_today = 0;
@@ -112,6 +114,37 @@ function runBot(messageCallback) {
         console.log(" - num_votes_today: "+num_votes_today);
         deferred.resolve(num_votes_today > 0);
       });
+      return deferred.promise;
+    },
+    // transform post data to metrics 2, post metrics
+    function () {
+      console.log("Q.deferred: transform post data to metrics 2, post metrics");
+      var deferred = Q.defer();
+      // create metrics for posts
+      //console.log(" - ");
+      postsMetrics = [];
+      for (var i = 0 ; i < posts.length ; i++) {
+        console.log(" - post ["+post[i].permlink+"]");
+        var metric = {};
+        // metrics.post.alive_time: Time since post, in minutes
+        var postTimeStamp = getEpochMillis(votes[i].time);
+        var alive_time = 0;
+        if (postTimeStamp != 0) {
+          alive_time = (timeNow - postTimeStamp) / (1000 * 60);
+        }
+        metric.alive_time = alive_time;
+        console.log(" - - metrics.post.alive_time: "+metric.alive_time);
+        //metrics.post.est_payout: Estimated payout
+        metric.est_payout = parseFloat(posts[i].total_pending_payout_value);
+        console.log(" - - metrics.post.est_payout: "+metric.est_payout);
+        //metrics.post.num_votes: Number of votes
+        metric.num_votes = posts[i].net_votes;
+        // finish metric
+        postsMetrics.push(metric);
+      }
+      // finish
+      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      deferred.resolve(true);
       return deferred.promise;
     },
     // calculate scores for each post

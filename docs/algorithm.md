@@ -86,7 +86,10 @@ _Note: All data current at time of sample_
 1. ```metrics.post.alive_time```: Time since post, in minutes
 2. ```metrics.post.est_payout```: Estimated payout
 3. ```metrics.post.num_votes```: Number of votes
-4. ```metrics.post.num_downvotes```: Number of flags / downvotes
+
+**Can't access from API**
+
+~~metrics.post.num_downvotes: Number of flags / downvotes~~
 
 #### Post - votes in detail
 
@@ -96,17 +99,17 @@ _Note: we'll skip the minnows when testing votes!_
 
 1. ```metrics.post.voted_num_dolphin```: Number of voters with captial category _dolphin_ who voted on post
 2. ```metrics.post.voted_num_whale```: Number of voters with captial category _whale_ who voted on post
-3. ```matrics.author.voted_num_followed```: Number of followed voters who voted on post
-4. ```matrics.author.voted_num_whitelisted```: Number of whitelisted voters who voted on post
-5. ```matrics.author.voted_num_blacklisted```: Number of blacklisted voters who voted on post
+3. ```matrics.post.voted_num_followed```: Number of followed voters who voted on post
+4. ```matrics.post.voted_num_whitelisted```: Number of whitelisted voters who voted on post
+5. ```matrics.post.voted_num_blacklisted```: Number of blacklisted voters who voted on post
 
 ##### Boolean
 
 1. ```metrics.post.voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post (false = 0, true = 1)
 2. ```metrics.post.voted_any_whale```: At least one voter with captial category _whale_ as voted on post (false = 0, true = 1)
-3. ```matrics.author.voted_any_followed```: At least one followed voter voted on post (false = 0, true = 1)
-4. ```matrics.author.voted_any_whitelisted```: At least one whitelist voter voted on post (false = 0, true = 1)
-5. ```matrics.author.voted_any_blacklisted```: At least one blacklist voter voted on post (false = 0, true = 1)
+3. ```matrics.post.voted_any_followed```: At least one followed voter voted on post (false = 0, true = 1)
+4. ```matrics.post.voted_any_whitelisted```: At least one whitelist voter voted on post (false = 0, true = 1)
+5. ```matrics.post.voted_any_blacklisted```: At least one blacklist voter voted on post (false = 0, true = 1)
 
 #### Author of Post
 

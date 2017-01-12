@@ -219,7 +219,7 @@ function persistJson(key, json, error) {
       error();
     }
   });
-  redisClient.set(key, JSON.stringify, function() {
+  redisClient.set(key, JSON.stringify(json), function() {
     console.log("persistJson save for key "+key);
   });
 }
@@ -239,7 +239,12 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        callback(JSON.parse(reply));
+        try {
+          var json = JSON.parse(reply);
+          callback(json);
+        } catch(err) {
+          callback(null);
+        }
       }
     }
   });

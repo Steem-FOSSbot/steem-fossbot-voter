@@ -42,6 +42,9 @@ function runBot(messageCallback) {
     messageCallback("ok");
   }
   // begin bot logic, use promises with Q
+  // some general vars
+  var timeNow = new Date();
+  // define steps processes
   var processes = [
     // get posts
     function () {
@@ -99,7 +102,7 @@ function runBot(messageCallback) {
           console.log(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
-            if (getEpochMillis(votes[i].time) < (1000 * 60 * 60 * 24)) {
+            if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
               num_votes_today++;
             }
           }

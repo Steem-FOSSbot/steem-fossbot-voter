@@ -230,7 +230,7 @@ function getPersistentJson(key, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentJson redit _on_ error for key "+key+": "+err);
   });
-  client.get(key, function(err, reply) {
+  redisClient.get(key, function(err, reply) {
     if (reply == null) {
       setError(null, false, "getPersistentJson redit error for key "+key+": "+err);
       if (callback) {

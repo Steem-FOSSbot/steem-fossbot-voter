@@ -86,19 +86,22 @@ function runBot(messageCallback) {
       deferred.resolve(true);
       return deferred.promise;
     },
-    // transform post data to metrics
+    // transform post data to metrics 1, get owner metrics 
     function () {
-      console.log("Q.deferred: clean posts");
+      console.log("Q.deferred: transform post data to metrics");
       var deferred = Q.defer();
-      // TODO : work
-      console.log(" - TODO");
-      // finish
-      deferred.resolve(true);
+      // get this user's votes
+      console.log(" - get this user's votes (test)");
+      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, result) {
+        console.log(err, result);
+        // finish
+        deferred.resolve(true);
+      });
       return deferred.promise;
     },
     // calculate scores for each post
     function () {
-      console.log("Q.deferred: clean posts");
+      console.log("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -108,7 +111,7 @@ function runBot(messageCallback) {
     },
     // choose posts to vote on based on scores
     function () {
-      console.log("Q.deferred: clean posts");
+      console.log("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");
@@ -118,7 +121,7 @@ function runBot(messageCallback) {
     },
     // cast votes to steem
     function () {
-      console.log("Q.deferred: clean posts");
+      console.log("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
       // TODO : work
       console.log(" - TODO");

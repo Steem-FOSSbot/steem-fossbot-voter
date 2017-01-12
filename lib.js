@@ -211,7 +211,7 @@ function getUserAccount() {
 persistJson(key, json):
 */
 function persistJson(key, json, error) {
-  redisClient = redis.createClient();
+  var redisClient = redis.createClient();
   redisClient.on("error", function (err) {
     setError(null, false, "persistJson redit error for key "+key+": "+err);
     if (error) {
@@ -226,7 +226,7 @@ function persistJson(key, json, error) {
 getPersistentJson(key):
 */
 function getPersistentJson(key, callback) {
-  redisClient = redis.createClient();
+  var redisClient = redis.createClient();
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentJson redit _on_ error for key "+key+": "+err);
   });

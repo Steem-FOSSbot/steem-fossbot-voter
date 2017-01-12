@@ -203,7 +203,7 @@ function getUserAccount() {
 readLastPostFromFile():
 */
 function readLastPostFromFile() {
-  fs.readFile(__dirname + "/data/lastpost", "utf8", function (err, data) {
+  fs.readFile(__dirname + "/data/lastpost.json", "utf8", function (err, data) {
     if (err) {
       setError(null, false, "Can't get last post from file, probably this is first server run");
     } else {
@@ -217,7 +217,7 @@ saveLastPostToFile():
 */
 function saveLastPostToFile(post) {
   lastFetchedPost = post;
-  fs.writeFile(__dirname +"/data/lastpost", JSON.stringify(post), function(err) {
+  fs.writeFile(__dirname +"/data/lastpost.json", JSON.stringify(post), function(err) {
     if (err) {
         return console.log(err);
     }

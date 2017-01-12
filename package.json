@@ -1,6 +1,6 @@
 {
   "name": "Voter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A curation bot built for the Steemit social media platform, decides which posts to vote for and casts vote on behalf of a registered user",
   "main": "server.js",
   "scripts": {
@@ -24,6 +24,8 @@
     "body-parser": "^1.13.3",
     "express": "^4.13.3",
     "steem": "0.3.31",
-    "sendgrid": "^4.2.0"
+    "sendgrid": "^4.2.0",
+    "q": "1.4.1",
+    "redis": "2.6.3"
   }
 }

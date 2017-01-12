@@ -31,6 +31,12 @@ The operations you can perform are:
 
 ## Installation
 
+### Locally (Desktop)
+
+**TODO**
+
+### On Heroku
+
 _Note, the dashboard is not currently functional, instead you'll find a placeholder webpage._
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
@@ -52,6 +58,7 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 	3. **BOT_API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
 	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
 	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
+	6. **SENDGRID_API_KEY** (optional), set to SendGrid API key, _which you will set up later_ if you want email notifications, so leave as default 'none' for now
 
 You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
 

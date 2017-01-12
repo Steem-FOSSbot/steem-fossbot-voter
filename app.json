@@ -3,12 +3,13 @@
   "description": "A curation bot built for the Steemit social media platform, decides which posts to vote for and casts vote on behalf of a registered user",
   "repository": "https://github.com/evm2p/fossbot",
   "keywords": ["node", "foss", "server", "steemit", "curation", "voting"],
-  "addons": ["scheduler:standard", "sendgrid:starter"],
+  "addons": ["scheduler:standard", "sendgrid:starter", "heroku-redis:hobby-dev"],
   "env": {
   	"STEEM_USER": "",
   	"POSTING_KEY_PRV": "",
   	"BOT_API_KEY": "",
   	"EMAIL_ADDRESS_TO": "none",
-  	"EMAIL_ADDRESS_SENDER": "none"
+  	"EMAIL_ADDRESS_SENDER": "none",
+  	"SENDGRID_API_KEY": "none"
   }
 }

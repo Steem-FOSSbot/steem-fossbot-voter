@@ -65,11 +65,11 @@ function runBot(messageCallback) {
       // clean, only keep new posts since last post
       if (lastFetchedPost != null) {
         var cleanedPosts = [];
-        for (post in posts) {
-          if (post.id == lastFetchedPost.id) {
+        for (var i = 0 ; i < posts.length ; i++) {
+          if (posts[i].id == lastFetchedPost.id) {
             break;
           }
-          cleanedPosts.push(post);
+          cleanedPosts.push(posts[i]);
         }
         posts = cleanedPosts;
       }

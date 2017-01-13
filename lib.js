@@ -37,6 +37,7 @@ var weights = [];
 var posts = [];
 var lastPost = null;
 var users = [];
+var following = [];
 // metrics
 var owner = {};
 var postsMetrics = [];
@@ -233,7 +234,11 @@ function runBot(messageCallback) {
               numDolphins++;
             }
             // determine if followed, count
-            // TODO
+            for (var k = 0 ; k < following.length ; k++) {
+              if (following[k] && following[k].localeCompare(voter)) {
+                numFollowed++;
+              }
+            }
             // determine if white / blacklisted, count
             for (var k = 0 ; k < authorWhitelist.length ; k++) {
               if (authorWhitelist[k] && authorWhitelist[k].localeCompare(voter)) {
@@ -375,9 +380,17 @@ function getUserAccount() {
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get followers
-          steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function(err, result) {
+          steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function(err, followersResult) {
             console.log("getFollowing");
-            console.log(err, result);
+            following = [];
+            if (err) {
+              setError("init_error", false, "Can't get following accounts");
+            } else {
+              for (var i = 0 ; i < followersResult.length ; i++) {
+                following.push(followersResult.following);
+              }
+            }
+            console.log(""+process.env.STEEM_USER+" follows: "+following);
           });
           // log owner object
           console.log("owner: "+JSON.stringify(owner));

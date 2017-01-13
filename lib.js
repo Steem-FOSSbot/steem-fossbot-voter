@@ -231,18 +231,18 @@ function runBot(messageCallback) {
             }
             // determine if followed, count
             for (var k = 0 ; k < following.length ; k++) {
-              if (following[k] && following[k].localeCompare(voter)) {
+              if (following[k] && following[k].localeCompare(voter) == 0) {
                 numFollowed++;
               }
             }
             // determine if white / blacklisted, count
             for (var k = 0 ; k < authorWhitelist.length ; k++) {
-              if (authorWhitelist[k] && authorWhitelist[k].localeCompare(voter)) {
+              if (authorWhitelist[k] && authorWhitelist[k].localeCompare(voter) == 0) {
                 numWhitelisted++;
               }
             }
             for (var k = 0 ; k < authorBlacklist.length ; k++) {
-              if (authorBlacklist[k] && authorBlacklist[k].localeCompare(voter)) {
+              if (authorBlacklist[k] && authorBlacklist[k].localeCompare(voter) == 0) {
                 numBlacklisted++;
               }
             }

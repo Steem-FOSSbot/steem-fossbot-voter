@@ -26,8 +26,8 @@ var steemGlobalProperties = {};
 // - lists
 var contentWordWhitelist = [];
 var contentWordBlacklist = [];
-var authorsWhitelist = [];
-var authorsBlacklist = [];
+var authorWhitelist = [];
+var authorBlacklist = [];
 var domainWhitelist = [];
 var domainBlacklist = [];
 // - main

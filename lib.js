@@ -5,7 +5,7 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary")({minFreq: 2, collapse: true}),
+  glossary = require("glossary")({minFreq: 3, collapse: true}),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -21,6 +21,9 @@ const
   CAPITAL_DOLPHIN_MIN = 25000,
   CAPITAL_WHALE_MIN = 100000,
   MIN_KEYWORD_LEN = 3;
+
+const
+  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])+");
 
 /* Private variables */
 var fatalError = false;
@@ -336,17 +339,20 @@ function runBot(messageCallback) {
         console.log(" - post ["+posts[i].permlink+"]");
         var nlp = {};
         // sanitize body content, make plaintext, remove HTML tags and non-latin characters
-        nlp.content = S(posts[i].body)
+        nlp.content = posts[i].body;
+        nlp.content = new String(stripMarkdownProcessor.process(nlp.content));
+        nlp.content = S(nlp.content)
           .decodeHTMLEntities()
           .unescapeHTML()
           .stripTags()
           .latinise()
           .s;
         // remove markdown formatting
-        nlp.content = new String(stripMarkdownProcessor.process(nlp.content));
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords from alphanumberic only
-        var keywords = glossary.extract(nlp.content.replace("([^a-zA-Z0-9])+",""));
+        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex,"");
+        console.log(" - - - alphaNumericContent: "+alphaNumericContent);
+        var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];
         var removedCount = 0;

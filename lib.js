@@ -5,7 +5,7 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary")({minFreq: 2}),
+  glossary = require("glossary")({minFreq: 2, collapse: true}),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -19,7 +19,8 @@ const
 const
   MAX_POST_TO_READ = 100,
   CAPITAL_DOLPHIN_MIN = 25000,
-  CAPITAL_WHALE_MIN = 100000;
+  CAPITAL_WHALE_MIN = 100000,
+  MIN_KEYWORD_LEN = 3;
 
 /* Private variables */
 var fatalError = false;
@@ -334,19 +335,30 @@ function runBot(messageCallback) {
       for (var i = 0 ; i < posts.length ; i++) {
         console.log(" - post ["+posts[i].permlink+"]");
         var nlp = {};
-        // remove html tags from content, if any
+        // sanitize body content, make plaintext, remove HTML tags and non-latin characters
         nlp.content = S(posts[i].body)
           .decodeHTMLEntities()
           .unescapeHTML()
           .stripTags()
           .latinise()
           .s;
+        // remove markdown formatting
         nlp.content = new String(stripMarkdownProcessor.process(nlp.content));
         console.log(" - - nlp.content: "+nlp.content);
-        // get keywords
-        console.log(" - - extracting keywords...");
-        nlp.keywords = glossary.extract(nlp.content);
+        // get keywords from alphanumberic only
+        var keywords = glossary.extract(nlp.content.replace("([^a-zA-Z0-9])+",""));
+        // remove keywords less than MIN_KEYWORD_LEN letters long
+        nlp.keywords = [];
+        var removedCount = 0;
+        for (var j = 0 ; j < keywords.length ; j++) {
+          if (keywords[j].length >= MIN_KEYWORD_LEN) {
+            nlp.keywords,push(keywords[j]);
+          } else {
+            removedCount++;
+          }
+        }
         console.log(" - - nlp.keywords: "+nlp.keywords);
+        console.log(" - - - removed "+removedCount+" short keywords");
         // commit to postsNlp
         postsNlp.push(nlp);
         console.log(" - - nlp done on post");

@@ -63,15 +63,29 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 ## Metrics
 
+##### Note in general
+
 All metrics show the key name first, then a short description
 
 Metric key in object access format, and roughly maps to an internal JavaScript object, but should be considered an arbitrary String key
 
-**Note**: capital category (minnow, dolphin, whale) is defined as
+##### Note on capital category
+
+Capital category (minnow, dolphin, whale) is defined as
 
 - _Minnow_ has capital < 25,000 Steem Power
 - _Dolphin_ has capital >= 25,000 and < 100,000 Steem Power
 - _Whale_ has as capital >= 100,000 Steem Power
+
+##### Note on white / blacklists
+
+A whitelist and blacklist is supplied for the following:
+
+- Content words
+- Authors
+- Domains
+
+The way these are used depends on the metric. They can be empty and will then have no effect.
 
 ### Strategic metrics
 
@@ -124,12 +138,6 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Boolean
 
-Note, author capital category (minnow, dolphin, whale) is defined as
-
-- _Minnow_ has capital < 25,000 Steem Power
-- _Dolphin_ has capital >= 25,000 and < 100,000 Steem Power
-- _Whale_ has as capital >= 100,000 Steem Power
-
 1. ```metrics.author.is_minnow```: Capital category is _minnow_ (false = 0, true = 1)
 2. ```metrics.author.is_dolphin```: Capital category is _dolphin_ (false = 0, true = 1)
 3. ```metrics.author.is_whale```: Capital category is _whale_ (false = 0, true = 1)
@@ -138,14 +146,6 @@ Note, author capital category (minnow, dolphin, whale) is defined as
 6. ```matrics.author.is_blacklisted```: Presence of author on blacklist (false = 0, true = 1)
 
 ### Cultural metrics
-
-A whitelist and blacklist is supplied for the following:
-
-- Content words
-- Authors
-- Domains
-
-The way these are used depends on the metric. They can be empty and will then have no effect.
 
 #### Content - Text
 

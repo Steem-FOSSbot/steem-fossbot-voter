@@ -7,13 +7,31 @@ const
   redisClient = require('redis').createClient(process.env.REDIS_URL);
 
 const
-  MAX_POST_TO_READ = 20;
+  MINNOW = 0,
+  DOLPHIN = 1,
+  WHALE = 2;
+
+const
+  MAX_POST_TO_READ = 20
+  CAPITAL_DOLPHIN_MIN = 25000,
+  CAPITAL_WHALE_MIN = 100000;
 
 /* Private variables */
 var fatalError = false;
 var serverState = "stopped";
 
 var steemGlobalProperties = {};
+
+// algorithm
+// - lists
+var contentWordWhitelist = [];
+var contentWordBlacklist = [];
+var authorsWhitelist = [];
+var authorsBlacklist = [];
+var domainWhitelist = [];
+var domainBlacklist = [];
+// - main
+var weights = [];
 
 // data
 var posts = [];
@@ -143,12 +161,104 @@ function runBot(messageCallback) {
         metric.num_votes = posts[i].net_votes;
         console.log(" - - metrics.post.num_votes: "+metric.num_votes);
         // *** VOTES IN DETAIL
-        console.log(" - - * VOTES IN DETAIL");
+        // note, should do this last, has complex nesting that we need to use Q to sort out
+        //console.log(" - - * VOTES IN DETAIL");
+        var voters = [];
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
-          console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          var voter = posts[i].active_votes[j].voter;
+          // make sure this voter isn't the owner user
+          if (voter.localeCompare(process.env.STEEM_USER) != 0) {
+            if (!users[voter]) {
+              voters.push(voter);
+            }
+          }
         }
-        // finish metric
-        postsMetrics.push(metric);
+        if (voters.length > 0) {
+          // get user info
+          steem.api.getAccounts(voters, function(err, userAccounts) {
+            if (err) {
+              console.log(" - error, can't get "+voter+" votes: "+err.message);
+            } else {
+              for (var k = 0 ; k < userAccounts.length ; k++) { 
+                users[userAccounts[k].name] = userAccounts[k];
+              }
+            }
+            postsMetrics.push(metric);
+            if (postsMetrics.length == posts.length) {
+              console.log(" - - finished getting voters for post");
+              deferred.resolve(true);
+            }
+          });
+        } else {
+          // finish metric
+          postsMetrics.push(metric);
+        }
+      }
+      // only finish if all async tasks done, otherwise let task do work
+      if (postsMetrics.length == posts.length) {
+        console.log(" - - finished getting voters for post");
+        deferred.resolve(true);
+      }
+      // finish
+      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      return deferred.promise;
+    },
+    // transform post data to metrics 3, analyse votes
+    function () {
+      console.log("Q.deferred: transform post data to metrics 3, analyse votes");
+      var deferred = Q.defer();
+      // analyse votes for posts
+      for (var i = 0 ; i < postsMetrics.length ; i++) {
+        console.log(" - postsMetrics ["+i+"]");
+        // *** VOTES IN DETAIL
+        // note, should do this last, has complex nesting that we need to use Q to sort out
+        //console.log(" - - * VOTES IN DETAIL");
+        var numDolphins = 0;
+        var numWhales = 0;
+        var numFollowed = 0;
+        var numWhitelisted = 0;
+        var numBlacklisted = 0;
+        for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
+          //console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          var voter = posts[i].active_votes[j].voter;
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
+              && users[voter]) {
+            var voterAccount = users[voter];
+            // determine if dolphin or whale, count
+            var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
+            if (steemPower >= CAPITAL_WHALE_MIN) {
+              numWhales++;
+            } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
+              numDolphins++;
+            }
+            // determine if followed, count
+            // TODO
+            // determine if white / blacklisted, count
+            for (var k = 0 ; k < authorWhitelist.length ; k++) {
+              if (authorWhitelist[k] && authorWhitelist[k].localeCompare(voter)) {
+                numWhitelisted++;
+              }
+            }
+            for (var k = 0 ; k < authorsBlacklist.length ; k++) {
+              if (authorsBlacklist[k] && authorsBlacklist[k].localeCompare(voter)) {
+                numBlacklisted++;
+              }
+            }
+          }
+        }
+        // numeric
+        postsMetrics[i].voted_num_dolphin = numDolphins;
+        postsMetrics[i].voted_num_whale = numWhales;
+        postsMetrics[i].voted_num_followed = numFollowed;
+        postsMetrics[i].voted_num_whitelisted = numWhitelisted;
+        postsMetrics[i].voted_num_blacklisted = numBlacklisted;
+        // boolean
+        postsMetrics[i].voted_any_dolphin = numDolphins > 0;
+        postsMetrics[i].voted_any_whale = numWhales > 0;
+        postsMetrics[i].voted_any_followed = numFollowed > 0;
+        postsMetrics[i].voted_any_whitelisted = numWhitelisted > 0;
+        postsMetrics[i].voted_any_blacklisted = numBlacklisted > 0;
       }
       // finish
       console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
@@ -156,7 +266,7 @@ function runBot(messageCallback) {
       return deferred.promise;
     },
     // calculate scores for each post
-    function () {
+    function (metric) {
       console.log("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
       // TODO : work
@@ -206,6 +316,10 @@ function runBot(messageCallback) {
     setError("stopped", false, err.message);
     sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
+}
+
+function runBotHelper_createVoterDetailsToPostsMetrics(voter) {
+
 }
 
 
@@ -260,6 +374,11 @@ function getUserAccount() {
             steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
+          // get followers
+          steem.api.getFollowing(process.env.STEEM_USER, null, null, 1000, function(err, result) {
+            console.log("getFollowing");
+            console.log(err, result);
+          });
           // log owner object
           console.log("owner: "+JSON.stringify(owner));
         });

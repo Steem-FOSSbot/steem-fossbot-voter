@@ -1,7 +1,8 @@
 'use strict';
 
 const
-  alphanumOnlyRegex = new RegExp("[^a-zA-Z0-9]"),
+  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])"),
+  urlRegex = new RegExp("(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])?"),
   glossaryBlacklist = ["http", "https"];
 
 const
@@ -351,7 +352,7 @@ function runBot(messageCallback) {
         // remove markdown formatting
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords from alphanumberic only
-        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ");
+        var alphaNumericContent = nlp.content.replaceAll(alphanumOnlyRegex," ");
         console.log(" - - - alphaNumericContent: "+alphaNumericContent);
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
@@ -366,6 +367,9 @@ function runBot(messageCallback) {
         }
         console.log(" - - nlp.keywords: "+nlp.keywords);
         console.log(" - - - removed "+removedCount+" short keywords");
+        // get all url links
+        nlp.urls = urlRegex.exec(nlp.content);
+        console.log(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // commit to postsNlp
         postsNlp.push(nlp);
         console.log(" - - nlp done on post");

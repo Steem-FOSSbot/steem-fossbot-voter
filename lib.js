@@ -1,8 +1,8 @@
 'use strict';
 
 const
-  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])", 'g'),
-  urlRegex = new RegExp("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?"),
+  alphanumOnlyRegex = /([^a-zA-Z0-9])/g;
+  urlRegex = /(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?/g,
   glossaryBlacklist = ["http", "https", "img", "I ve", "I m"];
 
 const

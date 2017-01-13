@@ -5,7 +5,8 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  unfluff = require('unfluff');
+  glossary = require("glossary"),
+  S = require('string');
 
 const
   MINNOW = 0,
@@ -330,9 +331,17 @@ function runBot(messageCallback) {
       for (var i = 0 ; i < posts.length ; i++) {
         console.log(" - post ["+posts[i].permlink+"]");
         var nlp = {};
-        // test try unfluff for content extraction
-        nlp.unfluffed = unfluff(posts[i].body);
-        console.log(" - - unfluffed: "+JSON.stringify(nlp.unfluffed));
+        // remove html tags from content, if any
+        nlp.content = S(posts[i].body)
+          .decodeHTMLEntities()
+          .unescapeHTML()
+          .stripTags()
+          .latinise()
+          .s;
+        console.log(" - - nlp.content: "+nlp.content);
+        // get keywords
+        nlp.keywords = glossary.extract(nlp.content);
+        console.log(" - - nlp.keywords: "+nlp.keywords);
         // commit to postsNlp
         postsNlp.push(nlp);
       }

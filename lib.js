@@ -395,7 +395,7 @@ function runBot(messageCallback) {
               console.log(" - - nlp.sentiment: "+nlp.sentiment);
               postsNlp.push(nlp);
               // count words using tree, i.e. count WordNode instances
-              nlp.num_words = countWordsFromRetext(tree, 0);
+              nlp.num_words = countWordsFromRetext(tree);
               console.log(" - - nlp.num_words: "+nlp.num_words);
               // commit to postsNlp
               console.log(" - - nlp done on post");
@@ -463,17 +463,19 @@ function runBot(messageCallback) {
   });
 }
 
-function countWordsFromRetext(obj, val) {
+function countWordsFromRetext(obj) {
   if (obj != null) {
     if (obj.type && obj.type.localeCompare("WordNode")) {
-      val += 1;
+      return 1;
     } else if (obj.children && obj.children.length > 0) {
+      var sum = 0;
       for (var i = 0 ; i < obj.children.length ; i++) {
-        val += countWordsFromRetext(obj.children[i], val);
+        sum += countWordsFromRetext(obj.children[i]);
       }
+      return sum;
     }
   }
-  return val;
+  return 0;
 }
 
 /*

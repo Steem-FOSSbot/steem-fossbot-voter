@@ -342,7 +342,7 @@ function runBot(messageCallback) {
       console.log("Q.deferred: transform post data to metrics 5, cultural metrics prestep, get NLP data");
       var deferred = Q.defer();
       postsNlp = [];
-      postCount = 0;
+      var postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         console.log(" - post ["+posts[i].permlink+"]");
         var nlp = {};

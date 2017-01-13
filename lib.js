@@ -241,8 +241,8 @@ function runBot(messageCallback) {
                 numWhitelisted++;
               }
             }
-            for (var k = 0 ; k < authorsBlacklist.length ; k++) {
-              if (authorsBlacklist[k] && authorsBlacklist[k].localeCompare(voter)) {
+            for (var k = 0 ; k < authorBlacklist.length ; k++) {
+              if (authorBlacklist[k] && authorBlacklist[k].localeCompare(voter)) {
                 numBlacklisted++;
               }
             }

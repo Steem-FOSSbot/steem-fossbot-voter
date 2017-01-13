@@ -375,7 +375,7 @@ function getUserAccount() {
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get followers
-          steem.api.getFollowing(process.env.STEEM_USER, null, null, 1000, function(err, result) {
+          steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function(err, result) {
             console.log("getFollowing");
             console.log(err, result);
           });

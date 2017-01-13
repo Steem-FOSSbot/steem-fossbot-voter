@@ -4,7 +4,8 @@ const
 	steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
-  redisClient = require('redis').createClient(process.env.REDIS_URL);
+  redisClient = require('redis').createClient(process.env.REDIS_URL),
+  unfluff = require('unfluff');
 
 const
   MINNOW = 0,
@@ -35,6 +36,7 @@ var weights = [];
 
 // data
 var posts = [];
+var postsNlp = [];
 var lastPost = null;
 var users = [];
 var following = [];
@@ -320,8 +322,26 @@ function runBot(messageCallback) {
       deferred.resolve(true);
       return deferred.promise;
     },
+    // transform post data to metrics 5, cultural metrics, content - text
+    function () {
+      console.log("Q.deferred: transform post data to metrics 5, cultural metrics prestep, get NLP data");
+      var deferred = Q.defer();
+      postsNlp = [];
+      for (var i = 0 ; i < posts.length ; i++) {
+        console.log(" - post ["+posts[i].permlink+"]");
+        var nlp = {};
+        // test try unfluff for content extraction
+        nlp.unfluffed = unfluff(posts[i].body);
+        console.log(" - - unfluffed: "+JSON.stringify(nlp.unfluffed));
+        // commit to postsNlp
+        postsNlp.push(nlp);
+      }
+      // finish
+      deferred.resolve(true);
+      return deferred.promise;
+    },
     // calculate scores for each post
-    function (metric) {
+    function () {
       console.log("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
       // TODO : work

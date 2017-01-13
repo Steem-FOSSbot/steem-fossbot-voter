@@ -2,7 +2,7 @@
 
 const
   alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])"),
-  urlRegex = new RegExp("(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])?"),
+  urlRegex = new RegExp("(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?"),
   glossaryBlacklist = ["http", "https"];
 
 const

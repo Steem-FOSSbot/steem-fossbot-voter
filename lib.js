@@ -274,7 +274,7 @@ function runBot(messageCallback) {
         // check we have author account, we should
         if (users[posts[i].author]) {
           // get capital value
-          var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
+          var steemPower = getSteemPowerFromVest(users[posts[i].author].vesting_shares);
           //metrics.author.capital_val: Capital (Steem Power) by value 
           postsMetrics[i].author_capital_val = steemPower; 
           if (steemPower >= CAPITAL_WHALE_MIN) {

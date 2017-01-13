@@ -341,13 +341,15 @@ function runBot(messageCallback) {
           .stripTags()
           .latinise()
           .s;
-        nlp.content = stripMarkdownProcessor.process(nlp.content);
+        nlp.content = new String(stripMarkdownProcessor.process(nlp.content));
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords
+        console.log(" - - extracting keywords...");
         nlp.keywords = glossary.extract(nlp.content);
         console.log(" - - nlp.keywords: "+nlp.keywords);
         // commit to postsNlp
         postsNlp.push(nlp);
+        console.log(" - - nlp done on post");
       }
       // finish
       deferred.resolve(true);

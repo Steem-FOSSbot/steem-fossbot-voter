@@ -465,7 +465,7 @@ function runBot(messageCallback) {
 
 function countWordsFromRetext(obj, val) {
   if (obj != null) {
-    if (obj.type and obj.type.localeCompare("WordNode")) {
+    if (obj.type && obj.type.localeCompare("WordNode")) {
       val += 1;
     } else if (obj.children && obj.children.length > 0) {
       for (var i = 0 ; i < obj.children.length ; i++) {

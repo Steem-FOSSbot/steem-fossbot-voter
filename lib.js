@@ -2,7 +2,7 @@
 
 const
   alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])", 'g'),
-  urlRegex = new RegExp("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?", 'ig'),
+  urlRegex = new RegExp("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?", 'g'),
   glossaryBlacklist = ["http", "https", "img", "I ve", "I m"];
 
 const
@@ -368,7 +368,11 @@ function runBot(messageCallback) {
         console.log(" - - nlp.keywords: "+nlp.keywords);
         console.log(" - - - removed "+removedCount+" short keywords");
         // get all url links
-        nlp.urls = urlRegex.exec(nlp.content);
+        nlp.urls = [];
+        var urlResult;
+        while((urlResult = urlRegex.exec(nlp.content)) !== null) {
+          nlp.urls.push(urlResult[0]);
+        }
         console.log(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // commit to postsNlp
         postsNlp.push(nlp);

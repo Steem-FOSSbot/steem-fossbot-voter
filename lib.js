@@ -3,7 +3,10 @@
 const
   alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])", 'g'),
   urlRegex = new RegExp("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?", 'g'),
-  glossaryBlacklist = ["http", "https", "img", "I ve", "I m"];
+  glossaryBlacklist = ["http", "https", "I ve"],
+  imagesExt = ["tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif", "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png",
+      "svg", "xcf", "bmp", "img", "ico"],
+  videoDomains = ["youtube","youtu.be", "vimeo"];
 
 const
 	steem = require("steem"),
@@ -14,7 +17,10 @@ const
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
-  stripMarkdownProcessor = remark().use(strip);
+  stripMarkdownProcessor = remark().use(strip),
+  retext = require('retext'),
+  inspect = require('unist-util-inspect'),
+  sentiment = require('retext-sentiment');
 
 const
   MINNOW = 0,
@@ -25,7 +31,7 @@ const
   MAX_POST_TO_READ = 100,
   CAPITAL_DOLPHIN_MIN = 25000,
   CAPITAL_WHALE_MIN = 100000,
-  MIN_KEYWORD_LEN = 3;
+  MIN_KEYWORD_LEN = 4;
 
 /* Private variables */
 var fatalError = false;
@@ -351,8 +357,8 @@ function runBot(messageCallback) {
           .s;
         // remove markdown formatting
         console.log(" - - nlp.content: "+nlp.content);
-        // get keywords from alphanumberic only
-        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ");
+        // get keywords from alphanumberic only, and in lower case to stop different case duplicates
+        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
         console.log(" - - - alphaNumericContent: "+alphaNumericContent);
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
@@ -374,6 +380,34 @@ function runBot(messageCallback) {
           nlp.urls.push(urlResult[0]);
         }
         console.log(" - - nlp.urls: "+JSON.stringify(nlp.urls));
+        // sentiment
+        console.log(" - - get sentiment...");
+        console.log(" - - - inspected");
+        retext()
+          .use(sentiment)
+          .use(function () {
+            return transformer;
+            function transformer(tree) {
+              console.log(inspect(tree));
+            }
+          })
+          .process(nlp.content);
+        console.log(" - - - literal");
+        retext()
+          .use(sentiment)
+          .use(function () {
+            return transformer;
+            function transformer(tree) {
+              console.log(JSON.stringify(tree));
+            }
+          })
+          .process(nlp.content, function (err, file) {
+            if (err) {
+              console.log(" - - - retext FINISHED with error: "+err.message);
+            } else {
+              console.log(" - - - retext FINISHED: "+String(file));
+            }
+          });
         // commit to postsNlp
         postsNlp.push(nlp);
         console.log(" - - nlp done on post");

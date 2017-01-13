@@ -30,6 +30,8 @@
     "glossary": "0.1.1",
     "string": "3.3.3",
     "strip-markdown": "3.0.0",
-    "remark": "6.2.0"
+    "remark": "6.2.0",
+    "retext": "4.0.0",
+    "retext-sentiment": "2.0.2"
   }
 }

@@ -352,7 +352,7 @@ function runBot(messageCallback) {
         var removedCount = 0;
         for (var j = 0 ; j < keywords.length ; j++) {
           if (keywords[j].length >= MIN_KEYWORD_LEN) {
-            nlp.keywords,push(keywords[j]);
+            nlp.keywords.push(keywords[j]);
           } else {
             removedCount++;
           }

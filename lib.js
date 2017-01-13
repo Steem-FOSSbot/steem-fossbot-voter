@@ -15,11 +15,13 @@ var serverState = "stopped";
 
 var steemGlobalProperties = {};
 
-// data and metrics
-var owner = {};
+// data
 var posts = [];
-var postsMetrics = [];
 var lastPost = null;
+var users = [];
+// metrics
+var owner = {};
+var postsMetrics = [];
 
 
 /*
@@ -140,6 +142,11 @@ function runBot(messageCallback) {
         //metrics.post.num_votes: Number of votes
         metric.num_votes = posts[i].net_votes;
         console.log(" - - metrics.post.num_votes: "+metric.num_votes);
+        // *** VOTES IN DETAIL
+        console.log(" - - * VOTES IN DETAIL");
+        for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
+          console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+        }
         // finish metric
         postsMetrics.push(metric);
       }

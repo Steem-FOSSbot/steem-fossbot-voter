@@ -466,7 +466,7 @@ function runBot(messageCallback) {
 function countWordsFromRetext(obj) {
   if (obj != null) {
     console.log("recurse: "+obj.type);
-    if (obj.type.localeCompare("WordNode")) {
+    if (obj.type.localeCompare("WordNode") == 0) {
       console.log("recurse - word");
       return 1;
     } else if (obj.children && obj.children.length > 0) {

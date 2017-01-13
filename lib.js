@@ -465,13 +465,17 @@ function runBot(messageCallback) {
 
 function countWordsFromRetext(obj) {
   if (obj != null) {
-    if (obj.type && obj.type.localeCompare("WordNode")) {
+    console.log("recurse: "+obj.type);
+    if (obj.type.localeCompare("WordNode")) {
+      console.log("recurse - word");
       return 1;
     } else if (obj.children && obj.children.length > 0) {
+      console.log("recurse - children");
       var sum = 0;
       for (var i = 0 ; i < obj.children.length ; i++) {
         sum += countWordsFromRetext(obj.children[i]);
       }
+      console.log("recurse - children sum: "+sum);
       return sum;
     }
   }

@@ -5,8 +5,11 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary"),
-  S = require('string');
+  glossary = require("glossary")({minFreq: 2}),
+  S = require('string'),
+  strip = require('strip-markdown'),
+  remark = require('remark'),
+  stripMarkdownProcessor = remark().use(strip);
 
 const
   MINNOW = 0,
@@ -338,6 +341,7 @@ function runBot(messageCallback) {
           .stripTags()
           .latinise()
           .s;
+        nlp.content = stripMarkdownProcessor.process(nlp.content);
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords
         nlp.keywords = glossary.extract(nlp.content);

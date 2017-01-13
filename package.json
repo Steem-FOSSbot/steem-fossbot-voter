@@ -28,6 +28,8 @@
     "q": "1.4.1",
     "redis": "2.6.3",
     "glossary": "0.1.1",
-    "string": "3.3.3"
+    "string": "3.3.3",
+    "strip-markdown": "3.0.0",
+    "require": "6.2.0"
   }
 }

@@ -67,8 +67,6 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 All metrics show the key name first, then a short description
 
-Metric key in object access format, and roughly maps to an internal JavaScript object, but should be considered an arbitrary String key
-
 ##### Note on capital category
 
 Capital category (minnow, dolphin, whale) is defined as
@@ -92,14 +90,14 @@ The way these are used depends on the metric. They can be empty and will then ha
 _Note: All data current at time of sample_
 
 #### Bot Owner (user running the bot)
-1. ```metrics.owner.num_votes_today```: Number of votes today
-2. ```metrics.owner.last_post_time```: Time since last post in minutes
+1. ```owner_num_votes_today```: Number of votes today
+2. ```owner_last_post_time```: Time since last post in minutes
 
 #### Post
 
-1. ```metrics.post.alive_time```: Time since post, in minutes
-2. ```metrics.post.est_payout```: Estimated payout
-3. ```metrics.post.num_votes```: Number of votes
+1. ```post_alive_time```: Time since post, in minutes
+2. ```post_est_payout```: Estimated payout
+3. ```post_num_votes```: Number of votes
 
 **Can't access from API**
 
@@ -111,39 +109,40 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Numeric
 
-1. ```metrics.post.voted_num_dolphin```: Number of voters with captial category _dolphin_ who voted on post
-2. ```metrics.post.voted_num_whale```: Number of voters with captial category _whale_ who voted on post
-3. ```matrics.post.voted_num_followed```: Number of followed voters who voted on post
-4. ```matrics.post.voted_num_whitelisted```: Number of whitelisted voters who voted on post
-5. ```matrics.post.voted_num_blacklisted```: Number of blacklisted voters who voted on post
+1. ```post_voted_num_dolphin```: Number of voters with captial category _dolphin_ who voted on post
+2. ```post_voted_num_whale```: Number of voters with captial category _whale_ who voted on post
+3. ```post_voted_num_followed```: Number of followed voters who voted on post
+4. ```post_voted_num_whitelisted```: Number of whitelisted voters who voted on post
+5. ```post_voted_num_blacklisted```: Number of blacklisted voters who voted on post
 
 ##### Boolean
 
-1. ```metrics.post.voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post (false = 0, true = 1)
-2. ```metrics.post.voted_any_whale```: At least one voter with captial category _whale_ as voted on post (false = 0, true = 1)
-3. ```matrics.post.voted_any_followed```: At least one followed voter voted on post (false = 0, true = 1)
-4. ```matrics.post.voted_any_whitelisted```: At least one whitelist voter voted on post (false = 0, true = 1)
-5. ```matrics.post.voted_any_blacklisted```: At least one blacklist voter voted on post (false = 0, true = 1)
+1. ```post_voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post (false = 0, true = 1)
+2. ```post_voted_any_whale```: At least one voter with captial category _whale_ as voted on post (false = 0, true = 1)
+3. ```post_voted_any_followed```: At least one followed voter voted on post (false = 0, true = 1)
+4. ```post_voted_any_whitelisted```: At least one whitelist voter voted on post (false = 0, true = 1)
+5. ```post_voted_any_blacklisted```: At least one blacklist voter voted on post (false = 0, true = 1)
 
 #### Author of Post
 
 ##### Numeric
 
-1. ```metrics.author.num_posts_today```: Number of posts today
-2. ```metrics.author.last_post_time```: Time since last post in minutes
-3. ```metrics.author.capital_val```: Capital (Steem Power) by value 
-4. ```metrics.author.last_post_payout```: Last post payout
-5. ```metrics.author.all_post_payout_avg```: Average post payout for all posts by author
-6. ```metrics.author.total_post_payout_median```: Average post payout for all posts by author
+1. ```author_capital_val```: Capital (Steem Power) by value 
+
+**Proposed, not implemented**
+
+1. ```author_last_post_payout```: Last post payout
+2. ```author_all_post_payout_avg```: Average post payout for all posts by author
+3. ```author_total_post_payout_median```: Average post payout for all posts by author
 
 ##### Boolean
 
-1. ```metrics.author.is_minnow```: Capital category is _minnow_ (false = 0, true = 1)
-2. ```metrics.author.is_dolphin```: Capital category is _dolphin_ (false = 0, true = 1)
-3. ```metrics.author.is_whale```: Capital category is _whale_ (false = 0, true = 1)
-4. ```matrics.author.is_followed```: Author is followed (false = 0, true = 1)
-5. ```matrics.author.is_whitelisted```: Presence of author on whitelist (false = 0, true = 1)
-6. ```matrics.author.is_blacklisted```: Presence of author on blacklist (false = 0, true = 1)
+1. ```author_is_minnow```: Capital category is _minnow_ (false = 0, true = 1)
+2. ```author_is_dolphin```: Capital category is _dolphin_ (false = 0, true = 1)
+3. ```author_is_whale```: Capital category is _whale_ (false = 0, true = 1)
+4. ```author_is_followed```: Author is followed (false = 0, true = 1)
+5. ```author_is_whitelisted```: Presence of author on whitelist (false = 0, true = 1)
+6. ```author_is_blacklisted```: Presence of author on blacklist (false = 0, true = 1)
 
 ### Cultural metrics
 
@@ -153,39 +152,41 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 
 ##### Numeric
 
-1. ```metrics.post.num_chars```: Post length in characters
-2. ```metrics.post.num_words```: Post length in words
-3. ```metrics.post.sentiment__val```: Sentiment / emotional score
-5. ```metrics.post.num_keywords_whitelisted```: Number of unique whitelisted words
-6. ```metrics.post.num_keywords_blacklisted```: Number of unique blacklisted words
-7. ```metrics.post.num_words_whitelisted```: Number of unique whitelist words in entire content text
-8. ```metrics.post.num_words_blacklisted```: Number of unique blacklist words in entire content text
+1. ```post_num_chars```: Post length in characters
+2. ```post_num_words```: Post length in words
+3. ```post_sentiment_val```: Sentiment / emotional score
+5. ```post_num_keywords_whitelisted```: Number of unique whitelisted words
+6. ```post_num_keywords_blacklisted```: Number of unique blacklisted words
+7. ```post_num_words_whitelisted```: Number of unique whitelist words in entire content text
+8. ```post_num_words_blacklisted```: Number of unique blacklist words in entire content text
 
 ##### Boolean
 
-1. ```metrics.post.topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
-2. ```metrics.post.topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
-3. ```metrics.post.any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
-4. ```metrics.post.any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
+1. ```post_topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
+2. ```post_topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
+3. ```post_any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
+4. ```post_any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
 
 #### Content - Links
 
 ##### Numeric
 
-1. ```metrics.post.num_links_video```: Number of video links
-2. ```metrics.post.num_links_photo```: Number of photo links
-3. ```metrics.post.num_links_page```: Number of webpage links
-4. ```metrics.post.num_links_total```: Total number of links
-5. ```metrics.post.num_link_domains_whitelisted```: Number of link domains on whitelist
-6. ```metrics.post.num_link_domains_blacklisted```: Number of link domains on blacklist
+1. ```post_num_links_video```: Number of video links
+2. ```post_num_links_photo```: Number of photo links
+3. ```post_num_links_page```: Number of webpage links
+4. ```post_num_links_total```: Total number of links
+5. ```post_num_link_domains_whitelisted```: Number of link domains on whitelist
+6. ```post_num_link_domains_blacklisted```: Number of link domains on blacklist
 
 ##### Boolean
 
-1. ```metrics.post.any_link_domains_whitelisted```: Any link domains on whitelist (false = 0, true = 1)
-2. ```metrics.post.any_link_domains_blacklisted```: Any link domains on blacklist (false = 0, true = 1)
+1. ```post_any_link_domains_whitelisted```: Any link domains on whitelist (false = 0, true = 1)
+2. ```post_any_link_domains_blacklisted```: Any link domains on blacklist (false = 0, true = 1)
 
 #### Author
 
 ##### Numeric
 
-1. ```metrics.author.repuation```: Reputation (Stemit version, not direct from blockchain)
+1. ```author_repuation```: Reputation (Stemit version, not direct from blockchain)
+2. ```author_num_posts_today```: Number of posts today
+3. ```author_last_post_time```: Time since last post in minutes

@@ -1,11 +1,15 @@
 'use strict';
 
 const
+  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])");
+  glossaryBlacklist = ["http", "https"];
+
+const
 	steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary")({minFreq: 3, collapse: true}),
+  glossary = require("glossary")({minFreq: 3, collapse: true, blacklist: glossaryBlacklist}),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -21,9 +25,6 @@ const
   CAPITAL_DOLPHIN_MIN = 25000,
   CAPITAL_WHALE_MIN = 100000,
   MIN_KEYWORD_LEN = 3;
-
-const
-  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])+");
 
 /* Private variables */
 var fatalError = false;
@@ -350,7 +351,7 @@ function runBot(messageCallback) {
         // remove markdown formatting
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords from alphanumberic only
-        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex,"");
+        var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ");
         console.log(" - - - alphaNumericContent: "+alphaNumericContent);
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long

@@ -144,6 +144,7 @@ function runBot(messageCallback) {
       // create metrics for posts
       //console.log(" - ");
       postsMetrics = [];
+      var voters = [];
       for (var i = 0 ; i < posts.length ; i++) {
         console.log(" - post ["+posts[i].permlink+"]");
         var metric = {};
@@ -164,7 +165,6 @@ function runBot(messageCallback) {
         // *** VOTES IN DETAIL
         // note, should do this last, has complex nesting that we need to use Q to sort out
         //console.log(" - - * VOTES IN DETAIL");
-        var voters = [];
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
           //console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
@@ -175,34 +175,30 @@ function runBot(messageCallback) {
             }
           }
         }
-        if (voters.length > 0) {
-          // get user info
-          steem.api.getAccounts(voters, function(err, userAccounts) {
-            if (err) {
-              console.log(" - error, can't get "+voter+" votes: "+err.message);
-            } else {
-              for (var k = 0 ; k < userAccounts.length ; k++) { 
-                users[userAccounts[k].name] = userAccounts[k];
-              }
-            }
-            postsMetrics.push(metric);
-            if (postsMetrics.length == posts.length) {
-              console.log(" - - finished getting voters for post");
-              deferred.resolve(true);
-            }
-          });
-        } else {
-          // finish metric
-          postsMetrics.push(metric);
-        }
+        // finish first phase of metric
+        postsMetrics.push(metric);
       }
-      // only finish if all async tasks done, otherwise let task do work
-      if (postsMetrics.length == posts.length) {
-        console.log(" - - finished getting voters for post");
+      // get voters account details, used in next step
+      if (voters.length > 0) {
+        // get user info
+        steem.api.getAccounts(voters, function(err, userAccounts) {
+          if (err) {
+            console.log(" - error, can't get "+voter+" votes: "+err.message);
+          } else {
+            for (var k = 0 ; k < userAccounts.length ; k++) { 
+              users[userAccounts[k].name] = userAccounts[k];
+            }
+          }
+          // finish
+          console.log(" - - finished getting voters for post");
+          deferred.resolve(true);
+        });
+      } else {
+        // finish
+        console.log(" - - no voters account information to get for post");
         deferred.resolve(true);
       }
-      // finish
-      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      // return promise
       return deferred.promise;
     },
     // transform post data to metrics 3, analyse votes

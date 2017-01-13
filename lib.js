@@ -387,7 +387,7 @@ function getUserAccount() {
               setError("init_error", false, "Can't get following accounts");
             } else {
               for (var i = 0 ; i < followersResult.length ; i++) {
-                following.push(followersResult.following);
+                following.push(followersResult[i].following);
               }
             }
             console.log(""+process.env.STEEM_USER+" follows: "+following);

@@ -1,7 +1,7 @@
 'use strict';
 
 const
-  alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])"),
+  alphanumOnlyRegex = new RegExp("[^a-zA-Z0-9]"),
   glossaryBlacklist = ["http", "https"];
 
 const

@@ -19,7 +19,6 @@ const
   remark = require('remark'),
   stripMarkdownProcessor = remark().use(strip),
   retext = require('retext'),
-  inspect = require('unist-util-inspect'),
   sentiment = require('retext-sentiment');
 
 const
@@ -343,6 +342,7 @@ function runBot(messageCallback) {
       console.log("Q.deferred: transform post data to metrics 5, cultural metrics prestep, get NLP data");
       var deferred = Q.defer();
       postsNlp = [];
+      postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         console.log(" - post ["+posts[i].permlink+"]");
         var nlp = {};
@@ -381,39 +381,30 @@ function runBot(messageCallback) {
         }
         console.log(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // sentiment
-        console.log(" - - get sentiment...");
-        console.log(" - - - inspected");
         retext()
           .use(sentiment)
           .use(function () {
             return transformer;
             function transformer(tree) {
-              console.log(inspect(tree));
+              try {
+                nlp.sentiment = tree.data.polarity;
+              } catch (err) {
+                nlp.sentiment = 0;
+                console.log(" - - - sentiment extraction error: "+err.message);
+              }
+              console.log(" - - nlp.sentiment: "+nlp.sentiment);
+              postsNlp.push(nlp);
+              // commit to postsNlp
+              console.log(" - - nlp done on post");
+              postCount++;
+              if (postCount == posts.length) {
+                // finish
+                deferred.resolve(true);
+              }
             }
           })
           .process(nlp.content);
-        console.log(" - - - literal");
-        retext()
-          .use(sentiment)
-          .use(function () {
-            return transformer;
-            function transformer(tree) {
-              console.log(JSON.stringify(tree));
-            }
-          })
-          .process(nlp.content, function (err, file) {
-            if (err) {
-              console.log(" - - - retext FINISHED with error: "+err.message);
-            } else {
-              console.log(" - - - retext FINISHED: "+String(file));
-            }
-          });
-        // commit to postsNlp
-        postsNlp.push(nlp);
-        console.log(" - - nlp done on post");
       }
-      // finish
-      deferred.resolve(true);
       return deferred.promise;
     },
     // calculate scores for each post
@@ -467,10 +458,6 @@ function runBot(messageCallback) {
     setError("stopped", false, err.message);
     sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
-}
-
-function runBotHelper_createVoterDetailsToPostsMetrics(voter) {
-
 }
 
 

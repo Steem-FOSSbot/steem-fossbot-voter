@@ -626,7 +626,7 @@ function runBot(callback) {
       persistentLog(" - TODO");
       // back to http
       postsMetadata = [];
-      for (var i = 0 ; i < posts ; i++) {
+      for (var i = 0 ; i < posts.length ; i++) {
         var metadata = {};
         metadata.title = posts[i].title;
         metadata.url = "https://steemit.com/"+posts[i].url;

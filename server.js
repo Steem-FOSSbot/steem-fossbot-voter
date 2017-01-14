@@ -113,7 +113,7 @@ app.get("/edit-algo", function(req, res) {
 // POST /edit-algo
 app.post("/edit-algo", function(req, res) {
   // TODO : get options from post data
-  console.log("/edit-algo POST request: "+JSON.stringify(req));
+  console.log("/edit-algo POST request: "+req);
   editAlgoExec(res);  
 });
 
@@ -191,7 +191,7 @@ app.get("/test-algo", function(req, res) {
 // POST /edit-algo
 app.post("/test-algo", function(req, res) {
   // TODO : get options from post data
-  console.log("/test-algo POST request: "+JSON.stringify(req));
+  console.log("/test-algo POST request: "+req);
   res.send(200, 
     html_testAlgo1 
     + html_test_emptyList

@@ -20,6 +20,7 @@ var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
+app.use(express.bodyParser());
 
 // Start server
 app.listen(app.get('port'), function() {
@@ -112,8 +113,13 @@ app.get("/edit-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/edit-algo", function(req, res) {
-  // TODO : get options from post data
-  console.log("/edit-algo POST request: "+req);
+  console.log("/edit-algo POST request");
+  // get options from post data
+  console.log(" - req.body.inputKey: "+req.body.inputKey);
+  console.log(" - req.body.inputWeight: "+req.body.inputWeight);
+  console.log(" - req.body.inputLower: "+req.body.inputLower);
+  console.log(" - req.body.inputUpper: "+req.body.inputUpper);
+  console.log(" - req.body.inputApiKey: "+req.body.inputApiKey);
   editAlgoExec(res);  
 });
 

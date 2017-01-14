@@ -52,10 +52,12 @@ var domainBlacklist = [];
 // TODO : remove these test weights
 var weights = [
   {key: "post_num_links_video", value: -10},
-  {key: "post_num_words", value: 2, lower: 500, upper: 2000},
+  {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
   {key: "author_is_followed", value: 50},
   {key: "post_voted_any_whale", value: 20},
-  {key: "post_voted_num_dolphin", value: 5}
+  {key: "post_voted_num_dolphin", value: 5},
+  {key: "author_repuation", value: 10, lower: 25, upper: 75},
+  {key: "post_num_votes", value: -2}
 ];
 
 // data

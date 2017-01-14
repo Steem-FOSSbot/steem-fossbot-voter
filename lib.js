@@ -550,27 +550,33 @@ function runBot(messageCallback) {
         scores[i] = 0;
         for (var j = 0 ; j < weights.length ; j++) {
           if (metric.hasOwnProperty(weights[j].key)) {
+            console.log(" - - - metric key: "+weights[j].key);
             var value = metric[weights[j].key];
             var weight = weights[j].value;
-            if (weights[j].hasOwnProperty("lower")) {
-              console.log(" - - - - bounding metric("+value+") to range");
-              if (value < weights[j].lower) {
-                value = 0;
+            if (weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
+              var lower = 0;
+              var upper = Number.MAX_VALUE;
+              if (weights[j].hasOwnProperty("lower")) {
+                lower = weights[j].lower;
               }
               if (weights[j].hasOwnProperty("upper")) {
-                if (value > weights[j].upper) {
-                  value = (weights[j].upper - weights[j].lower);
-                } else {
-                  value -= weights[j].lower;
-                }
+                upper = weights[j].upper;
               }
-              console.log(" - - - - after bounding: "+value);
+              console.log(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
+              if (value < lower) {
+                value = 0;
+              } else if (value > upper) {
+                value = (upper - lower);
+              } else {
+                value -= lower;
+              }
+              console.log(" - - - - - after bounding: "+value);
             }
             var result = value * weight;
-            console.log(" - - - metric ("+value+") * weight("+weight+") = "+result);
+            console.log(" - - - - metric ("+value+") * weight("+weight+") = "+result);
             scores[i] += result;
           } else {
-            console.log(" - - - error, key not found in metrics: "+weight);
+            console.log(" - - - - error, key not found in metrics: "+weight);
           }
         }
         console.log(" - - final score: "+scores[i]);

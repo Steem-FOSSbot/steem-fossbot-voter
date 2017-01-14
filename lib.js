@@ -152,7 +152,7 @@ function runBot(callback) {
               domainBlacklist: []
             };
           }
-        }
+        });
         deferred.resolve(true);
       })
       return deferred.promise;

@@ -7,14 +7,7 @@ const
   bodyParser = require("body-parser"),
   fs = require('fs');
 
-const
-  html_algo_emptyList = "<tr>
-              <td>None</td>
-              <td></td>
-              <td>-</td>
-              <td>-</td>
-              <th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th>
-            </tr>";
+var html_algo_emptyList = "<tr><td>None</td><td></td><td>-</td><td>-</td><th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th></tr>";
 
 var
   html_editAlgo1 = "",

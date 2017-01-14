@@ -32,7 +32,7 @@ const
   CAPITAL_WHALE_MIN = 100000,
   MIN_KEYWORD_LEN = 4,
   MIN_SCORE_THRESHOLD = 10,
-  NUM_POSTS_FOR_AVG_WINDOW = 10; // TODO : increase this, set low for testing
+  NUM_POSTS_FOR_AVG_WINDOW = 10;
 
 /* Private variables */
 var fatalError = false;
@@ -636,7 +636,9 @@ function runBot(callback) {
           if (avg < MIN_SCORE_THRESHOLD) {
             avg = MIN_SCORE_THRESHOLD;
           }
-          avgWindowInfo.scoreThreshold = avg;
+          // approach new threshold by halfs, i.e. introduce some entropy or gravity on movement
+          avgWindowInfo.scoreThreshold =+ (avg - avgWindowInfo.scoreThreshold) / 2;
+          avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }
         // add score to avgWindowInfo

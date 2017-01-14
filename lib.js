@@ -96,7 +96,7 @@ function persistentLog(msg) {
 runBot(messageCallback):
 * Process a bot iteration
 */
-function runBot(callback) {
+function runBot(callback, options) {
   console.log("mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
@@ -162,30 +162,57 @@ function runBot(callback) {
       persistentLog("Q.deffered: get posts");
       var deferred = Q.defer();
       // get posts
-      steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
-        if (err) {
-          throw {message: "Error reading posts from steem: "+err.message};
-        }
-        posts = result;
-        persistentLog(" - num fetched posts: "+posts.length);
-        deferred.resolve(true);
-      });
+      if (options && options.hasOwnProperty("author")
+            && options.hasOwnProperty("permlink")) {
+        persistentLog(" - get post by author: "+options.author+", permlink: "+options.permlink);
+        steem.api.getContent(options.author, options.permlink, function(err, post) {
+          if (err) {
+            throw {message: "Error reading post for permlink: "+options.permlink};
+          }
+          persistentLog(" - got post by permlink: "+JSON.stringify(post));
+          posts = [post];
+          deferred.resolve(true);
+        });
+      } else {
+        steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
+          if (err) {
+            throw {message: "Error reading posts from steem: "+err.message};
+          }
+          posts = result;
+          persistentLog(" - num fetched posts: "+posts.length);
+          deferred.resolve(true);
+        });
+      }
       return deferred.promise;
     },
     // clean posts and update last fetched post
     function () {
       persistentLog("Q.deferred: clean posts");
       var deferred = Q.defer();
-      // clean, only keep new posts since last post
-      if (lastPost != null) {
+      if (options && options.hasOwnProperty("permlink")) {
+        // do nothing, posts should just contain permlink
+      } else if (options && options.hasOwnProperty("limit")) {
+        // keep numPosts number of posts
         var cleanedPosts = [];
         for (var i = 0 ; i < posts.length ; i++) {
-          if (posts[i].id == lastPost.id) {
+          if (cleanedPosts.length >= options.limit) {
             break;
           }
           cleanedPosts.push(posts[i]);
         }
         posts = cleanedPosts;
+      } else {
+        // clean, only keep new posts since last post
+        if (lastPost != null) {
+          var cleanedPosts = [];
+          for (var i = 0 ; i < posts.length ; i++) {
+            if (posts[i].id == lastPost.id) {
+              break;
+            }
+            cleanedPosts.push(posts[i]);
+          }
+          posts = cleanedPosts;
+        }
       }
       // throw nice error if no posts left
       if (posts.length < 1) {

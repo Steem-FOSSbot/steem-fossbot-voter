@@ -8,10 +8,13 @@ const
   fs = require('fs');
 
 var html_algo_emptyList = "<tr><td>None</td><td></td><td>-</td><td>-</td><th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th></tr>";
+var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
 
 var
   html_editAlgo1 = "",
-  html_editAlgo2 = "";
+  html_editAlgo2 = "",
+  html_testAlgo1 = "",
+  html_testAlgo2 = "";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -49,6 +52,14 @@ function loadFiles() {
   loadFileToString("/html/edit-algo-part-2.html", function(str) {
     html_editAlgo2 = str;
     console.log("got /html/edit-algo-part-2.html from file");
+  });
+  loadFileToString("/html/test-algo-part-1.html", function(str) {
+    html_testAlgo1 = str;
+    console.log("got /html/test-algo-part-1.html from file");
+  });
+  loadFileToString("/html/test-algo-part-2.html", function(str) {
+    html_testAlgo2 = str;
+    console.log("got /html/test-algo-part-2.html from file");
   });
 }
 
@@ -139,7 +150,7 @@ app.get("/edit-algo", function(req, res) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\" onclick=\"javascript:alert(\"Can't delete yet\")\">Delete</a></p></th>";
         html_list += "</tr>";
       }
     } else {
@@ -151,4 +162,32 @@ app.get("/edit-algo", function(req, res) {
       + html_list
       + html_editAlgo2);
     });
+});
+
+// GET /edit-algo
+app.get("/test-algo", function(req, res) {
+  // TODO : get options
+  options = {limit: 5};
+  lib.runBot(function(obj) {
+    console.log("lib.runBot returned: " + JSON.stringify(obj));
+    var postsMetadata = [];
+    if (obj) {
+      postsMetadata = obj;
+    }
+    // build list
+    var html_list = "";
+    if (postsMetadata > 0) {
+      for (var i = 0 ; i < postsMetadata.length ; i++) {
+        html_list += "<tr><td>"+postsMetadata[i].title+"</td><td>"+postsMetadata[i].score+"</td>"
+            + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+      }
+    } else {
+      html_list = html_test_emptyList;
+    }
+    // TODO : make list
+    res.send(200, 
+      html_testAlgo1 
+      + html_list
+      + html_testAlgo2);
+  }, options);
 });

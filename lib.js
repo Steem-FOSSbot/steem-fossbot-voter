@@ -622,14 +622,12 @@ function runBot(callback) {
     function () {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
-      // TODO : work
-      persistentLog(" - TODO");
       // back to http
       postsMetadata = [];
       for (var i = 0 ; i < posts.length ; i++) {
         var metadata = {};
         metadata.title = posts[i].title;
-        metadata.url = "https://steemit.com/"+posts[i].url;
+        metadata.url = "https://steemit.com"+posts[i].url;
         metadata.author = posts[i].author;
         metadata.time = posts[i].created;
         metadata.score = scores[i];
@@ -658,24 +656,26 @@ function runBot(callback) {
   overallResult()
   .then(function(response) {
     if (response) {
-      console.log("runBot finished successfully");
+      persistentLog("runBot finished successfully");
       var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>"
         + "<h2>Posts and scores:</h2>";
       if (postsMetadata.length > 0) {
         for (var i = 0 ; i < postsMetadata.length ; i++) {
-          email += "<p><a href=\""+postsMetadata[i].url+"\"><strong>"+postsMetadata[i].title+"</strong></a>"
-            + " by author "+postsMetadata[i].author+" scored <strong>"+postsMetadata[i].score+"</strong></p>";
+          email += "<p><strong>Score "+postsMetadata[i].score+"</strong> for "
+            +"<a href=\""+postsMetadata[i].url+"\"><strong>"+postsMetadata[i].title+"</strong></a>"
+            + " by author "+postsMetadata[i].author + "</p>";
         }
       } else {
         email += "<p><strong>No new posts found</strong></p>";
       }
       email += "<h2>Raw results metadata:</h2>";
-      email += "<p>"+JSON.stringify(postsMetadata, null, 4)+"</p>";
+      var metadataHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<br/>");
+      email += "<p>"+metadataHtml+"</p>";
       email += "<h3>Process logs:</h3>";
-      email += "<p>"+log+"</p>";
+      var logHtml = log.replace('\n', "<br/>");
+      email += "<p>"+logHtml+"</p>";
       email += "</body></html>";
-      sendEmail("Voter bot", email);
-      // TODO : log and email details of run
+      sendEmail("Voter bot", email, true);
       return;
     }
   })
@@ -897,7 +897,7 @@ function showFatalError() {
 sendEmail(subject, message)
 * Send email using SendGrid, if set up. Fails cleanly if not.
 */
-function sendEmail(subject, message) {
+function sendEmail(subject, message, isHtml) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
@@ -909,7 +909,7 @@ function sendEmail(subject, message) {
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
 		? process.env.EMAIL_ADDRESS_SENDER : 'bot@fossbot.org');
 	var to_email = new helper.Email(process.env.EMAIL_ADDRESS_TO);
-	var content = new helper.Content('text/plain', message);
+	var content = new helper.Content(isHtml ? 'text/html' : 'text/plain', message);
 	var mail = new helper.Mail(from_email, subject, to_email, content);
 
 	var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);

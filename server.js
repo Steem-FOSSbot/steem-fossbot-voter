@@ -191,12 +191,12 @@ function testAlgoExec(res, options) {
   lib.runBot(function(obj) {
     console.log("lib.runBot returned: " + JSON.stringify(obj));
     var postsMetadata = [];
-    if (obj) {
-      postsMetadata = obj;
+    if (obj && obj.status == 200) {
+      postsMetadata = obj.posts;
     }
     // build list
     var html_list = "";
-    if (postsMetadata > 0) {
+    if (postsMetadata.length > 0) {
       for (var i = 0 ; i < postsMetadata.length ; i++) {
         html_list += "<tr><td>"+postsMetadata[i].title+"</td><td>"+postsMetadata[i].score+"</td>"
             + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";

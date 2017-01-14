@@ -51,15 +51,10 @@ app.get("/run-bot", function(req, res) {
     handleError(res, "/run-bot Unauthorized", "Run bot: api_key invalid", 401);
     return;
   }
-  lib.runBot(function(msg) {
-    console.log("lib.runBot message: " + msg);
-    if (msg && msg.localeCompare("ok") == 0) {
-      res.status(200).json(
-        {
-          "result": "success",
-          "message": "GET /run-bot has started bot iteration"
-        }
-      );
+  lib.runBot(function(obj) {
+    console.log("lib.runBot returned: " + JSON.stringify(obj));
+    if (obj) {
+      res.status(obj.status).json(obj);
     } else {
       handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
     }

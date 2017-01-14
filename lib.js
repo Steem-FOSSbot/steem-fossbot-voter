@@ -71,28 +71,36 @@ var owner = {};
 var postsMetrics = [];
 // resulting
 var scores = [];
+var postsMetadata = [];
 
+var log = "";
 
 /*
 * Bot logic
 */
 
 /*
+persistentLog(msg):
+* Logs to console and appends to log var
+*/
+function persistentLog(msg) {
+  console.log(msg);
+  log += ((log.length > 0) ? "\n" : "") + msg;
+}
+
+/*
 runBot(messageCallback):
 * Process a bot iteration
 */
-function runBot(messageCallback) {
+function runBot(callback) {
   console.log("mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
-    if (messageCallback) {
-      messageCallback("failed");
+    if (callback) {
+      callback({status: 500, message: "Server in unusable state, cannot run bot"});
     }
     sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]");
     return;
-  }
-  if (messageCallback) {
-    messageCallback("ok");
   }
   // begin bot logic, use promises with Q
   // some general vars
@@ -101,15 +109,17 @@ function runBot(messageCallback) {
   var processes = [
     // get posts
     function () {
-      console.log("Q.deffered: get posts");
+      log = "";
+      persistentLog("Q.deffered: get posts");
       var deferred = Q.defer();
+      // get posts
       steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
-        //console.log(err, result);
+        //persistentLog(err, result);
         if (err) {
           throw {message: "Error reading posts from steem: "+err.message};
         }
         posts = result;
-        console.log(" - num fetched posts: "+posts.length);
+        persistentLog(" - num fetched posts: "+posts.length);
         deferred.resolve(true);
         // TODO : save posts
       });
@@ -117,7 +127,7 @@ function runBot(messageCallback) {
     },
     // clean posts and update last fetched post
     function () {
-      console.log("Q.deferred: clean posts");
+      persistentLog("Q.deferred: clean posts");
       var deferred = Q.defer();
       // clean, only keep new posts since last post
       if (lastPost != null) {
@@ -138,21 +148,21 @@ function runBot(messageCallback) {
       lastPost = posts[0];
       persistJson("lastpost", lastPost);
       // finish
-      console.log(" - num new posts: "+posts.length);
+      persistentLog(" - num new posts: "+posts.length);
       deferred.resolve(true);
       return deferred.promise;
     },
     // transform post data to metrics 1, get owner metrics 
     function () {
-      console.log("Q.deferred: transform post data to metrics 1, get owner metrics ");
+      persistentLog("Q.deferred: transform post data to metrics 1, get owner metrics ");
       var deferred = Q.defer();
       // get this user's votes
-      console.log(" - count this user's votes today");
+      persistentLog(" - count this user's votes today");
       steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
-        //console.log(err, votes);
+        //persistentLog(err, votes);
         var num_votes_today = 0;
         if (err) {
-          console.log(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
+          persistentLog(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
@@ -162,21 +172,21 @@ function runBot(messageCallback) {
         }
         // finish
         owner.num_votes_today = num_votes_today;
-        console.log(" - num_votes_today: "+num_votes_today);
+        persistentLog(" - num_votes_today: "+num_votes_today);
         deferred.resolve(num_votes_today > 0);
       });
       return deferred.promise;
     },
     // transform post data to metrics 2, basic post metrics
     function () {
-      console.log("Q.deferred: transform post data to metrics 2, basic post metrics");
+      persistentLog("Q.deferred: transform post data to metrics 2, basic post metrics");
       var deferred = Q.defer();
       // create metrics for posts
-      //console.log(" - ");
+      //persistentLog(" - ");
       postsMetrics = [];
       var fetchUsers = [];
       for (var i = 0 ; i < posts.length ; i++) {
-        console.log(" - post ["+posts[i].permlink+"]");
+        persistentLog(" - post ["+posts[i].permlink+"]");
         var metric = {};
         // post_alive_time: Time since post, in minutes
         var postTimeStamp = getEpochMillis(posts[i].created);
@@ -185,17 +195,17 @@ function runBot(messageCallback) {
           alive_time = (timeNow - postTimeStamp) / (1000 * 60);
         }
         metric.post_alive_time = alive_time;
-        console.log(" - - metrics.post.alive_time: "+metric.post_alive_time);
+        persistentLog(" - - metrics.post.alive_time: "+metric.post_alive_time);
         //post_est_payout: Estimated payout
         metric.post_est_payout = parseFloat(posts[i].total_pending_payout_value);
-        console.log(" - - metrics.post.est_payout: "+metric.post_est_payout);
+        persistentLog(" - - metrics.post.est_payout: "+metric.post_est_payout);
         //post_num_votes: Number of votes
         metric.post_num_votes = posts[i].net_votes;
-        console.log(" - - metrics.post.num_votes: "+metric.post_num_votes);
+        persistentLog(" - - metrics.post.num_votes: "+metric.post_num_votes);
         // add author and voters to user fetch list
         fetchUsers.push(posts[i].author);
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
-          //console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
           if (voter.localeCompare(process.env.STEEM_USER) != 0) {
@@ -212,19 +222,19 @@ function runBot(messageCallback) {
         // get user info
         steem.api.getAccounts(fetchUsers, function(err, userAccounts) {
           if (err) {
-            console.log(" - error, can't get "+voter+" votes: "+err.message);
+            persistentLog(" - error, can't get "+voter+" votes: "+err.message);
           } else {
             for (var k = 0 ; k < userAccounts.length ; k++) { 
               users[userAccounts[k].name] = userAccounts[k];
             }
           }
           // finish
-          console.log(" - - finished getting voters for post");
+          persistentLog(" - - finished getting voters for post");
           deferred.resolve(true);
         });
       } else {
         // finish
-        console.log(" - - no voters account information to get for post");
+        persistentLog(" - - no voters account information to get for post");
         deferred.resolve(true);
       }
       // return promise
@@ -232,21 +242,21 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics 3, analyse votes
     function () {
-      console.log("Q.deferred: transform post data to metrics 3, analyse votes");
+      persistentLog("Q.deferred: transform post data to metrics 3, analyse votes");
       var deferred = Q.defer();
       // analyse votes for posts
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        console.log(" - postsMetrics ["+i+"]");
+        persistentLog(" - postsMetrics ["+i+"]");
         // *** VOTES IN DETAIL
         // note, should do this last, has complex nesting that we need to use Q to sort out
-        //console.log(" - - * VOTES IN DETAIL");
+        //persistentLog(" - - * VOTES IN DETAIL");
         var numDolphins = 0;
         var numWhales = 0;
         var numFollowed = 0;
         var numWhitelisted = 0;
         var numBlacklisted = 0;
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
-          //console.log(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
               && users[voter]) {
@@ -296,10 +306,10 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics 4, post author metrics
     function () {
-      console.log("Q.deferred: transform post data to metrics 4, post author metrics");
+      persistentLog("Q.deferred: transform post data to metrics 4, post author metrics");
       var deferred = Q.defer();
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        console.log(" - postsMetrics ["+i+"]");
+        persistentLog(" - postsMetrics ["+i+"]");
         // check we have author account, we should
         if (users[posts[i].author]) {
           // get capital value
@@ -350,12 +360,12 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics 5, do NLP processing
     function () {
-      console.log("Q.deferred: transform post data to metrics 5, do NLP processing");
+      persistentLog("Q.deferred: transform post data to metrics 5, do NLP processing");
       var deferred = Q.defer();
       postsNlp = [];
       var postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
-        console.log(" - post ["+posts[i].permlink+"]");
+        persistentLog(" - post ["+posts[i].permlink+"]");
         var nlp = {};
         // sanitize body content, make plaintext, remove HTML tags and non-latin characters
         nlp.content = posts[i].body;
@@ -367,10 +377,10 @@ function runBot(messageCallback) {
           .latinise()
           .s;
         // remove markdown formatting
-        console.log(" - - nlp.content: "+nlp.content);
+        persistentLog(" - - nlp.content: "+nlp.content);
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
-        //console.log(" - - - alphaNumericContent: "+alphaNumericContent);
+        //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];
@@ -382,15 +392,15 @@ function runBot(messageCallback) {
             removedCount++;
           }
         }
-        console.log(" - - nlp.keywords: "+nlp.keywords);
-        console.log(" - - - removed "+removedCount+" short keywords");
+        persistentLog(" - - nlp.keywords: "+nlp.keywords);
+        persistentLog(" - - - removed "+removedCount+" short keywords");
         // get all url links
         nlp.urls = [];
         var urlResult;
         while((urlResult = urlRegex.exec(nlp.content)) !== null) {
           nlp.urls.push(urlResult[0]);
         }
-        console.log(" - - nlp.urls: "+JSON.stringify(nlp.urls));
+        persistentLog(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // sentiment
         retext()
           .use(sentiment)
@@ -401,15 +411,15 @@ function runBot(messageCallback) {
                 nlp.sentiment = tree.data.polarity;
               } catch (err) {
                 nlp.sentiment = 0;
-                console.log(" - - - sentiment extraction error: "+err.message);
+                persistentLog(" - - - sentiment extraction error: "+err.message);
               }
-              console.log(" - - nlp.sentiment: "+nlp.sentiment);
+              persistentLog(" - - nlp.sentiment: "+nlp.sentiment);
               postsNlp.push(nlp);
               // count words using tree, i.e. count WordNode instances
               nlp.num_words = countWordsFromRetext(tree);
-              console.log(" - - nlp.num_words: "+nlp.num_words);
+              persistentLog(" - - nlp.num_words: "+nlp.num_words);
               // commit to postsNlp
-              console.log(" - - nlp done on post");
+              persistentLog(" - - nlp done on post");
               postCount++;
               if (postCount == posts.length) {
                 // finish
@@ -423,10 +433,10 @@ function runBot(messageCallback) {
     },
     // transform post data to metrics 6, calc cultural metrics, content
     function () {
-      console.log("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
+      persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
       var deferred = Q.defer();
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        console.log(" - postsMetrics ["+i+"]");
+        persistentLog(" - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
         // content - text
         postsMetrics[i].post_num_chars = nlp.content.length;
@@ -440,26 +450,26 @@ function runBot(messageCallback) {
           try {
             var metadata = JSON.parse(posts[i].json_metadata);
             if (metadata && metadata.hasOwnProperty("tags")) {
-              console.log(" - - checking tags");
+              persistentLog(" - - checking tags");
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
                 postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
                 postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
               }
             } else {
-              console.log(" - - no tags to check");
+              persistentLog(" - - no tags to check");
             }
           } catch(err) {
-            console.log(" - - no tags to check, err: "+err.message);
+            persistentLog(" - - no tags to check, err: "+err.message);
           }
         } else {
-          console.log(" - - no tags to check");
+          persistentLog(" - - no tags to check");
         }
         postsMetrics[i].post_num_keywords_whitelisted = 0;
         postsMetrics[i].post_num_keywords_blacklisted = 0;
         postsMetrics[i].post_num_words_whitelisted = 0;
         postsMetrics[i].post_num_words_blacklisted = 0;
-        console.log(" - - checking keywords");
+        persistentLog(" - - checking keywords");
         for (var j = 0 ; j < nlp.keywords.length ; j++) {
           var keyword = nlp.keywords[j];
           postsMetrics[i].post_num_keywords_whitelisted += (contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
@@ -482,11 +492,11 @@ function runBot(messageCallback) {
         postsMetrics[i].post_num_links_total = 0; 
         postsMetrics[i].post_num_link_domains_whitelisted = 0;
         postsMetrics[i].post_num_link_domains_blacklisted = 0;
-        console.log(" - - classifying urls");
+        persistentLog(" - - classifying urls");
         for (var j = 0 ; j < nlp.urls.length ; j++) {
           var url = nlp.urls[j];
           postsMetrics[i].post_num_links_total++;
-          console.log(" - - - url: "+url);
+          persistentLog(" - - - url: "+url);
           // get domain
           var domain = "";
           var urlParts = S(url).splitLeft("//", 1);
@@ -501,14 +511,14 @@ function runBot(messageCallback) {
               } // else failed, leave domain blank
             }
           }
-          console.log(" - - - domain: "+domain);
+          persistentLog(" - - - domain: "+domain);
           // track matching progress
           var match = false;
           // check if is image
           for (var k = 0 ; k < imagesExt.length ; k++) {
             if (S(url).endsWith("."+imagesExt[k])) {
               postsMetrics[i].post_num_links_image++;
-              console.log(" - - - - is image");
+              persistentLog(" - - - - is image");
               match = true;
               break;
             }
@@ -517,7 +527,7 @@ function runBot(messageCallback) {
           if (!match) {
             if (videoDomains.indexOf(domain) > 0) {
               postsMetrics[i].post_num_links_video++;
-              console.log(" - - - - is video");
+              persistentLog(" - - - - is video");
               match = true;
             }
           }
@@ -535,24 +545,24 @@ function runBot(messageCallback) {
         postsMetrics[i].author_repuation = steem.formatter.reputation(posts[i].author_reputation);
       }
       // finish
-      console.log(" - finished gathering metrics");
-      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      persistentLog(" - finished gathering metrics");
+      persistentLog(" - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
     // calculate scores for each post
     function () {
-      console.log("Q.deferred: calculate scores for each post");
+      persistentLog("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
       // calculate scores
       scores = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        console.log(" - - score for post "+i);
+        persistentLog(" - - score for post "+i);
         var metric = postsMetrics[i];
         scores[i] = 0;
         for (var j = 0 ; j < weights.length ; j++) {
           if (metric.hasOwnProperty(weights[j].key)) {
-            console.log(" - - - metric key: "+weights[j].key);
+            persistentLog(" - - - metric key: "+weights[j].key);
             var value = metric[weights[j].key];
             var weight = weights[j].value;
             if (weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
@@ -564,7 +574,7 @@ function runBot(messageCallback) {
               if (weights[j].hasOwnProperty("upper")) {
                 upper = weights[j].upper;
               }
-              console.log(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
+              persistentLog(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
@@ -572,38 +582,67 @@ function runBot(messageCallback) {
               } else {
                 value -= lower;
               }
-              console.log(" - - - - - after bounding: "+value);
+              persistentLog(" - - - - - after bounding: "+value);
             }
             var result = value * weight;
-            console.log(" - - - - metric ("+value+") * weight("+weight+") = "+result);
+            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+result);
             scores[i] += result;
           } else {
-            console.log(" - - - - error, key not found in metrics: "+weight);
+            persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        console.log(" - - final score: "+scores[i]);
+        persistentLog(" - - final score: "+scores[i]);
       }
       // finish
-      console.log(" - scores: "+JSON.stringify(scores));
+      persistentLog(" - scores: "+JSON.stringify(scores));
       deferred.resolve(true);
       return deferred.promise;
     },
     // choose posts to vote on based on scores
     function () {
-      console.log("Q.deferred: choose posts to vote on based on scores");
+      persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       // TODO : work
-      console.log(" - TODO");
+      persistentLog(" - TODO");
       // finish
       deferred.resolve(true);
       return deferred.promise;
     },
     // cast votes to steem
     function () {
-      console.log("Q.deferred: cast votes to steem");
+      persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
       // TODO : work
-      console.log(" - TODO");
+      persistentLog(" - TODO");
+      // finish
+      deferred.resolve(true);
+      return deferred.promise;
+    },
+    // send result messages
+    function () {
+      persistentLog("Q.deferred: cast votes to steem");
+      var deferred = Q.defer();
+      // TODO : work
+      persistentLog(" - TODO");
+      // back to http
+      postsMetadata = [];
+      for (var i = 0 ; i < posts ; i++) {
+        var metadata = {};
+        metadata.title = posts[i].title;
+        metadata.url = "https://steemit.com/"+posts[i].url;
+        metadata.author = posts[i].author;
+        metadata.time = posts[i].created;
+        metadata.score = scores[i];
+        postsMetadata.push(metadata);
+      }
+      if (callback) {
+        callback(
+          {
+            status: 200, 
+            message: "Scores caluclated, but posts not decided on and no votes cast, this is a demo server.",
+            posts: postsMetadata
+          });
+      }
       // finish
       deferred.resolve(true);
       return deferred.promise;
@@ -620,13 +659,29 @@ function runBot(messageCallback) {
   .then(function(response) {
     if (response) {
       console.log("runBot finished successfully");
-      sendEmail("Voter bot", "Update: runBot finished with these results: [test complete]");
+      var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>"
+        + "<h2>Posts and scores:</h2>";
+      if (postsMetadata.length > 0) {
+        for (var i = 0 ; i < postsMetadata.length ; i++) {
+          email += "<p><a href=\""+postsMetadata[i].url+"\"><strong>"+postsMetadata[i].title+"</strong></a>"
+            + " by author "+postsMetadata[i].author+" scored <strong>"+postsMetadata[i].score+"</strong></p>";
+        }
+      } else {
+        email += "<p><strong>No new posts found</strong></p>";
+      }
+      email += "<h2>Raw results metadata:</h2>";
+      email += "<p>"+JSON.stringify(postsMetadata, null, 4)+"</p>";
+      email += "<h3>Process logs:</h3>";
+      email += "<p>"+log+"</p>";
+      email += "</body></html>";
+      sendEmail("Voter bot", email);
       // TODO : log and email details of run
       return;
     }
   })
   .catch(function (err) {
     setError("stopped", false, err.message);
+    // TODO : use log
     sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
 }

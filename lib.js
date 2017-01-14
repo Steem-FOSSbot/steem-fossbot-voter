@@ -638,7 +638,7 @@ function runBot(callback) {
             avg = MIN_SCORE_THRESHOLD;
           }
           // approach new threshold by halfs, i.e. introduce some entropy or gravity on movement
-          avgWindowInfo.scoreThreshold =* SCORE_THRESHOLD_INC_PC;
+          avgWindowInfo.scoreThreshold *= SCORE_THRESHOLD_INC_PC;
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }

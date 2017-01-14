@@ -167,7 +167,7 @@ app.get("/edit-algo", function(req, res) {
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {
   // TODO : get options
-  options = {limit: 5};
+  var options = {limit: 5};
   lib.runBot(function(obj) {
     console.log("lib.runBot returned: " + JSON.stringify(obj));
     var postsMetadata = [];

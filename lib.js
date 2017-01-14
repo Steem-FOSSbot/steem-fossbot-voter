@@ -641,7 +641,7 @@ function runBot(callback) {
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }
         // add score to avgWindowInfo
-        avgWindowInfo.postScores.push(score[i]);
+        avgWindowInfo.postScores.push(scores[i]);
         // check if post or not
         if (scores[i] >= avgWindowInfo.scoreThreshold) {
           toVote.push(posts[i]);

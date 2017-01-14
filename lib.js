@@ -668,11 +668,30 @@ function runBot(callback) {
       } else {
         email += "<p><strong>No new posts found</strong></p>";
       }
+      email += "</hr>"
+      email += "<h2>User weights and config:</h2>";
+      email += "<h3>Weights</h3>";
+      var weightsHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<p/><p>");
+      email += "<p>"+weightsHtml+"</p>";
+      email += "<h3>White and black lists</h3>";
+      email += "<p>Author whitelist: "+JSON.stringify(authorWhitelist)+"</p>";
+      email += "<p>Author blacklist: "+JSON.stringify(authorBlacklist)+"</p>";
+      email += "<p>Content category whitelist: "+JSON.stringify(contentCategoryWhitelist)+"</p>";
+      email += "<p>Content category blacklist: "+JSON.stringify(contentCategoryBlacklist)+"</p>";
+      email += "<p>Content word whitelist: "+JSON.stringify(contentWordWhitelist)+"</p>";
+      email += "<p>Content word blacklist: "+JSON.stringify(contentWordBlacklist)+"</p>";
+      email += "<p>Domain whitelist: "+JSON.stringify(domainWhitelist)+"</p>";
+      email += "<p>Domain blacklist: "+JSON.stringify(domainBlacklist)+"</p>";
+      email += "<h3>Misc vars</h3>";
+      email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
+      email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";
+      email += "<p>Whale min SP: "+CAPITAL_WHALE_MIN+"</p>";
+      email += "<p>Key detector, min keyword length: "+MIN_KEYWORD_LEN+"</p>";
       email += "<h2>Raw results metadata:</h2>";
-      var metadataHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<br/>");
+      var metadataHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<p/><p>");
       email += "<p>"+metadataHtml+"</p>";
       email += "<h3>Process logs:</h3>";
-      var logHtml = log.replace('\n', "<br/>");
+      var logHtml = log.replace('\n', "<p/><p>");
       email += "<p>"+logHtml+"</p>";
       email += "</body></html>";
       sendEmail("Voter bot", email, true);

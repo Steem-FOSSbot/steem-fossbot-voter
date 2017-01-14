@@ -166,16 +166,28 @@ app.get("/edit-algo", function(req, res) {
 
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {
+  // check for options from query data
+  if (req.query.limit) {
+    testAlgoExec(res, {limit: 5});
+  } else {
+    res.send(200, 
+      html_testAlgo1 
+      + html_test_emptyList
+      + html_testAlgo2);
+  }
+});
+
+// POST /edit-algo
+app.post("/test-algo", function(req, res) {
+  // TODO : get options from post data
+  console.log("/test-algo POST request: "+JSON.stringify(req));
   res.send(200, 
     html_testAlgo1 
     + html_test_emptyList
     + html_testAlgo2);
 });
 
-// POST /edit-algo
-app.post("/test-algo", function(req, res) {
-  // TODO : get options from post data
-  var options = {limit: 5};
+function testAlgoExec(res, options) {
   lib.runBot(function(obj) {
     console.log("lib.runBot returned: " + JSON.stringify(obj));
     var postsMetadata = [];
@@ -198,4 +210,4 @@ app.post("/test-algo", function(req, res) {
       + html_list
       + html_testAlgo2);
   }, options);
-});
+}

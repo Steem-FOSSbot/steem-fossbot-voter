@@ -47,20 +47,24 @@
       <h1 class="page-header">Test Algorithm</h1>
       <!--h2 class="sub-header">Message</h2-->
       <div class="row">
-        <p><a class="btn btn-primary" href="/test-algo" role="button">Test using newest 5 posts</a></p>
-        <p><strong>OR</strong></p>
+        <div class="col-sm-4">
+          <p><a class="btn btn-primary" href="/test-algo?limit=5" role="button">Test Newest 5 Posts</a></p>
+        </div>
+        <div class="col-sm-4">
+          <p><strong>OR</strong></p>
+        </div>
         <div class="col-sm-4">
           <form class="form-add" action="/test-algo" method="post">
-            <label for="inputAuthor" class="sr-only">Post Author</label>
-            <input type="text" id="inputAuthor" class="form-control" placeholder="Steemit Post Permlink" required>
-            <label for="inputPermlink" class="sr-only">Post Permlink</label>
-            <input type="text" id="inputPermlink" class="form-control" placeholder="Steemit Post Permlink" required>
+            <label for="inputAuthor" class="sr-only">Author</label>
+            <input type="text" id="inputAuthor" class="form-control" placeholder="Author" required>
+            <label for="inputPermlink" class="sr-only">Permlink</label>
+            <input type="text" id="inputPermlink" class="form-control" placeholder="Permlink" required>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Test Post</button>
           </form>
         </div>
       </div>
 
-      <h2 class="sub-header">Rules</h2>
+      <h2 class="sub-header">Post test results</h2>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead>

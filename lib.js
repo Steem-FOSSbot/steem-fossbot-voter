@@ -30,7 +30,9 @@ const
   MAX_POST_TO_READ = 100,
   CAPITAL_DOLPHIN_MIN = 25000,
   CAPITAL_WHALE_MIN = 100000,
-  MIN_KEYWORD_LEN = 4;
+  MIN_KEYWORD_LEN = 4,
+  MIN_SCORE_THRESHOLD = 10,
+  NUM_POSTS_FOR_AVG_WINDOW = 10; // TODO : increase this, set low for testing
 
 /* Private variables */
 var fatalError = false;
@@ -72,8 +74,15 @@ var postsMetrics = [];
 // resulting
 var scores = [];
 var postsMetadata = [];
+var toVote = [];
 
+// toher
 var log = "";
+var avgWindowInfo = {
+  scoreThreshold: MIN_SCORE_THRESHOLD,
+  postScores: [],
+  windowSize: NUM_POSTS_FOR_AVG_WINDOW
+};
 
 /*
 * Bot logic
@@ -107,21 +116,35 @@ function runBot(callback) {
   var timeNow = new Date();
   // define steps processes
   var processes = [
-    // get posts
+    // pre set up
     function () {
       log = "";
+      persistentLog("Q.deffered: pre set up");
+      var deferred = Q.defer();
+      // update average window details
+      getPersistentJson("avg_window_info", function(info) {
+        if (info != null) {
+          avgWindowInfo = info;
+          persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
+        } else {
+          persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
+        }
+        deferred.resolve(true);
+      })
+      return deferred.promise;
+    },
+    // get posts
+    function () {
       persistentLog("Q.deffered: get posts");
       var deferred = Q.defer();
       // get posts
       steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
-        //persistentLog(err, result);
         if (err) {
           throw {message: "Error reading posts from steem: "+err.message};
         }
         posts = result;
         persistentLog(" - num fetched posts: "+posts.length);
         deferred.resolve(true);
-        // TODO : save posts
       });
       return deferred.promise;
     },
@@ -159,7 +182,6 @@ function runBot(callback) {
       // get this user's votes
       persistentLog(" - count this user's votes today");
       steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
-        //persistentLog(err, votes);
         var num_votes_today = 0;
         if (err) {
           persistentLog(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
@@ -182,7 +204,6 @@ function runBot(callback) {
       persistentLog("Q.deferred: transform post data to metrics 2, basic post metrics");
       var deferred = Q.defer();
       // create metrics for posts
-      //persistentLog(" - ");
       postsMetrics = [];
       var fetchUsers = [];
       for (var i = 0 ; i < posts.length ; i++) {
@@ -602,8 +623,38 @@ function runBot(callback) {
     function () {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
-      // TODO : work
-      persistentLog(" - TODO");
+      // determine if post score above threshold, recalculating threshold if needs be
+      toVote = [];
+      for (var i = 0 ; i < posts.length ; i++) {
+        if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
+          // recalculate avgerage based on window value
+          persistentLog(" - - recalculate avgerage based on window value");
+          var avg = 0;
+          for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
+            avg += avgWindowInfo.postScores[j];
+          }
+          avg /= avgWindowInfo.postScores.length;
+          if (avg < MIN_SCORE_THRESHOLD) {
+            avg = MIN_SCORE_THRESHOLD;
+          }
+          avgWindowInfo.scoreThreshold = avg;
+          persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
+        }
+        // add score to avgWindowInfo
+        avgWindowInfo.postScores.push(score[i]);
+        // check if post or not
+        if (scores[i] >= avgWindowInfo.scoreThreshold) {
+          toVote.push(posts[i]);
+          persistentLog(" - - "+scores[i]+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
+        } else {
+          persistentLog(" - - "+scores[i]+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
+        }
+      }
+      // save updated avgWindowInfo
+      persistentLog(" - saving avg_window_info");
+      persistJson("avg_window_info", avgWindowInfo, function(err) {
+        persistentLog(" - - ERROR SAVING avg_window_info");
+      })
       // finish
       deferred.resolve(true);
       return deferred.promise;
@@ -612,8 +663,9 @@ function runBot(callback) {
     function () {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
-      // TODO : work
-      persistentLog(" - TODO");
+      // TODO : cast vote
+      persistentLog(" - will vote on: "+JSON.stringify(toVote));
+      persistentLog(" - NOT YET IMPLEMENTED! will not cast vote now");
       // finish
       deferred.resolve(true);
       return deferred.promise;
@@ -660,10 +712,16 @@ function runBot(callback) {
       var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>"
         + "<h2>Posts and scores:</h2>";
       if (postsMetadata.length > 0) {
-        for (var i = 0 ; i < postsMetadata.length ; i++) {
-          email += "<p><strong>Score "+postsMetadata[i].score+"</strong> for "
-            +"<a href=\""+postsMetadata[i].url+"\"><strong>"+postsMetadata[i].title+"</strong></a>"
-            + " by author "+postsMetadata[i].author + "</p>";
+        // first sort postsMetadata
+        var maxScore = Number.MAX_VALUE;
+        var sortedPostsMetadata = postsMetadata.sort(function(a, b) {
+          return b.score - a.score;
+        });
+        // add to email
+        for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
+          email += "<p>Score <strong>"+sortedPostsMetadata[i].score+"</strong> for "
+            +"<a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a>"
+            + " by author "+sortedPostsMetadata[i].author + "</p>";
         }
       } else {
         email += "<p><strong>No new posts found</strong></p>";
@@ -671,8 +729,10 @@ function runBot(callback) {
       email += "</hr>"
       email += "<h2>User weights and config:</h2>";
       email += "<h3>Weights</h3>";
-      var weightsHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<p/><p>");
+      var weightsHtml = JSON.stringify(weights, null, 4).replace('\n', "<p/><p>");
       email += "<p>"+weightsHtml+"</p>";
+      email += "<h3>Averaging window</h3>";
+      email += "<p>Score threshold: "+scoreThreshold+"</p>";
       email += "<h3>White and black lists</h3>";
       email += "<p>Author whitelist: "+JSON.stringify(authorWhitelist)+"</p>";
       email += "<p>Author blacklist: "+JSON.stringify(authorBlacklist)+"</p>";
@@ -682,7 +742,7 @@ function runBot(callback) {
       email += "<p>Content word blacklist: "+JSON.stringify(contentWordBlacklist)+"</p>";
       email += "<p>Domain whitelist: "+JSON.stringify(domainWhitelist)+"</p>";
       email += "<p>Domain blacklist: "+JSON.stringify(domainBlacklist)+"</p>";
-      email += "<h3>Misc vars</h3>";
+      email += "<h3>Misc constant settings</h3>";
       email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
       email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";
       email += "<p>Whale min SP: "+CAPITAL_WHALE_MIN+"</p>";
@@ -793,11 +853,51 @@ function getUserAccount() {
 }
 
 /*
+persistString(key, string):
+*/
+function persistString(key, string, error) {
+  redisClient.on("error", function (err) {
+    setError(null, false, "persistString redis error for key "+key+": "+err);
+    if (error) {
+      error();
+    }
+  });
+  redisClient.set(key, string, function() {
+    console.log("persistString save for key "+key);
+  });
+}
+
+/*
+getPersistentString(key):
+*/
+function getPersistentString(key, callback) {
+  redisClient.on("error", function (err) {
+    setError(null, false, "getPersistentString redis _on_ error for key "+key+": "+err);
+  });
+  redisClient.get(key, function(err, reply) {
+    if (reply == null) {
+      setError(null, false, "getPersistentString redis error for key "+key+": "+err);
+      if (callback) {
+        callback(null);
+      }
+    } else {
+      if (callback) {
+        try {
+          callback(reply);
+        } catch(err) {
+          callback(null);
+        }
+      }
+    }
+  });
+}
+
+/*
 persistJson(key, json):
 */
 function persistJson(key, json, error) {
   redisClient.on("error", function (err) {
-    setError(null, false, "persistJson redit error for key "+key+": "+err);
+    setError(null, false, "persistJson redis error for key "+key+": "+err);
     if (error) {
       error();
     }
@@ -812,11 +912,11 @@ getPersistentJson(key):
 */
 function getPersistentJson(key, callback) {
   redisClient.on("error", function (err) {
-    setError(null, false, "getPersistentJson redit _on_ error for key "+key+": "+err);
+    setError(null, false, "getPersistentJson redis _on_ error for key "+key+": "+err);
   });
   redisClient.get(key, function(err, reply) {
     if (reply == null) {
-      setError(null, false, "getPersistentJson redit error for key "+key+": "+err);
+      setError(null, false, "getPersistentJson redis error for key "+key+": "+err);
       if (callback) {
         callback(null);
       }

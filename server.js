@@ -5,8 +5,7 @@ const
   express = require("express"),
   path = require("path"),
   bodyParser = require("body-parser"),
-  fs = require('fs'),
-  path = require('path');
+  fs = require('fs');
 
 const
   html_algo_emptyList = "<tr>

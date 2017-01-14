@@ -32,6 +32,7 @@ const
   CAPITAL_WHALE_MIN = 100000,
   MIN_KEYWORD_LEN = 4,
   MIN_SCORE_THRESHOLD = 10,
+  SCORE_THRESHOLD_INC_PC = 0.3,
   NUM_POSTS_FOR_AVG_WINDOW = 10;
 
 /* Private variables */
@@ -637,7 +638,7 @@ function runBot(callback) {
             avg = MIN_SCORE_THRESHOLD;
           }
           // approach new threshold by halfs, i.e. introduce some entropy or gravity on movement
-          avgWindowInfo.scoreThreshold =+ (avg - avgWindowInfo.scoreThreshold) / 2;
+          avgWindowInfo.scoreThreshold =* SCORE_THRESHOLD_INC_PC;
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }
@@ -745,6 +746,8 @@ function runBot(callback) {
       email += "<p>"+weightsHtml+"</p>";
       email += "<h3>Averaging window</h3>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
+      email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
+      email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
       email += "<h3>White and black lists</h3>";
       email += "<p>Author whitelist: "+JSON.stringify(authorWhitelist)+"</p>";
       email += "<p>Author blacklist: "+JSON.stringify(authorBlacklist)+"</p>";

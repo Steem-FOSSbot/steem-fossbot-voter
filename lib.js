@@ -1130,7 +1130,7 @@ function testEnvVars() {
     setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
   }
 
-  console.log("email address to: "+process.env.SENDGRID_API_KEY);
+  console.log("SendGrid API key?: "+(process.env.SENDGRID_API_KEY ? "true" : "false"));
   console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
   console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 
@@ -1149,3 +1149,4 @@ module.exports.hasFatalError = hasFatalError;
 module.exports.getServerState = getServerState;
 module.exports.showFatalError = showFatalError;
 module.exports.sendEmail = sendEmail;
+module.exports.getPersistentJson = getPersistentJson;

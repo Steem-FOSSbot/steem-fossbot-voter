@@ -96,7 +96,7 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
-  getPersistentJson("algorithm", function(algorithmResult) {
+  lib.getPersistentJson("algorithm", function(algorithmResult) {
     var algorithm = {};
     if (algorithmResult != null) {
       algorithm = algorithmResult;

@@ -44,15 +44,15 @@ var steemGlobalProperties = {};
 // algorithm
 // - lists
 var algorithm = {
-  algorithm.weights: [],
-  algorithm.authorWhitelist: [],
-  algorithm.authorBlacklist: [],
-  algorithm.contentCategoryWhitelist: [],
-  algorithm.contentCategoryBlacklist: [],
-  algorithm.contentWordWhitelist: [],
-  algorithm.contentWordBlacklist: [],
-  algorithm.domainWhitelist: [],
-  algorithm.domainBlacklist: []
+  weights: [],
+  authorWhitelist: [],
+  authorBlacklist: [],
+  contentCategoryWhitelist: [],
+  contentCategoryBlacklist: [],
+  contentWordWhitelist: [],
+  contentWordBlacklist: [],
+  domainWhitelist: [],
+  domainBlacklist: []
 }
 
 // data
@@ -142,14 +142,14 @@ function runBot(callback) {
                 {key: "author_repuation", value: 10, lower: 25, upper: 75},
                 {key: "post_num_votes", value: -2}
               ],
-              algorithm.authorWhitelist: [],
-              algorithm.authorBlacklist: [],
-              algorithm.contentCategoryWhitelist: [],
-              algorithm.contentCategoryBlacklist: [],
-              algorithm.contentWordWhitelist: [],
-              algorithm.contentWordBlacklist: [],
-              algorithm.domainWhitelist: [],
-              algorithm.domainBlacklist: []
+              authorWhitelist: [],
+              authorBlacklist: [],
+              contentCategoryWhitelist: [],
+              contentCategoryBlacklist: [],
+              contentWordWhitelist: [],
+              contentWordBlacklist: [],
+              domainWhitelist: [],
+              domainBlacklist: []
             };
           }
         }

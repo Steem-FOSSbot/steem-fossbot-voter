@@ -732,7 +732,7 @@ function runBot(callback) {
       var weightsHtml = JSON.stringify(weights, null, 4).replace('\n', "<p/><p>");
       email += "<p>"+weightsHtml+"</p>";
       email += "<h3>Averaging window</h3>";
-      email += "<p>Score threshold: "+scoreThreshold+"</p>";
+      email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<h3>White and black lists</h3>";
       email += "<p>Author whitelist: "+JSON.stringify(authorWhitelist)+"</p>";
       email += "<p>Author blacklist: "+JSON.stringify(authorBlacklist)+"</p>";

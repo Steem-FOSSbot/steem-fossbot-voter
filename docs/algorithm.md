@@ -22,7 +22,7 @@ The algorithm combines metrics into a single score using metric values at a cert
 
 The weights scale metric values in order to change the contributing effect of a metric. They can also be used to make a  value more (or even less!) reasonable.
 
-Bounding a metric value _within_ a range can also makes the value more reasonable. You may want to cap the word count having an effect on a increasing the overall score at 2000 words for example.
+Bounding a metric value to a range can also makes the value more reasonable. You may want to cap the word count having an effect on a increasing the overall score at 2000 words for example.
 
 #### Polynomial
 
@@ -34,8 +34,9 @@ If range is to be applied, let ```l``` be the lower bound value and ```u``` be t
 
 ```
 for each m at index i
-	if m[i] < l then m[i] = l
-	if m[i] > u then m[i] = u
+	if m[i] < l then m[i] = 0
+	if m[i] >= l and m[i] < u then m[i] = m[i] - l
+	if m[i] >= u then m[i] = u - l
 ```
 
 Let ```W``` be the set of weights applied to each metric, also of size ```n```.
@@ -59,7 +60,6 @@ We could potentially use this completely drop or maximise the score, by using ei
 ##### Possible feature additions
 
 1. Add non-linear scaling option for metric values.
-2. Add other kind of range which excludes (i.e. zeros) value if value falls outside range
 
 ## Metrics
 
@@ -172,7 +172,7 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 3. ```post_any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
 4. ```post_any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
 
-**Proposed, not implemented, need to create topic trainer for natural js library**
+##### Proposed, not implemented, need to create topic trainer for natural js library
 
 1. ```post_topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
 2. ```post_topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
@@ -182,7 +182,7 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 ##### Numeric
 
 1. ```post_num_links_video```: Number of video links
-2. ```post_num_links_photo```: Number of photo links
+2. ```post_num_links_image```: Number of image links
 3. ```post_num_links_page```: Number of webpage links
 4. ```post_num_links_total```: Total number of links
 5. ```post_num_link_domains_whitelisted```: Number of link domains on whitelist
@@ -198,5 +198,8 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 ##### Numeric
 
 1. ```author_repuation```: Reputation (Stemit version, not direct from blockchain)
-2. ```author_num_posts_today```: Number of posts today
-3. ```author_last_post_time```: Time since last post in minutes
+
+##### Proposed, not implemented
+
+1. ```author_num_posts_today```: Number of posts today
+2. ```author_last_post_time```: Time since last post in minutes

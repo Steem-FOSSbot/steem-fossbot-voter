@@ -6,7 +6,7 @@ const
   glossaryBlacklist = ["http", "https", "I ve"],
   imagesExt = ["tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif", "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png",
       "svg", "xcf", "bmp", "img", "ico"],
-  videoDomains = ["youtube","youtu.be", "vimeo"];
+  videoDomains = ["youtube","youtu", "vimeo"];
 
 const
 	steem = require("steem"),
@@ -49,7 +49,14 @@ var contentWordBlacklist = [];
 var domainWhitelist = [];
 var domainBlacklist = [];
 // - main
-var weights = [];
+// TODO : remove these test weights
+var weights = [
+  {key: "post_num_links_video", value: -10},
+  {key: "post_num_words", value: 2, lower: 500, upper: 2000},
+  {key: "author_is_followed", value: 50},
+  {key: "post_voted_any_whale", value: 20},
+  {key: "post_voted_num_dolphin", value: 5}
+];
 
 // data
 var posts = [];
@@ -60,6 +67,8 @@ var following = [];
 // metrics
 var owner = {};
 var postsMetrics = [];
+// resulting
+var scores = [];
 
 
 /*
@@ -280,7 +289,6 @@ function runBot(messageCallback) {
         postsMetrics[i].post_voted_any_blacklisted = (numBlacklisted > 0) ? 1 : 0;
       }
       // finish
-      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
@@ -335,7 +343,6 @@ function runBot(messageCallback) {
         }
       }
       // finish
-      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
@@ -423,7 +430,7 @@ function runBot(messageCallback) {
         postsMetrics[i].post_num_chars = nlp.content.length;
         postsMetrics[i].post_num_words = nlp.num_words;
         postsMetrics[i].post_sentiment_val = nlp.sentiment;
-        // zero vals
+        // - zero vals
         postsMetrics[i].post_num_tags_whitelisted = 0;
         postsMetrics[i].post_num_tags_blacklisted = 0;
         for (var j = 0 ; j < posts[i].json_metadata.tags.length ; j++) {
@@ -450,8 +457,68 @@ function runBot(messageCallback) {
         postsMetrics[i].post_any_keyword_whitelisted = postsMetrics[i].post_num_keywords_whitelisted > 0;
         postsMetrics[i].post_any_keyword_blacklisted = postsMetrics[i].post_num_keywords_blacklisted > 0;
         // content - links
+        // - zero vals
+        postsMetrics[i].post_num_links_video = 0;
+        postsMetrics[i].post_num_links_image = 0;
+        postsMetrics[i].post_num_links_page = 0;
+        postsMetrics[i].post_num_links_total = 0; 
+        postsMetrics[i].post_num_link_domains_whitelisted = 0;
+        postsMetrics[i].post_num_link_domains_blacklisted = 0;
+        console.log(" - - classifying urls");
+        for (var j = 0 ; j < nlp.urls.length ; j++) {
+          var url = nlp.urls[j];
+          postsMetrics[i].post_num_links_total++;
+          console.log(" - - - url: "+url);
+          // get domain
+          var domain = "";
+          var urlParts = S(url).splitLeft("//", 1).s;
+          if (urlParts.length > 1) {
+            var urlSubParts = S(urlParts[1]).splitLeft("/", 1).s;
+            if (urlSubParts.length >= 1) {
+              var domainParts = S(urlSubParts[0]).splitLeft("/", 1).s;
+              if (domainParts.length > 2) {
+                domain = domainParts[1];
+              } else if (domainParts.length > 0) {
+                domain = domainParts[0];
+              } // else failed, leave domain blank
+            }
+          }
+          console.log(" - - - domain: "+domain);
+          // track matching progress
+          var match = false;
+          // check if is image
+          for (var k = 0 ; k < imagesExt.length ; k++) {
+            if (S(url).endsWith("."+imagesExt[k])) {
+              postsMetrics[i].post_num_links_image++;
+              console.log(" - - - - is image");
+              match = true;
+              break;
+            }
+          }
+          // check if is video link
+          if (!match) {
+            if (videoDomains.indexOf(domain) > 0) {
+              postsMetrics[i].post_num_links_video++;
+              console.log(" - - - - is video");
+              match = true;
+            }
+          }
+          // if not image or video, assume is normal webpage
+          if (!match) {
+            postsMetrics[i].post_num_links_page++;
+          }
+          // check for domain presence on white / black list
+          postsMetrics[i].post_num_link_domains_whitelisted += (domainWhitelist.indexOf(domain) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_link_domains_blacklisted += (domainBlacklist.indexOf(domain) > 0) ? 1 : 0;
+        }
+        postsMetrics[i].post_any_link_domains_whitelisted = postsMetrics[i].post_num_link_domains_whitelisted > 0;
+        postsMetrics[i].post_any_link_domains_blacklisted = postsMetrics[i].post_num_link_domains_blacklisted > 0;
+        // author metrics
+        postsMetrics[i].author_repuation = steem.formatter.reputation(posts[i].author_reputation);
       }
       // finish
+      console.log(" - finished gathering metrics");
+      console.log(" - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
@@ -459,9 +526,41 @@ function runBot(messageCallback) {
     function () {
       console.log("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
-      // TODO : work
-      console.log(" - TODO");
+      // calculate scores
+      scores = [];
+      for (var i = 0 ; i < postsMetrics.length ; i++) {
+        console.log(" - - score for post "+i);
+        metric = postsMetrics[i];
+        scores[i] = 0;
+        for (var j = 0 ; j < weights.length ; j++) {
+          if (metric.hasOwnProperty(weights[j].key)) {
+            var value = metric[weights[j].key];
+            var weight = weights[j].value;
+            if (weights[j].hasOwnProperty("lower")) {
+              console.log(" - - - - bounding metric("+value+") to range");
+              if (value < weights[j].lower) {
+                value = 0;
+              }
+              if (weights[j].hasOwnProperty("upper")) {
+                if (value > weights[j].upper) {
+                  value = (weights[j].upper - weights[j].lower);
+                } else {
+                  value -= weights[j].lower;
+                }
+              }
+              console.log(" - - - - after bounding: "+value);
+            }
+            var result = value * ;
+            console.log(" - - - metric ("+value+") * weight("+weights[j].key+") = "+result);
+            scores[i] += result;
+          } else {
+            console.log(" - - - error, key not found in metrics: "+weights[j].key);
+          }
+        }
+        console.log(" - - final score: "+scores[i]);
+      }
       // finish
+      console.log(" - scores: "+JSON.stringify(scores));
       deferred.resolve(true);
       return deferred.promise;
     },

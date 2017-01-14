@@ -74,7 +74,6 @@ var postsMetrics = [];
 // resulting
 var scores = [];
 var postsMetadata = [];
-var toVote = [];
 
 // toher
 var log = "";
@@ -624,7 +623,7 @@ function runBot(callback) {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       // determine if post score above threshold, recalculating threshold if needs be
-      toVote = [];
+      postsMetadata = [];
       for (var i = 0 ; i < posts.length ; i++) {
         if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
           // recalculate avgerage based on window value
@@ -643,12 +642,23 @@ function runBot(callback) {
         // add score to avgWindowInfo
         avgWindowInfo.postScores.push(scores[i]);
         // check if post or not
+        var toVote = false;
         if (scores[i] >= avgWindowInfo.scoreThreshold) {
-          toVote.push(posts[i]);
+          toVote = true;
           persistentLog(" - - "+scores[i]+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
         } else {
           persistentLog(" - - "+scores[i]+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
+        postsMetadata.push(
+          {
+            title: posts[i].title,
+            url: "https://steemit.com"+posts[i].url,
+            author: posts[i].author,
+            time: posts[i].created,
+            score: scores[i],
+            permlink: posts[i].permlink,
+            vote: toVote
+          });
       }
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
@@ -663,9 +673,18 @@ function runBot(callback) {
     function () {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
-      // TODO : cast vote
-      persistentLog(" - will vote on: "+JSON.stringify(toVote));
-      persistentLog(" - NOT YET IMPLEMENTED! will not cast vote now");
+      // cast vote
+      persistentLog(" - voting (NOT YET IMPLEMENTED)");
+      if (postsMetadata.length > 0) {
+        for (var i = 0 ; i < postsMetadata.length ; i++) {
+          // TODO : actually cast vote
+          persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
+              +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
+        }
+      } else {
+        persistentLog(" - - no post to vote on");
+      }
+      persistentLog(" - ! will not cast vote now");
       // finish
       deferred.resolve(true);
       return deferred.promise;
@@ -675,16 +694,6 @@ function runBot(callback) {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
       // back to http
-      postsMetadata = [];
-      for (var i = 0 ; i < posts.length ; i++) {
-        var metadata = {};
-        metadata.title = posts[i].title;
-        metadata.url = "https://steemit.com"+posts[i].url;
-        metadata.author = posts[i].author;
-        metadata.time = posts[i].created;
-        metadata.score = scores[i];
-        postsMetadata.push(metadata);
-      }
       if (callback) {
         callback(
           {
@@ -719,7 +728,8 @@ function runBot(callback) {
         });
         // add to email
         for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
-          email += "<p>Score <strong>"+sortedPostsMetadata[i].score+"</strong> for "
+          email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">Score <strong>"
+            +sortedPostsMetadata[i].score+"</strong> for "
             +"<a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a>"
             + " by author "+sortedPostsMetadata[i].author + "</p>";
         }

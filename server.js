@@ -96,8 +96,59 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
-  res.send(200, 
-    html_editAlgo1 
-    + html_algo_emptyList 
-    + html_editAlgo2);
+  getPersistentJson("algorithm", function(algorithmResult) {
+    var algorithm = {};
+    if (algorithmResult != null) {
+      algorithm = algorithmResult;
+      console.log(" - got algorithm from redis store: "+JSON.stringify(algorithm));
+    } else {
+      console.log(" - no algorithm in redis store, USING DEFAULT");
+      // TODO : remove this default algorithm setting
+      algorithm = {
+        weights: [
+          {key: "post_num_links_video", value: -10},
+          {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
+          {key: "author_is_followed", value: 50},
+          {key: "post_voted_any_whale", value: 20},
+          {key: "post_voted_num_dolphin", value: 5},
+          {key: "author_repuation", value: 10, lower: 25, upper: 75},
+          {key: "post_num_votes", value: -2}
+        ],
+        authorWhitelist: [],
+        authorBlacklist: [],
+        contentCategoryWhitelist: [],
+        contentCategoryBlacklist: [],
+        contentWordWhitelist: [],
+        contentWordBlacklist: [],
+        domainWhitelist: [],
+        domainBlacklist: []
+      };
+    }
+    var html_list = "";
+    if (algorithm.weights.length > 0) {
+      for (var i = 0 ; i < algorithm.weights.length ; i++) {
+        html_list += "<tr><td>"+algorithm.weights[i].key+"</td><td>"+algorithm.weights[i].value+"</td>";
+        if (algorithm.weights[i].hasOwnProperty("lower")) {
+          html_list += "<td>"+algorithm.weights[i].lower+"</td>";
+        } else {
+          html_list += "<td>-</td>";
+        }
+        if (algorithm.weights[i].hasOwnProperty("upper")) {
+          html_list += "<td>"+algorithm.weights[i].upper+"</td>";
+        } else {
+          html_list += "<td>-</td>";
+        }
+        // TODO : add href url delete to button
+        html_list += "<th><p><a class="btn btn-default" href="#" role="button"><strike>Delete<strike></a></p></th>";
+        html_list += "</tr>";
+      }
+    } else {
+      html_list = html_algo_emptyList;
+    }
+    // TODO : make list
+    res.send(200, 
+      html_editAlgo1 
+      + html_list
+      + html_editAlgo2);
+    });
 });

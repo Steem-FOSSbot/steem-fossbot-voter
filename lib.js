@@ -125,7 +125,7 @@ function runBot(callback) {
           persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
         }
         getPersistentJson("algorithm", function(algorithmResult) {
-          if (algo != null) {
+          if (algorithmResult != null) {
             algorithmSet = true;
             algorithm = algorithmResult;
             persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));

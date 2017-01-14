@@ -114,11 +114,7 @@ app.get("/edit-algo", function(req, res) {
 app.post("/edit-algo", function(req, res) {
   console.log("/edit-algo POST request");
   // get options from post data
-  console.log(" - req.body.inputKey: "+req.body.inputKey);
-  console.log(" - req.body.inputWeight: "+req.body.inputWeight);
-  console.log(" - req.body.inputLower: "+req.body.inputLower);
-  console.log(" - req.body.inputUpper: "+req.body.inputUpper);
-  console.log(" - req.body.inputApiKey: "+req.body.inputApiKey);
+  console.log(" - req.body: "+JSON.stringify(req.body));
   editAlgoExec(res);  
 });
 

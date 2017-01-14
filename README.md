@@ -38,3 +38,5 @@ See the [installation guide](installation.md).
 All original programming is under the CC0 license and so it completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
 
 The [steem Node.js package](https://www.npmjs.com/package/steem), used to access the Steem API, is available on NPM, and the [source is on GitHub](https://github.com/adcpm/steem).
+
+Bootstrap is used for web frontend and is under the MIT license copyright to Twitter.

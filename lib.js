@@ -434,13 +434,21 @@ function runBot(messageCallback) {
         postsMetrics[i].post_num_tags_whitelisted = 0;
         postsMetrics[i].post_num_tags_blacklisted = 0;
 
-        if (posts[i].hasOwnProperty("json_metadata")
-            && posts[i].json_metadata.hasOwnProperty("tags")) {
-          console.log(" - - checking tags");
-          for (var j = 0 ; j < posts[i].json_metadata.tags.length ; j++) {
-            var tag = posts[i].json_metadata.tags[j];
-            postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
-            postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+        if (posts[i].hasOwnProperty("json_metadata")) {
+          try {
+            var metadata = JSON.parse(posts[i].json_metadata);
+            if (metadata && metadata.hasOwnProperty("tags")) {
+              console.log(" - - checking tags");
+              for (var j = 0 ; j < metadata.tags.length ; j++) {
+                var tag = metadata.tags[j];
+                postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+              }
+            } else {
+              console.log(" - - no tags to check");
+            }
+          } catch(err) {
+            console.log(" - - no tags to check, err: "+err.message);
           }
         } else {
           console.log(" - - no tags to check");
@@ -479,12 +487,12 @@ function runBot(messageCallback) {
           console.log(" - - - url: "+url);
           // get domain
           var domain = "";
-          var urlParts = S(url).splitLeft("//", 1).s;
-          if (urlParts.length > 1) {
-            var urlSubParts = S(urlParts[1]).splitLeft("/", 1).s;
-            if (urlSubParts.length >= 1) {
-              var domainParts = S(urlSubParts[0]).splitLeft("/", 1).s;
-              if (domainParts.length > 2) {
+          var urlParts = S(url).splitLeft("//", 1);
+          if (urlParts && urlParts.length > 1) {
+            var urlSubParts = S(urlParts[1]).splitLeft("/", 1);
+            if (urlSubParts && urlSubParts.length >= 1) {
+              var domainParts = S(urlSubParts[0]).splitLeft("/", 1);
+              if (domainParts && domainParts.length > 2) {
                 domain = domainParts[1];
               } else if (domainParts.length > 0) {
                 domain = domainParts[0];

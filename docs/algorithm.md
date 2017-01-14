@@ -79,8 +79,9 @@ Capital category (minnow, dolphin, whale) is defined as
 
 A whitelist and blacklist is supplied for the following:
 
-- Content words
 - Authors
+- Category
+- Content words
 - Domains
 
 The way these are used depends on the metric. They can be empty and will then have no effect.
@@ -155,17 +156,26 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 1. ```post_num_chars```: Post length in characters
 2. ```post_num_words```: Post length in words
 3. ```post_sentiment_val```: Sentiment / emotional score
-5. ```post_num_keywords_whitelisted```: Number of unique whitelisted words
-6. ```post_num_keywords_blacklisted```: Number of unique blacklisted words
-7. ```post_num_words_whitelisted```: Number of unique whitelist words in entire content text
-8. ```post_num_words_blacklisted```: Number of unique blacklist words in entire content text
+4. ```post_num_tags_whitelisted```: Number of whitelisted tags (uses content word lists)
+5. ```post_num_tags_blacklisted```: Number of blacklisted tags (uses content word lists)
+6. ```post_num_keywords_whitelisted```: Number of unique whitelisted keywords
+7. ```post_num_keywords_blacklisted```: Number of unique blacklisted keywords
+8. ```post_num_words_whitelisted```: Number of unique whitelist words in entire content text
+9. ```post_num_words_blacklisted```: Number of unique blacklist words in entire content text
 
 ##### Boolean
 
-1. ```post_topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
-2. ```post_topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
+1. ```post_category_whitelisted```: Category (sub-steem) on whitelist (false = 0, true = 1)
+2. ```post_category_blacklisted```: Category (sub-steem) on blacklist (false = 0, true = 1)
+3. ```post_any_tag_whitelisted```: Any tag on whitelist (false = 0, true = 1)
+4. ```post_any_tag_blacklisted```: Any tag on blacklist (false = 0, true = 1)
 3. ```post_any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
 4. ```post_any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
+
+**Proposed, not implemented, need to create topic trainer for natural js library**
+
+1. ```post_topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
+2. ```post_topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
 
 #### Content - Links
 

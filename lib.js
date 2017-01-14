@@ -40,10 +40,12 @@ var steemGlobalProperties = {};
 
 // algorithm
 // - lists
-var contentWordWhitelist = [];
-var contentWordBlacklist = [];
 var authorWhitelist = [];
 var authorBlacklist = [];
+var contentCategoryWhitelist = [];
+var contentCategoryBlacklist = [];
+var contentWordWhitelist = [];
+var contentWordBlacklist = [];
 var domainWhitelist = [];
 var domainBlacklist = [];
 // - main
@@ -337,9 +339,9 @@ function runBot(messageCallback) {
       deferred.resolve(true);
       return deferred.promise;
     },
-    // transform post data to metrics 5, cultural metrics, content - text
+    // transform post data to metrics 5, do NLP processing
     function () {
-      console.log("Q.deferred: transform post data to metrics 5, cultural metrics prestep, get NLP data");
+      console.log("Q.deferred: transform post data to metrics 5, do NLP processing");
       var deferred = Q.defer();
       postsNlp = [];
       var postCount = 0;
@@ -359,7 +361,7 @@ function runBot(messageCallback) {
         console.log(" - - nlp.content: "+nlp.content);
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
-        console.log(" - - - alphaNumericContent: "+alphaNumericContent);
+        //console.log(" - - - alphaNumericContent: "+alphaNumericContent);
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];
@@ -408,6 +410,49 @@ function runBot(messageCallback) {
           })
           .process(nlp.content);
       }
+      return deferred.promise;
+    },
+    // transform post data to metrics 6, calc cultural metrics, content
+    function () {
+      console.log("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
+      var deferred = Q.defer();
+      for (var i = 0 ; i < postsMetrics.length ; i++) {
+        console.log(" - postsMetrics ["+i+"]");
+        var nlp = postsNlp[i];
+        // content - text
+        postsMetrics[i].post_num_chars = nlp.content.length;
+        postsMetrics[i].post_num_words = nlp.num_words;
+        postsMetrics[i].post_sentiment_val = nlp.sentiment;
+        // zero vals
+        postsMetrics[i].post_num_tags_whitelisted = 0;
+        postsMetrics[i].post_num_tags_blacklisted = 0;
+        for (var j = 0 ; j < posts[i].json_metadata.tags.length ; j++) {
+          var tag = posts[i].json_metadata.tags[j];
+          postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+        }
+        postsMetrics[i].post_num_keywords_whitelisted = 0;
+        postsMetrics[i].post_num_keywords_blacklisted = 0;
+        postsMetrics[i].post_num_words_whitelisted = 0;
+        postsMetrics[i].post_num_words_blacklisted = 0;
+        for (var j = 0 ; j < nlp.keywords.length ; j++) {
+          var keyword = nlp.keywords[j];
+          postsMetrics[i].post_num_keywords_whitelisted += (contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_keywords_blacklisted += (contentWordBlacklist.indexOf(keyword) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_words_whitelisted += (nlp.content.indexOf(keyword) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_words_blacklisted += (nlp.content.indexOf(keyword) > 0) ? 1 : 0;
+        }
+        // - bool
+        postsMetrics[i].post_category_whitelisted = (contentCategoryWhitelist.indexOf(posts[i].category) > 0) ? 1 : 0;
+        postsMetrics[i].post_category_blacklisted = (contentCategoryBlacklist.indexOf(posts[i].category) > 0) ? 1 : 0;
+        postsMetrics[i].post_any_tag_whitelisted = postsMetrics[i].post_num_tags_whitelisted > 0;
+        postsMetrics[i].post_any_tag_blacklisted = postsMetrics[i].post_num_tags_blacklisted > 0;
+        postsMetrics[i].post_any_keyword_whitelisted = postsMetrics[i].post_num_keywords_whitelisted > 0;
+        postsMetrics[i].post_any_keyword_blacklisted = postsMetrics[i].post_num_keywords_blacklisted > 0;
+        // content - links
+      }
+      // finish
+      deferred.resolve(true);
       return deferred.promise;
     },
     // calculate scores for each post

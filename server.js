@@ -4,7 +4,22 @@ const
   lib = require("./lib.js"),
   express = require("express"),
   path = require("path"),
-  bodyParser = require("body-parser");
+  bodyParser = require("body-parser"),
+  fs = require('fs'),
+  path = require('path');
+
+const
+  html_algo_emptyList = "<tr>
+              <td>None</td>
+              <td></td>
+              <td>-</td>
+              <td>-</td>
+              <th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th>
+            </tr>";
+
+var
+  html_editAlgo1 = "",
+  html_editAlgo2 = "";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -18,6 +33,7 @@ app.listen(app.get('port'), function() {
   if (!lib.hasFatalError()) {
     console.log("Dashboard min requirements met, will be active on HTTPS");
     lib.sendEmail("Voter bot", "Server status: started");
+    loadFiles();
   } else {
     // kill node server to stop dashboard from showing and let owner know there is a problem without
     // giving any information away
@@ -31,6 +47,31 @@ module.exports = app;
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason + ", MESSAGE: "+message);
   res.status(code || 500).json({"error": message});
+}
+
+function loadFiles() {
+  loadFileToString("/html/edit-algo-part-1.html", function(str) {
+    html_editAlgo1 = str;
+    console.log("got /html/edit-algo-part-1.html from file");
+  });
+  loadFileToString("/html/edit-algo-part-2.html", function(str) {
+    html_editAlgo2 = str;
+    console.log("got /html/edit-algo-part-2.html from file");
+  });
+}
+
+function loadFileToString(filename, callback) {
+  fs.readFile(path.join(__dirname, filename), {encoding: 'utf-8'}, function(err,data) {
+    var str = "";
+    if (err) {
+      console.log(err);
+    } else {
+      str = data;
+    }
+    if (callback) {
+      callback(str);
+    }
+  });
 }
 
 // public HTTPS interface
@@ -60,3 +101,11 @@ app.get("/run-bot", function(req, res) {
     }
   });
 });
+
+// GET /edit-algo
+app.get("/edit-algo", function(req, res) {
+  res.send(200, 
+    html_editAlgo1 
+    + html_algo_emptyList 
+    + html_editAlgo2);
+}

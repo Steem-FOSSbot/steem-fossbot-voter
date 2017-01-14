@@ -10,11 +10,13 @@ Documentation is [available here](/docs/index.md).
 
 _Voter_ is a bot for Steem, built as a Node.js server and intended for deployment on Heroku or compatible.
 
-For more information about the Steem FOSSbot ecosystem, check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
+For more information about the planned Steem FOSSbot ecosystem, check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
 
 ## How it works
 
-Please see the [discussion doc page](/docs/discussion.md) for and overview on how the curation algorithm works and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md)
+New posts are pulled from the Steem API and each is assigned a score based on a user customisable algorithm. Posts which have a high enough score are voted on.
+
+Please see the [discussion doc page](/docs/discussion.md) for an overview on how the curation algorithm works and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md)
 
 ## Usage
 
@@ -31,7 +33,7 @@ The operations you can perform are:
 
 ## Installation
 
-See the [installation guide](installation.md).
+See the [installation guide](/docs/installation.md).
 
 ## License and acknowledgements
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    
+    <title>Edit Algorithm - Voter</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/edit-algo.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Voter</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/index.html">Dashboard</a></li>
+            <li><a href="https://github.com/evm2p/steem-fossbot-voter/blob/develop/docs/algorithm.md">Docs</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <h1 class="page-header">Edit Algorithm</h1>
+      <!--h2 class="sub-header">Message</h2-->
+      <div class="row">
+        <div class="col-sm-4">
+          <form class="form-add" action="/edit-algo-task" method="post">
+            <label for="inputKey" class="sr-only">Key</label>
+            <input type="text" id="inputKey" class="form-control" placeholder="Key" required autofocus>
+            <label for="inputWeight" class="sr-only">Weight</label>
+            <input type="number" id="inputWeight" class="form-control" placeholder="Weight" required>
+            <label for="inputLower" class="sr-only">Lower bound(optional)</label>
+            <input type="number" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
+            <label for="inputUpper" class="sr-only">Upper bound (optional)</label>
+            <input type="number" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
+            <label for="inputApiKey" class="sr-only">Bot API key</label>
+            <input type="password" id="inputApiKey" class="form-control" placeholder="Bot API key" required>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Add Rule</button>
+          </form>
+        </div>
+      </div>
+
+      <h2 class="sub-header">Rules</h2>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+              <th>Lower</th>
+              <th>Upper</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>

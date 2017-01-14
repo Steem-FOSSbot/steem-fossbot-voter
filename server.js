@@ -20,7 +20,6 @@ var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
-app.use(express.bodyParser());
 
 // Start server
 app.listen(app.get('port'), function() {
@@ -195,7 +194,7 @@ app.get("/test-algo", function(req, res) {
 });
 
 // POST /edit-algo
-app.post("/test-algo", function(req, res) {
+app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
   // TODO : get options from post data
   console.log("/test-algo POST request: "+req);
   res.send(200, 

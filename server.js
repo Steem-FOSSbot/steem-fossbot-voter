@@ -100,4 +100,4 @@ app.get("/edit-algo", function(req, res) {
     html_editAlgo1 
     + html_algo_emptyList 
     + html_editAlgo2);
-}
+});

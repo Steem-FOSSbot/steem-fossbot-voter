@@ -433,15 +433,23 @@ function runBot(messageCallback) {
         // - zero vals
         postsMetrics[i].post_num_tags_whitelisted = 0;
         postsMetrics[i].post_num_tags_blacklisted = 0;
-        for (var j = 0 ; j < posts[i].json_metadata.tags.length ; j++) {
-          var tag = posts[i].json_metadata.tags[j];
-          postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
-          postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+
+        if (posts[i].hasOwnProperty("json_metadata")
+            && posts[i].json_metadata.hasOwnProperty("tags")) {
+          console.log(" - - checking tags");
+          for (var j = 0 ; j < posts[i].json_metadata.tags.length ; j++) {
+            var tag = posts[i].json_metadata.tags[j];
+            postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
+            postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+          }
+        } else {
+          console.log(" - - no tags to check");
         }
         postsMetrics[i].post_num_keywords_whitelisted = 0;
         postsMetrics[i].post_num_keywords_blacklisted = 0;
         postsMetrics[i].post_num_words_whitelisted = 0;
         postsMetrics[i].post_num_words_blacklisted = 0;
+        console.log(" - - checking keywords");
         for (var j = 0 ; j < nlp.keywords.length ; j++) {
           var keyword = nlp.keywords[j];
           postsMetrics[i].post_num_keywords_whitelisted += (contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;

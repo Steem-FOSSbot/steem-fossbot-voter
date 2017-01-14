@@ -107,6 +107,17 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
+  editAlgoExec(res);  
+});
+
+// POST /edit-algo
+app.post("/edit-algo", function(req, res) {
+  // TODO : get options from post data
+  console.log("/edit-algo POST request: "+JSON.stringify(req));
+  editAlgoExec(res);  
+});
+
+function editAlgoExec(res) {
   lib.getPersistentJson("algorithm", function(algorithmResult) {
     var algorithm = {};
     if (algorithmResult != null) {
@@ -162,7 +173,7 @@ app.get("/edit-algo", function(req, res) {
       + html_list
       + html_editAlgo2);
     });
-});
+}
 
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {

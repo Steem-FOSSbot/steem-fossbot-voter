@@ -139,7 +139,7 @@ app.get("/edit-algo", function(req, res) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class="btn btn-default" href="#" role="button"><strike>Delete<strike></a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th>";
         html_list += "</tr>";
       }
     } else {

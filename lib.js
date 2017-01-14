@@ -43,25 +43,17 @@ var steemGlobalProperties = {};
 
 // algorithm
 // - lists
-var authorWhitelist = [];
-var authorBlacklist = [];
-var contentCategoryWhitelist = [];
-var contentCategoryBlacklist = [];
-var contentWordWhitelist = [];
-var contentWordBlacklist = [];
-var domainWhitelist = [];
-var domainBlacklist = [];
-// - main
-// TODO : remove these test weights
-var weights = [
-  {key: "post_num_links_video", value: -10},
-  {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
-  {key: "author_is_followed", value: 50},
-  {key: "post_voted_any_whale", value: 20},
-  {key: "post_voted_num_dolphin", value: 5},
-  {key: "author_repuation", value: 10, lower: 25, upper: 75},
-  {key: "post_num_votes", value: -2}
-];
+var algorithm = {
+  algorithm.weights: [],
+  algorithm.authorWhitelist: [],
+  algorithm.authorBlacklist: [],
+  algorithm.contentCategoryWhitelist: [],
+  algorithm.contentCategoryBlacklist: [],
+  algorithm.contentWordWhitelist: [],
+  algorithm.contentWordBlacklist: [],
+  algorithm.domainWhitelist: [],
+  algorithm.domainBlacklist: []
+}
 
 // data
 var posts = [];
@@ -76,13 +68,16 @@ var postsMetrics = [];
 var scores = [];
 var postsMetadata = [];
 
-// toher
-var log = "";
+// other
 var avgWindowInfo = {
   scoreThreshold: MIN_SCORE_THRESHOLD,
   postScores: [],
   windowSize: NUM_POSTS_FOR_AVG_WINDOW
 };
+
+// logging and notification
+var log = "";
+var algorithmSet = false;
 
 /*
 * Bot logic
@@ -128,6 +123,35 @@ function runBot(callback) {
           persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
         } else {
           persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
+        }
+        getPersistentJson("algorithm", function(algorithmResult) {
+          if (algo != null) {
+            algorithmSet = true;
+            algorithm = algorithmResult;
+            persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+          } else {
+            algorithmSet = false;
+            persistentLog(" - no algorithm in redis store, USING DEFAULT");
+            algorithm = {
+              weights: [
+                {key: "post_num_links_video", value: -10},
+                {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
+                {key: "author_is_followed", value: 50},
+                {key: "post_voted_any_whale", value: 20},
+                {key: "post_voted_num_dolphin", value: 5},
+                {key: "author_repuation", value: 10, lower: 25, upper: 75},
+                {key: "post_num_votes", value: -2}
+              ],
+              algorithm.authorWhitelist: [],
+              algorithm.authorBlacklist: [],
+              algorithm.contentCategoryWhitelist: [],
+              algorithm.contentCategoryBlacklist: [],
+              algorithm.contentWordWhitelist: [],
+              algorithm.contentWordBlacklist: [],
+              algorithm.domainWhitelist: [],
+              algorithm.domainBlacklist: []
+            };
+          }
         }
         deferred.resolve(true);
       })
@@ -296,13 +320,13 @@ function runBot(callback) {
               }
             }
             // determine if white / blacklisted, count
-            for (var k = 0 ; k < authorWhitelist.length ; k++) {
-              if (authorWhitelist[k] && authorWhitelist[k].localeCompare(voter) == 0) {
+            for (var k = 0 ; k < algorithm.authorWhitelist.length ; k++) {
+              if (algorithm.authorWhitelist[k] && algorithm.authorWhitelist[k].localeCompare(voter) == 0) {
                 numWhitelisted++;
               }
             }
-            for (var k = 0 ; k < authorBlacklist.length ; k++) {
-              if (authorBlacklist[k] && authorBlacklist[k].localeCompare(voter) == 0) {
+            for (var k = 0 ; k < algorithm.authorBlacklist.length ; k++) {
+              if (algorithm.authorBlacklist[k] && algorithm.authorBlacklist[k].localeCompare(voter) == 0) {
                 numBlacklisted++;
               }
             }
@@ -360,15 +384,15 @@ function runBot(callback) {
           }
           // determine if white / blacklisted, count
           postsMetrics[i].author_is_whitelisted = 0;
-          for (var k = 0 ; k < authorWhitelist.length ; k++) {
-            if (authorWhitelist[k] && authorWhitelist[k].localeCompare(posts[i].author) == 0) {
+          for (var k = 0 ; k < algorithm.authorWhitelist.length ; k++) {
+            if (algorithm.authorWhitelist[k] && algorithm.authorWhitelist[k].localeCompare(posts[i].author) == 0) {
               postsMetrics[i].author_is_whitelisted = 1;
               break;
             }
           }
           postsMetrics[i].author_is_blacklisted = 0;
-          for (var k = 0 ; k < authorBlacklist.length ; k++) {
-            if (authorBlacklist[k] && authorBlacklist[k].localeCompare(posts[i].author) == 0) {
+          for (var k = 0 ; k < algorithm.authorBlacklist.length ; k++) {
+            if (algorithm.authorBlacklist[k] && algorithm.authorBlacklist[k].localeCompare(posts[i].author) == 0) {
               postsMetrics[i].author_is_blacklisted = 1;
               break;
             }
@@ -474,8 +498,8 @@ function runBot(callback) {
               persistentLog(" - - checking tags");
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
-                postsMetrics[i].post_num_tags_whitelisted += (contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
-                postsMetrics[i].post_num_tags_blacklisted += (contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
               }
             } else {
               persistentLog(" - - no tags to check");
@@ -493,14 +517,14 @@ function runBot(callback) {
         persistentLog(" - - checking keywords");
         for (var j = 0 ; j < nlp.keywords.length ; j++) {
           var keyword = nlp.keywords[j];
-          postsMetrics[i].post_num_keywords_whitelisted += (contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
-          postsMetrics[i].post_num_keywords_blacklisted += (contentWordBlacklist.indexOf(keyword) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_keywords_whitelisted += (algorithm.contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_keywords_blacklisted += (algorithm.contentWordBlacklist.indexOf(keyword) > 0) ? 1 : 0;
           postsMetrics[i].post_num_words_whitelisted += (nlp.content.indexOf(keyword) > 0) ? 1 : 0;
           postsMetrics[i].post_num_words_blacklisted += (nlp.content.indexOf(keyword) > 0) ? 1 : 0;
         }
         // - bool
-        postsMetrics[i].post_category_whitelisted = (contentCategoryWhitelist.indexOf(posts[i].category) > 0) ? 1 : 0;
-        postsMetrics[i].post_category_blacklisted = (contentCategoryBlacklist.indexOf(posts[i].category) > 0) ? 1 : 0;
+        postsMetrics[i].post_category_whitelisted = (algorithm.contentCategoryWhitelist.indexOf(posts[i].category) > 0) ? 1 : 0;
+        postsMetrics[i].post_category_blacklisted = (algorithm.contentCategoryBlacklist.indexOf(posts[i].category) > 0) ? 1 : 0;
         postsMetrics[i].post_any_tag_whitelisted = (postsMetrics[i].post_num_tags_whitelisted > 0) ? 1 : 0;
         postsMetrics[i].post_any_tag_blacklisted = (postsMetrics[i].post_num_tags_blacklisted > 0) ? 1 : 0;
         postsMetrics[i].post_any_keyword_whitelisted = (postsMetrics[i].post_num_keywords_whitelisted > 0) ? 1 : 0;
@@ -557,8 +581,8 @@ function runBot(callback) {
             postsMetrics[i].post_num_links_page++;
           }
           // check for domain presence on white / black list
-          postsMetrics[i].post_num_link_domains_whitelisted += (domainWhitelist.indexOf(domain) > 0) ? 1 : 0;
-          postsMetrics[i].post_num_link_domains_blacklisted += (domainBlacklist.indexOf(domain) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_link_domains_whitelisted += (algorithm.domainWhitelist.indexOf(domain) > 0) ? 1 : 0;
+          postsMetrics[i].post_num_link_domains_blacklisted += (algorithm.domainBlacklist.indexOf(domain) > 0) ? 1 : 0;
         }
         postsMetrics[i].post_any_link_domains_whitelisted = (postsMetrics[i].post_num_link_domains_whitelisted > 0) ? 1 : 0;
         postsMetrics[i].post_any_link_domains_blacklisted = (postsMetrics[i].post_num_link_domains_blacklisted > 0) ? 1 : 0;
@@ -581,19 +605,19 @@ function runBot(callback) {
         persistentLog(" - - score for post "+i);
         var metric = postsMetrics[i];
         scores[i] = 0;
-        for (var j = 0 ; j < weights.length ; j++) {
-          if (metric.hasOwnProperty(weights[j].key)) {
-            persistentLog(" - - - metric key: "+weights[j].key);
-            var value = metric[weights[j].key];
-            var weight = weights[j].value;
-            if (weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
+        for (var j = 0 ; j < algorithm.weights.length ; j++) {
+          if (metric.hasOwnProperty(algorithm.weights[j].key)) {
+            persistentLog(" - - - metric key: "+algorithm.weights[j].key);
+            var value = metric[algorithm.weights[j].key];
+            var weight = algorithm.weights[j].value;
+            if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
               var lower = 0;
               var upper = Number.MAX_VALUE;
-              if (weights[j].hasOwnProperty("lower")) {
-                lower = weights[j].lower;
+              if (algorithm.weights[j].hasOwnProperty("lower")) {
+                lower = algorithm.weights[j].lower;
               }
-              if (weights[j].hasOwnProperty("upper")) {
-                upper = weights[j].upper;
+              if (algorithm.weights[j].hasOwnProperty("upper")) {
+                upper = algorithm.weights[j].upper;
               }
               persistentLog(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
               if (value < lower) {
@@ -721,8 +745,12 @@ function runBot(callback) {
   .then(function(response) {
     if (response) {
       persistentLog("runBot finished successfully");
-      var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>"
-        + "<h2>Posts and scores:</h2>";
+      var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
+      //algorithmSet
+      if (!algorithmSet) {
+        email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
+      }
+      email += "<h2>Posts and scores:</h2>";
       if (postsMetadata.length > 0) {
         // first sort postsMetadata
         var maxScore = Number.MAX_VALUE;
@@ -734,29 +762,44 @@ function runBot(callback) {
           email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">Score <strong>"
             +sortedPostsMetadata[i].score+"</strong> for "
             +"<a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a>"
-            + " by author "+sortedPostsMetadata[i].author + "</p>";
+            + " by author "+sortedPostsMetadata[i].author + "</span></p>";
         }
       } else {
-        email += "<p><strong>No new posts found</strong></p>";
+        email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
       }
       email += "</hr>"
       email += "<h2>User weights and config:</h2>";
       email += "<h3>Weights</h3>";
-      var weightsHtml = JSON.stringify(weights, null, 4).replace('\n', "<p/><p>");
+      if (algorithm.weights.length > 0) {
+        for (var i = 0 ; i < algorithm.weights.length ; i++) {
+          email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
+              +algorithm.weights[i].value+"</strong>";
+          if (algorithm.weights[i].hasOwnProperty("lower")) {
+            email += ", lower bound: "+algorithm.weights[i].lower;
+          }
+          if (algorithm.weights[i].hasOwnProperty("upper")) {
+            email += ", upper bound: "+algorithm.weights[i].upper;
+          }
+          email += "</p>";
+        }
+      } else {
+        email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
+      }
+      var weightsHtml = JSON.stringify(algorithm.weights, null, 4).replace('\n', "<p/><p>");
       email += "<p>"+weightsHtml+"</p>";
+      email += "<h3>White and black lists</h3>";
+      email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
+      email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
+      email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
+      email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
+      email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
+      email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
+      email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
+      email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
       email += "<h3>Averaging window</h3>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
       email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
-      email += "<h3>White and black lists</h3>";
-      email += "<p>Author whitelist: "+JSON.stringify(authorWhitelist)+"</p>";
-      email += "<p>Author blacklist: "+JSON.stringify(authorBlacklist)+"</p>";
-      email += "<p>Content category whitelist: "+JSON.stringify(contentCategoryWhitelist)+"</p>";
-      email += "<p>Content category blacklist: "+JSON.stringify(contentCategoryBlacklist)+"</p>";
-      email += "<p>Content word whitelist: "+JSON.stringify(contentWordWhitelist)+"</p>";
-      email += "<p>Content word blacklist: "+JSON.stringify(contentWordBlacklist)+"</p>";
-      email += "<p>Domain whitelist: "+JSON.stringify(domainWhitelist)+"</p>";
-      email += "<p>Domain blacklist: "+JSON.stringify(domainBlacklist)+"</p>";
       email += "<h3>Misc constant settings</h3>";
       email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
       email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";

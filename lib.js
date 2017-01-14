@@ -550,11 +550,11 @@ function runBot(messageCallback) {
               }
               console.log(" - - - - after bounding: "+value);
             }
-            var result = value * ;
-            console.log(" - - - metric ("+value+") * weight("+weights[j].key+") = "+result);
+            var result = value * weight;
+            console.log(" - - - metric ("+value+") * weight("+weight+") = "+result);
             scores[i] += result;
           } else {
-            console.log(" - - - error, key not found in metrics: "+weights[j].key);
+            console.log(" - - - error, key not found in metrics: "+weight);
           }
         }
         console.log(" - - final score: "+scores[i]);

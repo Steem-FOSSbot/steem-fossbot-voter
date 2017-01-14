@@ -468,10 +468,10 @@ function runBot(messageCallback) {
         // - bool
         postsMetrics[i].post_category_whitelisted = (contentCategoryWhitelist.indexOf(posts[i].category) > 0) ? 1 : 0;
         postsMetrics[i].post_category_blacklisted = (contentCategoryBlacklist.indexOf(posts[i].category) > 0) ? 1 : 0;
-        postsMetrics[i].post_any_tag_whitelisted = postsMetrics[i].post_num_tags_whitelisted > 0;
-        postsMetrics[i].post_any_tag_blacklisted = postsMetrics[i].post_num_tags_blacklisted > 0;
-        postsMetrics[i].post_any_keyword_whitelisted = postsMetrics[i].post_num_keywords_whitelisted > 0;
-        postsMetrics[i].post_any_keyword_blacklisted = postsMetrics[i].post_num_keywords_blacklisted > 0;
+        postsMetrics[i].post_any_tag_whitelisted = (postsMetrics[i].post_num_tags_whitelisted > 0) ? 1 : 0;
+        postsMetrics[i].post_any_tag_blacklisted = (postsMetrics[i].post_num_tags_blacklisted > 0) ? 1 : 0;
+        postsMetrics[i].post_any_keyword_whitelisted = (postsMetrics[i].post_num_keywords_whitelisted > 0) ? 1 : 0;
+        postsMetrics[i].post_any_keyword_blacklisted = (postsMetrics[i].post_num_keywords_blacklisted > 0) ? 1 : 0;
         // content - links
         // - zero vals
         postsMetrics[i].post_num_links_video = 0;
@@ -491,7 +491,7 @@ function runBot(messageCallback) {
           if (urlParts && urlParts.length > 1) {
             var urlSubParts = S(urlParts[1]).splitLeft("/", 1);
             if (urlSubParts && urlSubParts.length >= 1) {
-              var domainParts = S(urlSubParts[0]).splitLeft("/", 1);
+              var domainParts = S(urlSubParts[0]).splitLeft(".", 1);
               if (domainParts && domainParts.length > 2) {
                 domain = domainParts[1];
               } else if (domainParts.length > 0) {
@@ -527,8 +527,8 @@ function runBot(messageCallback) {
           postsMetrics[i].post_num_link_domains_whitelisted += (domainWhitelist.indexOf(domain) > 0) ? 1 : 0;
           postsMetrics[i].post_num_link_domains_blacklisted += (domainBlacklist.indexOf(domain) > 0) ? 1 : 0;
         }
-        postsMetrics[i].post_any_link_domains_whitelisted = postsMetrics[i].post_num_link_domains_whitelisted > 0;
-        postsMetrics[i].post_any_link_domains_blacklisted = postsMetrics[i].post_num_link_domains_blacklisted > 0;
+        postsMetrics[i].post_any_link_domains_whitelisted = (postsMetrics[i].post_num_link_domains_whitelisted > 0) ? 1 : 0;
+        postsMetrics[i].post_any_link_domains_blacklisted = (postsMetrics[i].post_num_link_domains_blacklisted > 0) ? 1 : 0;
         // author metrics
         postsMetrics[i].author_repuation = steem.formatter.reputation(posts[i].author_reputation);
       }
@@ -546,7 +546,7 @@ function runBot(messageCallback) {
       scores = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         console.log(" - - score for post "+i);
-        metric = postsMetrics[i];
+        var metric = postsMetrics[i];
         scores[i] = 0;
         for (var j = 0 ; j < weights.length ; j++) {
           if (metric.hasOwnProperty(weights[j].key)) {

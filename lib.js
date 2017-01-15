@@ -649,7 +649,7 @@ function runBot(callback, options) {
           }
           // check if is video link
           if (!match) {
-            if (videoDomains.indexOf(domain) > 0) {
+            if (videoDomains.indexOf(domain) >= 0) {
               postsMetrics[i].post_num_links_video++;
               persistentLog(" - - - - is video");
               match = true;

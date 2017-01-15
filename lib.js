@@ -81,7 +81,8 @@ const
   MIN_KEYWORD_LEN = 4,
   MIN_SCORE_THRESHOLD = 10,
   SCORE_THRESHOLD_INC_PC = 0.3,
-  NUM_POSTS_FOR_AVG_WINDOW = 10;
+  NUM_POSTS_FOR_AVG_WINDOW = 20,
+  MAX_VOTES_IN_24_HOURS = 40;
 
 /* Private variables */
 var fatalError = false;
@@ -118,9 +119,10 @@ var postsMetadata = [];
 
 // other
 var avgWindowInfo = {
+  postsVotedOnInLast24Hours: 0
   scoreThreshold: 0,
   postScores: [],
-  windowSize: NUM_POSTS_FOR_AVG_WINDOW,
+  windowSize: NUM_POSTS_FOR_AVG_WINDOW
 };
 
 // logging and notification
@@ -181,17 +183,7 @@ function runBot(callback, options) {
             persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
           } else {
             algorithmSet = false;
-            persistentLog(" - no algorithm in redis store, USING DEFAULT");
-            // REMOVED!
-            /*
-            {key: "post_num_links_video", value: -10},
-            {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
-            {key: "author_is_followed", value: 50},
-            {key: "post_voted_any_whale", value: 20},
-            {key: "post_voted_num_dolphin", value: 5},
-            {key: "author_repuation", value: 10, lower: 25, upper: 75},
-            {key: "post_num_votes", value: -2}
-            */
+            persistentLog(" - no algorithm in redis store, empty");
             algorithm = {
               weights: [],
               authorWhitelist: [],
@@ -204,8 +196,8 @@ function runBot(callback, options) {
               domainBlacklist: []
             };
           }
+          deferred.resolve(true);
         });
-        deferred.resolve(true);
       })
       return deferred.promise;
     },
@@ -730,44 +722,68 @@ function runBot(callback, options) {
       postsMetadata = [];
       if (avgWindowInfo.scoreThreshold == 0) {
         var avg = 0;
+        var maxScore = 0;
         var count = 0;
         for (var j = 0 ; j < scores.length ; j++) {
           if (scores[j] > MIN_SCORE_THRESHOLD) {
             avg += scores[j];
             count++;
+            if (scores[j] > maxScore) {
+              maxScore = scores[j];
+            }
           }
         }
+        var threshold = 0;
         if (avg != 0 && count > 0) {
-          avg /= count;
+          threshold = avg / count;
         }
-        if (avg < MIN_SCORE_THRESHOLD) {
-          avg = MIN_SCORE_THRESHOLD;
+        if (threshold < MIN_SCORE_THRESHOLD) {
+          threshold = MIN_SCORE_THRESHOLD;
         } else {
-          avg *= (1 + SCORE_THRESHOLD_INC_PC);
+          // first apply precentage increase on threshold,
+          //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
+          threshold *= (1 + SCORE_THRESHOLD_INC_PC);
+          // then add more (make more unlikely to vote on) proportional to how many votes already
+          //   cast today. if there are max or exceeding max voted, threshold will be too high for
+          //   vote and no post will be voted on, thus maintaining limit
+          threshold += (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
         }
-        avgWindowInfo.scoreThreshold = avg;
+        avgWindowInfo.scoreThreshold = threshold;
       }
       for (var i = 0 ; i < posts.length ; i++) {
         if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
           // recalculate avgerage based on window value
           persistentLog(" - - recalculate avgerage based on window value");
+
           var avg = 0;
+          var maxScore = 0;
           var count = 0;
           for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
             if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
               avg += avgWindowInfo.postScores[j];
               count++;
+              if (avgWindowInfo.postScores[j] > maxScore) {
+                maxScore = avgWindowInfo.postScores[j];
+              }
             }
           }
+          var threshold = 0;
           if (avg != 0 && count > 0) {
-            avg /= count;
+            threshold = avg / count;
           }
-          if (avg < MIN_SCORE_THRESHOLD) {
-            avg = MIN_SCORE_THRESHOLD;
+          if (threshold < MIN_SCORE_THRESHOLD) {
+            threshold = MIN_SCORE_THRESHOLD;
           } else {
-            avg *= (1 + SCORE_THRESHOLD_INC_PC);
+            // first apply precentage increase on threshold,
+            //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
+            threshold *= (1 + SCORE_THRESHOLD_INC_PC);
+            // then add more (make more unlikely to vote on) proportional to how many votes already
+            //   cast today. if there are max or exceeding max voted, threshold will be too high for
+            //   vote and no post will be voted on, thus maintaining limit
+            threshold += (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
           }
-          avgWindowInfo.scoreThreshold = avg;
+          avgWindowInfo.scoreThreshold = threshold;
+
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }
@@ -775,7 +791,7 @@ function runBot(callback, options) {
         avgWindowInfo.postScores.push(scores[i]);
         // check if post or not
         var toVote = false;
-        if (scores[i] >= avgWindowInfo.scoreThreshold) {
+        if (scores[i] > avgWindowInfo.scoreThreshold) {
           toVote = true;
           persistentLog(" - - "+scores[i]+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
         } else {
@@ -902,6 +918,7 @@ function runBot(callback, options) {
       email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
       email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
       email += "<h3>Averaging window</h3>";
+      email += "<p>Number of votes today: "+owner.num_votes_today+"</p>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
       email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";

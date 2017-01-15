@@ -50,15 +50,15 @@
         <div class="col-sm-4">
           <form class="form-add" action="/edit-algo" method="post">
             <label for="inputKey" class="sr-only">Key</label>
-            <input type="text" id="inputKey" class="form-control" placeholder="Key" required autofocus>
+            <input type="text" name="key" id="inputKey" class="form-control" placeholder="Key" required autofocus>
             <label for="inputWeight" class="sr-only">Weight</label>
-            <input type="number" id="inputWeight" class="form-control" placeholder="Weight" required>
+            <input type="number" name="weight" id="inputWeight" class="form-control" placeholder="Weight" required>
             <label for="inputLower" class="sr-only">Lower bound(optional)</label>
-            <input type="number" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
+            <input type="number" name="lower" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
             <label for="inputUpper" class="sr-only">Upper bound (optional)</label>
-            <input type="number" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
+            <input type="number" name="upper" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
             <label for="inputApiKey" class="sr-only">Bot API key</label>
-            <input type="password" id="inputApiKey" class="form-control" placeholder="Bot API key" required>
+            <input type="password" name="api_key" id="inputApiKey" class="form-control" placeholder="Bot API key" required>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Add Rule</button>
           </form>
         </div>

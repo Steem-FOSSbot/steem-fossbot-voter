@@ -112,6 +112,18 @@ function loadFileToString(filename, callback) {
   });
 }
 
+function saveStringToFile(filename, str, callback) {
+  fs.writeFile(path.join(__dirname, filename), str, function(err) {
+    if (err) {
+      console.log(err);
+      callback(false);
+    } else {
+      console.log("saveStringToFile successfully saved to file: "+filename);
+      callback(true);
+    }
+  });
+}
+
 // public HTTPS interface
 
 /*
@@ -141,13 +153,16 @@ app.get("/stats", function(req, res) {
     if (logs != null) {
       html_logs = logs;
     }
-    /*
-    res.send(200, 
-      html_stats1 
-      + html_logs
-      + html_stats2);
-    */
-    res.send(200, html_logs);
+    saveStringToFile("html/tmp-stats.html", html_logs, function(err) {
+      if (err) {
+        handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
+      } else {
+        res.send(200, 
+          html_stats1 
+          + "/html/tmp-stats.html"
+          + html_stats2);
+      }
+    });
   });
 });
 

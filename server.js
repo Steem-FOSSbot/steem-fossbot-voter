@@ -149,15 +149,7 @@ function editAlgoExec(res, message) {
       console.log(" - no algorithm in redis store, USING DEFAULT");
       // TODO : remove this default algorithm setting
       algorithm = {
-        weights: [
-          {key: "post_num_links_video", value: -10},
-          {key: "post_num_words", value: 0.5, lower: 500, upper: 2000},
-          {key: "author_is_followed", value: 50},
-          {key: "post_voted_any_whale", value: 20},
-          {key: "post_voted_num_dolphin", value: 5},
-          {key: "author_repuation", value: 10, lower: 25, upper: 75},
-          {key: "post_num_votes", value: -2}
-        ],
+        weights: [],
         authorWhitelist: [],
         authorBlacklist: [],
         contentCategoryWhitelist: [],
@@ -234,7 +226,7 @@ function testAlgoExec(res, options) {
     var html_list = "";
     if (postsMetadata.length > 0) {
       for (var i = 0 ; i < postsMetadata.length ; i++) {
-        html_list += "<tr><td>"+postsMetadata[i].title+"</td><td>"+postsMetadata[i].score+"</td>"
+        html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
             + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
       }
     } else {

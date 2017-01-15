@@ -11,6 +11,7 @@ var html_algo_emptyList = "<tr><td>None</td><td></td><td>-</td><td>-</td><th><p>
 var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
 
 var
+  html_badPage = "",
   html_dashboard1 = "",
   html_dashboard2 = "",
   html_editAlgo1 = "",
@@ -44,10 +45,15 @@ module.exports = app;
 // Utils
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason + ", MESSAGE: "+message);
-  res.status(code || 500).json({"error": message});
+  //res.status(code || 500).json({"error": message});
+  res.status(code || 500).send(html_badPage);
 }
 
 function loadFiles() {
+  loadFileToString("/html/bad-page.html", function(str) {
+    html_badPage = str;
+    console.log("got /html/bad-page.html from file");
+  });
   loadFileToString("/html/dashboard-part-1.html", function(str) {
     html_dashboard1 = str;
     console.log("got /html/dashboard-part-1.html from file");
@@ -137,6 +143,13 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key invalid", 401);
+    return;
+  }
   if (req.query.remove) {
     // TODO : remove process.env.BOT_API_KEY, force from user
     lib.deleteWeightMetric(req.query.remove, process.env.BOT_API_KEY, function(result) {
@@ -327,6 +340,13 @@ function editAlgoExec(res, message) {
 
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/test-algo Unauthorized", "test-algo: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/test-algo Unauthorized", "test-algo: api_key invalid", 401);
+    return;
+  }
   // check for options from query data
   if (req.query.limit) {
     testAlgoExec(res, {limit: 5});

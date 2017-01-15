@@ -14,6 +14,7 @@ var
   html_editAlgo1 = "",
   html_editAlgo2 = "",
   html_editAlgo3 = "",
+  html_editAlgo4 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "";
 
@@ -56,6 +57,10 @@ function loadFiles() {
   loadFileToString("/html/edit-algo-part-3.html", function(str) {
     html_editAlgo3 = str;
     console.log("got /html/edit-algo-part-3.html from file");
+  });
+  loadFileToString("/html/edit-algo-part-4.html", function(str) {
+    html_editAlgo4 = str;
+    console.log("got /html/edit-algo-part-4.html from file");
   });
   loadFileToString("/html/test-algo-part-1.html", function(str) {
     html_testAlgo1 = str;
@@ -129,22 +134,60 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));
   // create query
-  var query = {
-    key: req.body.key,
-    value: req.body.weight
-  };
-  if (req.body.lower) {
-    query["lower"] = req.body.lower;
+  if (req.body.key) {
+    var query = {
+      key: req.body.key,
+      value: req.body.weight
+    };
+    if (req.body.lower) {
+      query["lower"] = req.body.lower;
+    }
+    if (req.body.upper) {
+      query["upper"] = req.body.upper;
+    }
+    // update
+    lib.updateWeightMetric(query, req.body.api_key, function(result) {
+      console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
+      // show edit-algo as normal
+      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+    });
+  } else {
+    var str = "";
+    var contents = "";
+    if (req.body.author_whitelist) {
+      str = "authorWhitelist";
+      contents = req.body.author_whitelist;
+    } else if (req.body.author_blacklist) {
+      str = "authorBlacklist";
+      contents = req.body.author_blacklist;
+    } else if (req.body.content_category_whitelist) {
+      str = "contentCategoryWhitelist";
+      contents = req.body.content_category_whitelist;
+    } else if (req.body.content_category_blacklist) {
+      str = "contentCategoryBlacklist";
+      contents = req.body.content_category_blacklist;
+    } else if (req.body.content_word_whitelist) {
+      str = "contentWordWhitelist";
+      contents = req.body.content_word_whitelist;
+    } else if (req.body.content_word_blacklist) {
+      str = "contentWordBlacklist";
+      contents = req.body.content_word_blacklist;
+    } else if (req.body.domain_whitelist) {
+      str = "domainWhitelist";
+      contents = req.body.domain_whitelist;
+    } else if (req.body.domain_blacklist) {
+      str = "domainBlacklist";
+      contents = req.body.domain_blacklist;
+    }
+    if (str.length > 0) {
+      // update
+      lib.updateMetricList(str, contents, process.env.BOT_API_KEY, function(result) {
+        console.log("lib.updateMetricList result: "+JSON.stringify(result));
+        // show edit-algo as normal
+        editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+      });
+    }
   }
-  if (req.body.upper) {
-    query["upper"] = req.body.upper;
-  }
-  // update
-  lib.updateWeightMetric(query, req.body.api_key, function(result) {
-    console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
-    // show edit-algo as normal
-    editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
-  });
 });
 
 function editAlgoExec(res, message) {
@@ -168,6 +211,64 @@ function editAlgoExec(res, message) {
         domainBlacklist: []
       };
     }
+    var html_whiteblacklists = "";
+    //author_whitelist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.authorWhitelist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.authorWhitelist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //author_blacklist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.authorBlacklist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.authorBlacklist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //content_category_whitelist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.contentCategoryWhitelist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.contentCategoryWhitelist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //content_category_blacklist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.contentCategoryBlacklist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.contentCategoryBlacklist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //content_word_whitelist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.contentWordWhitelist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.contentWordWhitelist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //content_word_blacklist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.contentWordBlacklist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.contentWordBlacklist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //domain_whitelist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.domainWhitelist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.domainWhitelist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    //domain_blacklist
+    html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
+    html_whiteblacklists += "<textarea name=\"author_whitelist\" cols=\"60\" rows=\"3\">";
+    for (var i = 0 ; i < algorithm.domainBlacklist.length ; i++) {
+      html_whiteblacklists += ((i > 0) ? ", " : "") + algorithm.domainBlacklist[i];
+    }
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+
     console.log(" - algorithm: "+JSON.stringify(algorithm));
     var html_list = "";
     if (algorithm.weights.length > 0) {
@@ -196,7 +297,9 @@ function editAlgoExec(res, message) {
       + (message ? message : "")
       + html_editAlgo2
       + html_list
-      + html_editAlgo3);
+      + html_editAlgo3
+      + html_whiteblacklists
+      + html_editAlgo4);
     });
 }
 

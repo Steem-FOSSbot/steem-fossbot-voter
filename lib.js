@@ -1136,7 +1136,7 @@ function updateWeightMetric(query, apiKey, callback) {
 }
 
 /*
-updateWeightMetric(query, apiKey, callback):
+deleteWeightMetric(index, apiKey, callback):
 * update weight metric
 */
 function deleteWeightMetric(index, apiKey, callback) {
@@ -1165,6 +1165,33 @@ function deleteWeightMetric(index, apiKey, callback) {
     persistJson("algorithm", algorithm, null);
     if (callback) {
       callback({status: 200, message: "Removed key from algorithm: "+key});
+    }
+  });
+}
+
+/*
+updateMetricList(list, contents, apiKey, callback):
+* update weight metric
+*/
+function updateMetricList(list, contents, apiKey, callback) {
+  console.log("updateMetricList call");
+  if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
+    if (callback) {
+      callback({status: 500, message: "API key is incorrect"});
+    }
+    return;
+  }
+  // format contents
+  var parts = S(contents.replace("  ", " ")).splitLeft(" ");
+  getPersistentJson("algorithm", function(algorithmResult) {
+    if (algorithmResult != null) {
+      algorithm = algorithmResult;
+      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+    }
+    algorithm[list] = parts;
+    persistJson("algorithm", algorithm, null);
+    if (callback) {
+      callback({status: 200, message: "Updated black / white list: "+list});
     }
   });
 }

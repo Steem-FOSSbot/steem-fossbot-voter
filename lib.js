@@ -577,8 +577,8 @@ function runBot(callback, options) {
           if (urlParts && urlParts.length > 1) {
             var urlSubParts = S(urlParts[1]).splitLeft("/", 1);
             if (urlSubParts && urlSubParts.length >= 1) {
-              var domainParts = S(urlSubParts[0]).splitLeft(".", 1);
-              if (domainParts && domainParts.length > 2) {
+              var domainParts = S(urlSubParts[0]).splitLeft(".");
+              if (domainParts.length > 2) {
                 domain = domainParts[1];
               } else if (domainParts.length > 0) {
                 domain = domainParts[0];

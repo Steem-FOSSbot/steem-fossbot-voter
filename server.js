@@ -111,7 +111,7 @@ app.get("/edit-algo", function(req, res) {
 });
 
 // POST /edit-algo
-app.post("/edit-algo", function(req, res) {
+app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
   console.log("/edit-algo POST request");
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));

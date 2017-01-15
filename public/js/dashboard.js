@@ -11,6 +11,6 @@ function gotoPage(page) {
 	} else if (page == 1) {
 		window.location.href = "/test-algo?api_key="+apiKey;
 	} else if (page == 2) {
-		// do nothing yet
+		window.location.href = "/stats?api_key="+apiKey;
 	}
 }

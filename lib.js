@@ -934,6 +934,9 @@ function runBot(callback, options) {
       email += "<p>"+logHtml+"</p>";
       email += "</body></html>";
       sendEmail("Voter bot", email, true);
+      persistString("last_log_html", email, function(err) {
+        console.log("couldn't save last log html as persistent string");
+      });
       return;
     }
   })

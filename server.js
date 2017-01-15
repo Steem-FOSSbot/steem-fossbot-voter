@@ -19,7 +19,9 @@ var
   html_editAlgo3 = "",
   html_editAlgo4 = "",
   html_testAlgo1 = "",
-  html_testAlgo2 = "";
+  html_testAlgo2 = "",
+  html_stats1 = "",
+  html_stats2 = "";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -86,6 +88,14 @@ function loadFiles() {
     html_testAlgo2 = str;
     console.log("got /html/test-algo-part-2.html from file");
   });
+  loadFileToString("/html/stats-1.html", function(str) {
+    html_stats1 = str;
+    console.log("got /html/stats-1.html from file");
+  });
+  loadFileToString("/html/stats-2.html", function(str) {
+    html_stats2 = str;
+    console.log("got /html/stats-2.html from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -113,6 +123,29 @@ app.get("/", function(req, res) {
       html_dashboard1 
       + html_usercontent
       + html_dashboard2);
+});
+
+/*
+* /stats
+*/
+app.get("/stats", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/stats Unauthorized", "stats: api_key invalid", 401);
+    return;
+  }
+  lib.getPersistentString("last_log_html", function(logs) {
+    var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
+    if (logs != null) {
+      html_logs = logs;
+    }
+    res.send(200, 
+      html_stats1 
+      + html_logs
+      + html_stats2);
+  });
 });
 
 /*

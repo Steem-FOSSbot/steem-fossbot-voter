@@ -1357,3 +1357,4 @@ module.exports.sendEmail = sendEmail;
 module.exports.getPersistentJson = getPersistentJson;
 module.exports.updateWeightMetric = updateWeightMetric;
 module.exports.deleteWeightMetric = deleteWeightMetric;
+module.exports.updateMetricList = updateMetricList;

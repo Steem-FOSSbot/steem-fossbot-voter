@@ -24,9 +24,10 @@ Open the bot dashboard using your Heroku app root URL, as above. All operations 
 
 The operations you can perform are:
 
+- Run bot now (WILL VOTE)
+- Check bot stats and logs
 - Edit curation algorithm values and weight
-- Run algorithm test
-- (not yet implemented) Check bot status and stats
+- Run algorithm test (does not actually vote)
 
 ## Installation
 

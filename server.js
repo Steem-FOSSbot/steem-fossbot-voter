@@ -169,10 +169,59 @@ app.get("/stats", function(req, res) {
 /*
  * /run-bot endpoint
  *
+ * Starts an iteration of the bot
+ *
+ * Example usage:
+ * /run-bot?api_key=1234
+ *
+ * optional json=true
+ */
+app.get("/run-bot", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/run-bot Unauthorized", "Run bot: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/run-bot Unauthorized", "Run bot: api_key invalid", 401);
+    return;
+  }
+  lib.runBot(function(obj) {
+    console.log("lib.runBot returned: " + JSON.stringify(obj));
+    if (obj) {
+      if (req.query.json) {
+        // return json directly
+        res.status(obj.status).json(obj);
+      } else {
+        // default to show in logs (same as /stats endpoint)
+        lib.getPersistentString("last_log_html", function(logs) {
+          var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
+          if (logs != null) {
+            html_logs = logs;
+          }
+          saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
+            if (err) {
+              handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
+            } else {
+              res.send(200, 
+                html_stats1 
+                + "/tmp-stats.html"
+                + html_stats2);
+            }
+          });
+        });
+      }
+    } else {
+      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
+    }
+  });
+});
+
+/*
+ * /run-bot endpoint
+ *
  * Starts an iteration of the bot mainLoop
  *
  * Example usage:
- * /run-bot?API_KEY=1234
+ * /run-bot?api_key=1234
  */
 app.get("/run-bot", function(req, res) {
   if (!req.query.api_key) {

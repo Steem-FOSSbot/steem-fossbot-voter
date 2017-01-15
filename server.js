@@ -28,7 +28,6 @@ app.listen(app.get('port'), function() {
   lib.initSteem();
   if (!lib.hasFatalError()) {
     console.log("Dashboard min requirements met, will be active on HTTPS");
-    lib.sendEmail("Voter bot", "Server status: started");
     loadFiles();
   } else {
     // kill node server to stop dashboard from showing and let owner know there is a problem without

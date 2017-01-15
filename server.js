@@ -141,7 +141,6 @@ app.get("/stats", function(req, res) {
     if (logs != null) {
       html_logs = logs;
     }
-    console.log("/stats html_logs: "+html_logs);
     res.send(200, 
       html_stats1 
       + html_logs

@@ -866,7 +866,7 @@ function runBot(callback, options) {
     if (response) {
       persistentLog("runBot finished successfully");
       var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
-      var email = "<h3>at "+((new Date()).toUTCString())+"</h3>";
+      var email += "<h3>at "+((new Date()).toUTCString())+"</h3>";
       //algorithmSet
       if (!algorithmSet) {
         email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";

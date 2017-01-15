@@ -1117,9 +1117,15 @@ function updateWeightMetric(query, apiKey, callback) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
-    if (algorithm.weights.indexOf(query.key) >= 0) {
-      algorithm.weights[algorithm.weights.indexOf(query.key)] = query;
-    } else {
+    var match = false;
+    for (var i = 0 ; i < algorithm.weights.length ; i++) {
+      if (algorithm.weights[i].key.localeCompare(query.key) == 0) {
+        algorithm.weights[i] = query;
+        match = true;
+        break;
+      }
+    }
+    if (!match) {
       algorithm.weights.push(query);
     }
     persistJson("algorithm", algorithm, null);

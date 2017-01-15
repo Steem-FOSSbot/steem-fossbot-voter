@@ -1019,6 +1019,31 @@ function getPersistentJson(key, callback) {
 }
 
 /*
+updateWeightMetric(query, apiKey, callback):
+* update weight metric
+*/
+function updateWeightMetric(query, apiKey, callback) {
+  console.log("updateWeightMetric call");
+  if (!apiKey.localeCompare(process.env.BOT_API_KEY)) {
+    if (callback) {
+      callback({status: 500, message: "API key is incorrect"});
+    }
+    return;
+  }
+  getPersistentJson("algorithm", function(algorithmResult) {
+    if (algorithmResult != null) {
+      algorithm = algorithmResult;
+      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+    }
+    algorithm.weights[query.key] = query;
+    persistJson("algorithm", algorithm, null);
+    if (callback) {
+      callback({status: 200, message: "Added key to algorithm: "+query.key});
+    }
+  });
+}
+
+/*
 * Steem Utils
 */
 
@@ -1177,3 +1202,4 @@ module.exports.getServerState = getServerState;
 module.exports.showFatalError = showFatalError;
 module.exports.sendEmail = sendEmail;
 module.exports.getPersistentJson = getPersistentJson;
+module.exports.updateWeightMetric = updateWeightMetric;

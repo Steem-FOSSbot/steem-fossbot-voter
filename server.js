@@ -13,6 +13,7 @@ var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
 var
   html_editAlgo1 = "",
   html_editAlgo2 = "",
+  html_editAlgo3 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "";
 
@@ -52,6 +53,10 @@ function loadFiles() {
   loadFileToString("/html/edit-algo-part-2.html", function(str) {
     html_editAlgo2 = str;
     console.log("got /html/edit-algo-part-2.html from file");
+  });
+  loadFileToString("/html/edit-algo-part-3.html", function(str) {
+    html_editAlgo3 = str;
+    console.log("got /html/edit-algo-part-3.html from file");
   });
   loadFileToString("/html/test-algo-part-1.html", function(str) {
     html_testAlgo1 = str;
@@ -115,10 +120,26 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   console.log("/edit-algo POST request");
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));
-  editAlgoExec(res);  
+  // create query
+  var query = {
+    key: req.body.key,
+    value: req.body.weight
+  };
+  if (req.body.lower) {
+    query["lower"] = req.body.lower;
+  }
+  if (req.body.upper) {
+    query["upper"] = req.body.upper;
+  }
+  // update
+  lib.updateWeightMetric(query, req.body.api_key, function(result) {
+    console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
+    // show edit-algo as normal
+    editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+  })
 });
 
-function editAlgoExec(res) {
+function editAlgoExec(res, message) {
   lib.getPersistentJson("algorithm", function(algorithmResult) {
     var algorithm = {};
     if (algorithmResult != null) {
@@ -168,11 +189,13 @@ function editAlgoExec(res) {
     } else {
       html_list = html_algo_emptyList;
     }
-    // TODO : make list
+    // send back response
     res.send(200, 
-      html_editAlgo1 
+      html_editAlgo1
+      + (message ? message : "")
+      + html_editAlgo2
       + html_list
-      + html_editAlgo2);
+      + html_editAlgo3);
     });
 }
 

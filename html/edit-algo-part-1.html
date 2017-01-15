@@ -45,35 +45,3 @@
 
     <div class="container-fluid">
       <h1 class="page-header">Edit Algorithm</h1>
-      <!--h2 class="sub-header">Message</h2-->
-      <div class="row">
-        <div class="col-sm-4">
-          <form class="form-add" action="/edit-algo" method="post">
-            <label for="inputKey" class="sr-only">Key</label>
-            <input type="text" name="key" id="inputKey" class="form-control" placeholder="Key" required autofocus>
-            <label for="inputWeight" class="sr-only">Weight</label>
-            <input type="number" name="weight" id="inputWeight" class="form-control" placeholder="Weight" required>
-            <label for="inputLower" class="sr-only">Lower bound(optional)</label>
-            <input type="number" name="lower" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
-            <label for="inputUpper" class="sr-only">Upper bound (optional)</label>
-            <input type="number" name="upper" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
-            <label for="inputApiKey" class="sr-only">Bot API key</label>
-            <input type="password" name="api_key" id="inputApiKey" class="form-control" placeholder="Bot API key" required>
-            <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Add Rule</button>
-          </form>
-        </div>
-      </div>
-
-      <h2 class="sub-header">Rules</h2>
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>Value</th>
-              <th>Lower</th>
-              <th>Upper</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>

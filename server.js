@@ -11,6 +11,8 @@ var html_algo_emptyList = "<tr><td>None</td><td></td><td>-</td><td>-</td><th><p>
 var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
 
 var
+  html_dashboard1 = "",
+  html_dashboard2 = "",
   html_editAlgo1 = "",
   html_editAlgo2 = "",
   html_editAlgo3 = "",
@@ -46,6 +48,14 @@ function handleError(res, reason, message, code) {
 }
 
 function loadFiles() {
+  loadFileToString("/html/dashboard-part-1.html", function(str) {
+    html_dashboard1 = str;
+    console.log("got /html/dashboard-part-1.html from file");
+  });
+  loadFileToString("/html/dashboard-part-2.html", function(str) {
+    html_dashboard2 = str;
+    console.log("got /html/dashboard-part-2.html from file");
+  });
   loadFileToString("/html/edit-algo-part-1.html", function(str) {
     html_editAlgo1 = str;
     console.log("got /html/edit-algo-part-1.html from file");
@@ -87,6 +97,17 @@ function loadFileToString(filename, callback) {
 }
 
 // public HTTPS interface
+
+/*
+* / [root]
+*/
+app.get("/", function(req, res) {
+  var html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
+  res.send(200, 
+      html_dashboard1 
+      + html_usercontent
+      + html_dashboard2);
+});
 
 /*
  * /run-bot endpoint

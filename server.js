@@ -125,6 +125,42 @@ app.get("/edit-algo", function(req, res) {
     })
     return;
   }
+  var str = "";
+  var contents = "";
+  if (req.body.author_whitelist) {
+    str = "authorWhitelist";
+    contents = req.body.author_whitelist;
+  } else if (req.body.author_blacklist) {
+    str = "authorBlacklist";
+    contents = req.body.author_blacklist;
+  } else if (req.body.content_category_whitelist) {
+    str = "contentCategoryWhitelist";
+    contents = req.body.content_category_whitelist;
+  } else if (req.body.content_category_blacklist) {
+    str = "contentCategoryBlacklist";
+    contents = req.body.content_category_blacklist;
+  } else if (req.body.content_word_whitelist) {
+    str = "contentWordWhitelist";
+    contents = req.body.content_word_whitelist;
+  } else if (req.body.content_word_blacklist) {
+    str = "contentWordBlacklist";
+    contents = req.body.content_word_blacklist;
+  } else if (req.body.domain_whitelist) {
+    str = "domainWhitelist";
+    contents = req.body.domain_whitelist;
+  } else if (req.body.domain_blacklist) {
+    str = "domainBlacklist";
+    contents = req.body.domain_blacklist;
+  }
+  if (str.length > 0) {
+    // update
+    lib.updateMetricList(str, contents, process.env.BOT_API_KEY, function(result) {
+      console.log("lib.updateMetricList result: "+JSON.stringify(result));
+      // show edit-algo as normal
+      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+    });
+    return;
+  }
   editAlgoExec(res);  
 });
 
@@ -134,60 +170,22 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));
   // create query
-  if (req.body.key) {
-    var query = {
-      key: req.body.key,
-      value: req.body.weight
-    };
-    if (req.body.lower) {
-      query["lower"] = req.body.lower;
-    }
-    if (req.body.upper) {
-      query["upper"] = req.body.upper;
-    }
-    // update
-    lib.updateWeightMetric(query, req.body.api_key, function(result) {
-      console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
-      // show edit-algo as normal
-      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
-    });
-  } else {
-    var str = "";
-    var contents = "";
-    if (req.body.author_whitelist) {
-      str = "authorWhitelist";
-      contents = req.body.author_whitelist;
-    } else if (req.body.author_blacklist) {
-      str = "authorBlacklist";
-      contents = req.body.author_blacklist;
-    } else if (req.body.content_category_whitelist) {
-      str = "contentCategoryWhitelist";
-      contents = req.body.content_category_whitelist;
-    } else if (req.body.content_category_blacklist) {
-      str = "contentCategoryBlacklist";
-      contents = req.body.content_category_blacklist;
-    } else if (req.body.content_word_whitelist) {
-      str = "contentWordWhitelist";
-      contents = req.body.content_word_whitelist;
-    } else if (req.body.content_word_blacklist) {
-      str = "contentWordBlacklist";
-      contents = req.body.content_word_blacklist;
-    } else if (req.body.domain_whitelist) {
-      str = "domainWhitelist";
-      contents = req.body.domain_whitelist;
-    } else if (req.body.domain_blacklist) {
-      str = "domainBlacklist";
-      contents = req.body.domain_blacklist;
-    }
-    if (str.length > 0) {
-      // update
-      lib.updateMetricList(str, contents, process.env.BOT_API_KEY, function(result) {
-        console.log("lib.updateMetricList result: "+JSON.stringify(result));
-        // show edit-algo as normal
-        editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
-      });
-    }
+  var query = {
+    key: req.body.key,
+    value: req.body.weight
+  };
+  if (req.body.lower) {
+    query["lower"] = req.body.lower;
   }
+  if (req.body.upper) {
+    query["upper"] = req.body.upper;
+  }
+  // update
+  lib.updateWeightMetric(query, req.body.api_key, function(result) {
+    console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
+    // show edit-algo as normal
+    editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+  });
 });
 
 function editAlgoExec(res, message) {

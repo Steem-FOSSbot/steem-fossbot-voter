@@ -119,7 +119,6 @@ var postsMetadata = [];
 
 // other
 var avgWindowInfo = {
-  postsVotedOnInLast24Hours: 0
   scoreThreshold: 0,
   postScores: [],
   windowSize: NUM_POSTS_FOR_AVG_WINDOW

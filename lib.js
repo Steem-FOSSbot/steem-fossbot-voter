@@ -652,9 +652,9 @@ function runBot(callback, options) {
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
-                value = (upper - lower);
+                value = (upper - lower) + 1;
               } else {
-                value -= lower;
+                value -= lower + 1;
               }
               persistentLog(" - - - - - after bounding: "+value);
             }

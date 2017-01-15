@@ -6,7 +6,7 @@ const
   glossaryBlacklist = ["http", "https", "I ve"],
   imagesExt = ["tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif", "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png",
       "svg", "xcf", "bmp", "img", "ico"],
-  videoDomains = ["youtube","youtu", "vimeo"];
+  videoDomains = ["youtube","youtu", "vimeo", "atch"];
 
 const
 	steem = require("steem"),

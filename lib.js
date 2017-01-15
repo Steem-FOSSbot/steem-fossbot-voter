@@ -125,6 +125,7 @@ var avgWindowInfo = {
 
 // logging and notification
 var log = "";
+var logHtml = "";
 var algorithmSet = false;
 
 /*
@@ -138,6 +139,7 @@ persistentLog(msg):
 function persistentLog(msg) {
   console.log(msg);
   log += ((log.length > 0) ? "\n" : "") + msg;
+  logHtml += ((logHtml.length > 0) ? "<br/>" : "") + msg;
 }
 
 /*
@@ -888,7 +890,7 @@ function runBot(callback, options) {
       } else {
         email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
       }
-      var weightsHtml = JSON.stringify(algorithm.weights, null, 4).replace('\n', "<p/><p>");
+      var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
       email += "<p>"+weightsHtml+"</p>";
       email += "<h3>White and black lists</h3>";
       email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
@@ -909,10 +911,9 @@ function runBot(callback, options) {
       email += "<p>Whale min SP: "+CAPITAL_WHALE_MIN+"</p>";
       email += "<p>Key detector, min keyword length: "+MIN_KEYWORD_LEN+"</p>";
       email += "<h2>Raw results metadata:</h2>";
-      var metadataHtml = JSON.stringify(postsMetadata, null, 4).replace('\n', "<p/><p>");
+      var metadataHtml = JSON.stringify(postsMetadata, null, 4);
       email += "<p>"+metadataHtml+"</p>";
       email += "<h3>Process logs:</h3>";
-      var logHtml = log.replace('\n', "<p/><p>");
       email += "<p>"+logHtml+"</p>";
       email += "</body></html>";
       sendEmail("Voter bot", email, true);

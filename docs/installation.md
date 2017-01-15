@@ -4,11 +4,9 @@ This node server is designed to be flexible enough to run on a cloud service or 
 
 ### Locally (Desktop)
 
-**TODO**
+Guide not available yet (will require some supporting changes) but you are free to try yourself!_
 
 ### On Heroku
-
-_Note, the dashboard is not currently functional, instead you'll find a placeholder webpage._
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
 
@@ -16,7 +14,7 @@ _Note, the dashboard is not currently functional, instead you'll find a placehol
 
 _Please be advised to read the Heroku [Terms of Service](https://www.heroku.com/policy/tos) and [Privacy Statement](https://www.heroku.com/policy/privacy) very carefully before creating an account._
 
-_Also be advised that you may have to verify your Heroku account to use the add-ons which provide auto bot scheduling and email sending. Verifying can involve a bank card._
+_Also be advised that you may have to verify your Heroku account to use the add-ons which provide auto bot scheduling and email sending. Verifying can involve a bank card but at time of writing does not require any transaction to be made._
 
 _Finally, there is a usage limit to the free account on Heroku which you should familiarise yourself with._
 

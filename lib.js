@@ -471,7 +471,7 @@ function runBot(callback, options) {
         // get all url links
         nlp.urls = [];
         var urlResult;
-        while((urlResult = urlRegex.exec(nlp.content)) !== null) {
+        while((urlResult = urlRegex.exec(posts[i].body)) !== null) {
           nlp.urls.push(urlResult[0]);
         }
         persistentLog(" - - nlp.urls: "+JSON.stringify(nlp.urls));

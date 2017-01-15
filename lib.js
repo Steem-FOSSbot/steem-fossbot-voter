@@ -691,8 +691,9 @@ function runBot(callback, options) {
         if (avg < MIN_SCORE_THRESHOLD) {
           avg = MIN_SCORE_THRESHOLD;
         } else {
-          avgWindowInfo.scoreThreshold *= (1 + SCORE_THRESHOLD_INC_PC);
+          avg *= (1 + SCORE_THRESHOLD_INC_PC);
         }
+        avgWindowInfo.scoreThreshold = avg;
       }
       for (var i = 0 ; i < posts.length ; i++) {
         if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
@@ -710,8 +711,9 @@ function runBot(callback, options) {
           if (avg < MIN_SCORE_THRESHOLD) {
             avg = MIN_SCORE_THRESHOLD;
           } else {
-            avgWindowInfo.scoreThreshold *= (1 + SCORE_THRESHOLD_INC_PC);
+            avg *= (1 + SCORE_THRESHOLD_INC_PC);
           }
+          avgWindowInfo.scoreThreshold = avg;
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }

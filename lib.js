@@ -1035,7 +1035,7 @@ function updateWeightMetric(query, apiKey, callback) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
-    algorithm.weights[query.key] = query;
+    algorithm.weights.push(query);
     persistJson("algorithm", algorithm, null);
     if (callback) {
       callback({status: 200, message: "Added key to algorithm: "+query.key});

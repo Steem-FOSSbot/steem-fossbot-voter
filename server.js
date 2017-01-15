@@ -141,10 +141,13 @@ app.get("/stats", function(req, res) {
     if (logs != null) {
       html_logs = logs;
     }
+    /*
     res.send(200, 
       html_stats1 
       + html_logs
       + html_stats2);
+    */
+    res.send(200, html_logs);
   });
 });
 

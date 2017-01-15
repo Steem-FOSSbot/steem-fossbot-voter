@@ -320,7 +320,7 @@ function editAlgoExec(res, message) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class=\"btn btn-default\" href=\"/edit-algo?remove="+i+"\" role=\"button\">Delete</a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" role=\"button\" onclick=\"javascript:delete("+i+"\">Delete</a></p></th>";
         html_list += "</tr>";
       }
     } else {

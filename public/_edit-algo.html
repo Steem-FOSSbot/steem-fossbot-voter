@@ -77,6 +77,16 @@
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th>
+                <form class="form-add">
+                  <input type="password" name="api_key" id="delete_api_key" placeholder="Key" required autofocus>
+                </form>
+              </th>
             <!--tr>
               <td>None</td>
               <td></td>
@@ -100,12 +110,24 @@
             </tr-->
           </tbody>
         </table>
-        <p><a class="btn btn-primary" href="/test-algo" role="button">Test Algorithm</a></p>
       </div>
 
+      <div class="row">
+        <div class="col-sm-2">
+          <form class="form-add">
+            <input type="password" name="api_key" id="test_api_key" class="form-control" placeholder="Key" required autofocus>
+          </form>
+        </div>
+        <div class="col-sm-2">
+          <br/>
+          <p><a class="btn btn-primary" role="button" onclick="javascript:test()">Test Algorithm (key required)</a></p>
+        </div>
+      </div>
       <h2 class="sub-header">Edit lists</h2>
       <div class="row">
-        <p><italic>Separate terms with spaces only</italic></p>
+        <div class="col-sm-4">
+          <p><italic>Separate terms with spaces only</italic></p>
+        </div>
         <!--div class="col-sm-4"> 
           <form class="form-list" action="/edit-algo">
             <label for="inputKey" class="sr-only"></label>
@@ -537,5 +559,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/edit-algo.js"></script>
   </body>
 </html>

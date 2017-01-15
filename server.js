@@ -116,10 +116,10 @@ function saveStringToFile(filename, str, callback) {
   fs.writeFile(path.join(__dirname, filename), str, function(err) {
     if (err) {
       console.log(err);
-      callback(false);
+      callback({message: "cant save file: "+filename});
     } else {
       console.log("saveStringToFile successfully saved to file: "+filename);
-      callback(true);
+      callback();
     }
   });
 }

@@ -680,13 +680,15 @@ function runBot(callback, options) {
       postsMetadata = [];
       if (avgWindowInfo.scoreThreshold == 0) {
         var avg = 0;
+        var count = 0;
         for (var j = 0 ; j < scores.length ; j++) {
           if (scores[j] > MIN_SCORE_THRESHOLD) {
             avg += scores[j];
+            count++;
           }
         }
-        if (avg != 0) {
-          avg /= avgWindowInfo.postScores.length;
+        if (avg != 0 && count > 0) {
+          avg /= count;
         }
         if (avg < MIN_SCORE_THRESHOLD) {
           avg = MIN_SCORE_THRESHOLD;
@@ -700,13 +702,15 @@ function runBot(callback, options) {
           // recalculate avgerage based on window value
           persistentLog(" - - recalculate avgerage based on window value");
           var avg = 0;
+          var count = 0;
           for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
             if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
               avg += avgWindowInfo.postScores[j];
+              count++;
             }
           }
-          if (avg != 0) {
-            avg /= avgWindowInfo.postScores.length;
+          if (avg != 0 && count > 0) {
+            avg /= count;
           }
           if (avg < MIN_SCORE_THRESHOLD) {
             avg = MIN_SCORE_THRESHOLD;

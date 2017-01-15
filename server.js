@@ -111,6 +111,14 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
+  if (req.query.remove) {
+    lib.deleteWeightMetric(req.query.remove, req.query.api_key, function(result) {
+      console.log("lib.deleteWeightMetric result: "+JSON.stringify(result));
+      // show edit-algo as normal
+      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+    })
+    return;
+  }
   editAlgoExec(res);  
 });
 
@@ -131,11 +139,12 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     query["upper"] = req.body.upper;
   }
   // update
-  lib.updateWeightMetric(query, req.body.api_key, function(result) {
+  // TODO : remove process.env.BOT_API_KEY, force from user
+  lib.updateWeightMetric(query, process.env.BOT_API_KEY, function(result) {
     console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
     // show edit-algo as normal
     editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
-  })
+  });
 });
 
 function editAlgoExec(res, message) {
@@ -175,7 +184,7 @@ function editAlgoExec(res, message) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\" onclick=\"javascript:alert(\"Can't delete yet\")\">Delete</a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" href=\"/edit-algo?remove="+i+"\" role=\"button\">Delete</a></p></th>";
         html_list += "</tr>";
       }
     } else {

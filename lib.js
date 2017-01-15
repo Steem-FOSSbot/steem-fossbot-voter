@@ -1130,6 +1130,40 @@ function updateWeightMetric(query, apiKey, callback) {
 }
 
 /*
+updateWeightMetric(query, apiKey, callback):
+* update weight metric
+*/
+function deleteWeightMetric(index, apiKey, callback) {
+  console.log("deleteWeightMetric call");
+  if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
+    if (callback) {
+      callback({status: 500, message: "API key is incorrect"});
+    }
+    return;
+  }
+  getPersistentJson("algorithm", function(algorithmResult) {
+    if (algorithmResult != null) {
+      algorithm = algorithmResult;
+      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+    }
+    var newWeights = [];
+    var key;
+    for (var i = 0 ; i < algorithm.weights.length ; i++) {
+      if (i != index) {
+        newWeights.push(algorithm.weights[i]);
+      } else {
+        key = algorithm.weights[i].key;
+      }
+    }
+    algorithm.weights = newWeights;
+    persistJson("algorithm", algorithm, null);
+    if (callback) {
+      callback({status: 200, message: "Removed key from algorithm: "+key});
+    }
+  });
+}
+
+/*
 * Steem Utils
 */
 
@@ -1289,3 +1323,4 @@ module.exports.showFatalError = showFatalError;
 module.exports.sendEmail = sendEmail;
 module.exports.getPersistentJson = getPersistentJson;
 module.exports.updateWeightMetric = updateWeightMetric;
+module.exports.deleteWeightMetric = deleteWeightMetric;

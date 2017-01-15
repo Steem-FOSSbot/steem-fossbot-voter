@@ -70,9 +70,9 @@ var postsMetadata = [];
 
 // other
 var avgWindowInfo = {
-  scoreThreshold: MIN_SCORE_THRESHOLD,
+  scoreThreshold: 0,
   postScores: [],
-  windowSize: NUM_POSTS_FOR_AVG_WINDOW
+  windowSize: NUM_POSTS_FOR_AVG_WINDOW,
 };
 
 // logging and notification
@@ -678,20 +678,40 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // determine if post score above threshold, recalculating threshold if needs be
       postsMetadata = [];
+      if (avgWindowInfo.scoreThreshold == 0) {
+        var avg = 0;
+        for (var j = 0 ; j < scores.length ; j++) {
+          if (scores[j] > MIN_SCORE_THRESHOLD) {
+            avg += scores[j];
+          }
+        }
+        if (avg != 0) {
+          avg /= avgWindowInfo.postScores.length;
+        }
+        if (avg < MIN_SCORE_THRESHOLD) {
+          avg = MIN_SCORE_THRESHOLD;
+        } else {
+          avgWindowInfo.scoreThreshold *= SCORE_THRESHOLD_INC_PC;
+        }
+      }
       for (var i = 0 ; i < posts.length ; i++) {
         if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
           // recalculate avgerage based on window value
           persistentLog(" - - recalculate avgerage based on window value");
           var avg = 0;
           for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
-            avg += avgWindowInfo.postScores[j];
+            if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
+              avg += avgWindowInfo.postScores[j];
+            }
           }
-          avg /= avgWindowInfo.postScores.length;
+          if (avg != 0) {
+            avg /= avgWindowInfo.postScores.length;
+          }
           if (avg < MIN_SCORE_THRESHOLD) {
             avg = MIN_SCORE_THRESHOLD;
+          } else {
+            avgWindowInfo.scoreThreshold *= SCORE_THRESHOLD_INC_PC;
           }
-          // approach new threshold by halfs, i.e. introduce some entropy or gravity on movement
-          avgWindowInfo.scoreThreshold *= SCORE_THRESHOLD_INC_PC;
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         }

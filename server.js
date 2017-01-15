@@ -153,13 +153,13 @@ app.get("/stats", function(req, res) {
     if (logs != null) {
       html_logs = logs;
     }
-    saveStringToFile("html/tmp-stats.html", html_logs, function(err) {
+    saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
       if (err) {
         handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
       } else {
         res.send(200, 
           html_stats1 
-          + "/html/tmp-stats.html"
+          + "/tmp-stats.html"
           + html_stats2);
       }
     });

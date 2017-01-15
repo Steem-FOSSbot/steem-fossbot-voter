@@ -6,7 +6,55 @@ const
   glossaryBlacklist = ["http", "https", "I ve"],
   imagesExt = ["tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif", "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png",
       "svg", "xcf", "bmp", "img", "ico"],
-  videoDomains = ["youtube","youtu", "vimeo", "atch"];
+  videoDomains = ["youtube","youtu", "vimeo", "atch"],
+  metricKeys = [
+      "owner_num_votes_today",
+      "owner_last_post_time",
+      "post_alive_time",
+      "post_est_payout",
+      "post_num_votes",
+      "post_voted_num_dolphin",
+      "post_voted_num_whale",
+      "post_voted_num_followed",
+      "post_voted_num_whitelisted",
+      "post_voted_num_blacklisted",
+      "post_voted_any_dolphin",
+      "post_voted_any_whale",
+      "post_voted_any_followed",
+      "post_voted_any_whitelisted",
+      "post_voted_any_blacklisted",
+      "author_capital_val",
+      "author_is_minnow",
+      "author_is_dolphin",
+      "author_is_whale",
+      "author_is_followed",
+      "author_is_whitelisted",
+      "author_is_blacklisted",
+      "post_num_chars",
+      "post_num_words",
+      "post_sentiment_val",
+      "post_num_tags_whitelisted",
+      "post_num_tags_blacklisted",
+      "post_num_keywords_whitelisted",
+      "post_num_keywords_blacklisted",
+      "post_num_words_whitelisted",
+      "post_num_words_blacklisted",
+      "post_category_whitelisted",
+      "post_category_blacklisted",
+      "post_any_tag_whitelisted",
+      "post_any_tag_blacklisted",
+      "post_any_keyword_whitelisted",
+      "post_any_keyword_blacklisted",
+      "post_num_links_video",
+      "post_num_links_image",
+      "post_num_links_page",
+      "post_num_links_total",
+      "post_num_link_domains_whitelisted",
+      "post_num_link_domains_blacklisted",
+      "post_any_link_domains_whitelisted",
+      "post_any_link_domains_blacklisted",
+      "author_repuation"
+      ];
 
 const
 	steem = require("steem"),
@@ -1058,12 +1106,22 @@ function updateWeightMetric(query, apiKey, callback) {
     }
     return;
   }
+  if (metricKeys.indexOf(query.key) < 0) {
+    if (callback) {
+      callback({status: 500, message: "key "+query.key+" not valid"});
+    }
+    return;
+  }
   getPersistentJson("algorithm", function(algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
-    algorithm.weights.push(query);
+    if (algorithm.weights.indexOf(query.key) >= 0) {
+      algorithm.weights[algorithm.weights.indexOf(query.key)] = query;
+    } else {
+      algorithm.weights.push(query);
+    }
     persistJson("algorithm", algorithm, null);
     if (callback) {
       callback({status: 200, message: "Added key to algorithm: "+query.key});

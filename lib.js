@@ -1024,7 +1024,7 @@ updateWeightMetric(query, apiKey, callback):
 */
 function updateWeightMetric(query, apiKey, callback) {
   console.log("updateWeightMetric call");
-  if (!apiKey.localeCompare(process.env.BOT_API_KEY)) {
+  if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
     if (callback) {
       callback({status: 500, message: "API key is incorrect"});
     }

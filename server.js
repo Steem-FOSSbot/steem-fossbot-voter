@@ -168,6 +168,7 @@ function editAlgoExec(res, message) {
         domainBlacklist: []
       };
     }
+    console.log(" - algorithm: "+JSON.stringify(algorithm));
     var html_list = "";
     if (algorithm.weights.length > 0) {
       for (var i = 0 ; i < algorithm.weights.length ; i++) {

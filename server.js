@@ -112,7 +112,8 @@ app.get("/run-bot", function(req, res) {
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
   if (req.query.remove) {
-    lib.deleteWeightMetric(req.query.remove, req.query.api_key, function(result) {
+    // TODO : remove process.env.BOT_API_KEY, force from user
+    lib.deleteWeightMetric(req.query.remove, process.env.BOT_API_KEY, function(result) {
       console.log("lib.deleteWeightMetric result: "+JSON.stringify(result));
       // show edit-algo as normal
       editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
@@ -139,8 +140,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     query["upper"] = req.body.upper;
   }
   // update
-  // TODO : remove process.env.BOT_API_KEY, force from user
-  lib.updateWeightMetric(query, process.env.BOT_API_KEY, function(result) {
+  lib.updateWeightMetric(query, req.body.api_key, function(result) {
     console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
     // show edit-algo as normal
     editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  

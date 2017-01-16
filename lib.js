@@ -1337,7 +1337,7 @@ function sendEmail(subject, message, isHtml) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
 		return false;
 	}
-  console.log("sendEmail, subject: "+subject);
+  console.log("sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);
 	var helper = require('sendgrid').mail;
 	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
@@ -1354,10 +1354,13 @@ function sendEmail(subject, message, isHtml) {
 	});
 
 	console.log("sending email");
-	sg.API(request, function(error, response) {
-		console.log(" - "+response.statusCode);
-		console.log(" - "+response.body);
-		console.log(" - "+response.headers);
+	sg.API(request, function(err, response) {
+    if (err) {
+      console.log(" - error sending email: "+err.message);
+    } else {
+      console.log(" - send email, status: "+response.statusCode);
+      
+    }
 	});
 }
 

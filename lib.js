@@ -826,24 +826,22 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-    /*
-    // log in before casting votes
+    // return http before casting votes
     function () {
-      persistentLog("Q.deferred: log in before casting votes");
+      persistentLog("Q.deferred: return http before casting votes");
       var deferred = Q.defer();
-      // login
-      steem.api.login(process.env.STEEM_USER, process.env.POSTING_KEY_PRV, function(err, loginResult) {
-        if (err) {
-          throw {message: "could not login "+process.env.STEEM_USER+": "+err.message};
-        } else {
-          persistentLog("logged in to cast votes with result: "+loginResult);
-          // finish
-          deferred.resolve(true);
-        }
-      });
+      // finally, send good http response back
+      // back to http
+      if (callback) {
+        callback(
+          {
+            status: 200, 
+            message: "Scores calculated, votes will now be cast. Check log and / or email for full log and result.",
+            posts: postsMetadata
+          });
+      }
       return deferred.promise;
     },
-    */
     // cast votes to steem
     function () {
       persistentLog("Q.deferred: cast votes to steem");
@@ -875,14 +873,7 @@ function runBot(callback, options) {
             }
             if (doVote) {
               if (postsMetadata[i].vote) {
-                persistentLog(" - - - steem.broadcast.vote: "+postsMetadata[i].permlink);
-                persistentLog(" - - - - - process.env.POSTING_KEY_PRV: "+process.env.POSTING_KEY_PRV);
-                persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
-                persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
-                persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
-                persistentLog(" - - - - - weight: "+10000);
-
-                // try vote anyway
+                // vote!
                 try {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
                         process.env.STEEM_USER, postsMetadata[i].author,
@@ -894,14 +885,14 @@ function runBot(callback, options) {
                 numVotedOn++;
                 persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 // wait 5 seconds
-                persistentLog(" - - - waiting 5 seconds...");
+                persistentLog(" - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function() {
                     func(null, true);
                   }, delay);
                 }
                 var timeOutResult = wait.for(timeOutWrapper, 5000);
-                persistentLog(" - - - timeout result: "+timeOutResult);
+                persistentLog(" - - - finished waiting");
               } else {
                 persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
               }
@@ -1007,16 +998,6 @@ function runBot(callback, options) {
       persistString("last_log_html", email, function(err) {
         console.log("couldn't save last log html as persistent string");
       });
-      // finally, send good http response back
-      // back to http
-      if (callback) {
-        callback(
-          {
-            status: 200, 
-            message: "Scores caluclated and votes cast",
-            posts: postsMetadata
-          });
-      }
       return;
     }
   })

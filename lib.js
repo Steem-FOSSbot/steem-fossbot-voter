@@ -855,6 +855,12 @@ function runBot(callback, options) {
           }
           if (doVote) {
             if (postsMetadata[i].vote) {
+              persistentLog(" - - - steem.broadcast.vote: "+postsMetadata[i].permlink);
+              persistentLog(" - - - - - process.env.POSTING_KEY_PRV: "+process.env.POSTING_KEY_PRV);
+              persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
+              persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
+              persistentLog(" - - - - - postsMetadata[i].permlink: "+process.env.POSTING_KEY_PRV);
+              persistentLog(" - - - - - weight: "+100);
               steem.broadcast.vote(process.env.POSTING_KEY_PRV, 
                     process.env.STEEM_USER, postsMetadata[i].author,
                     postsMetadata[i].permlink, 100, function(err, upvoteResult) {
@@ -863,7 +869,10 @@ function runBot(callback, options) {
                 } else {
                   persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 }
-                if (++numVotedOn >= numToVoteOn) {
+                // git commit -m "Add better logging for cast vote process"
+                numVotedOn++;
+                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
+                if (numVotedOn >= numToVoteOn) {
                   persistentLog(" - finished voting");
                   deferred.resolve(true);
                 }
@@ -877,6 +886,8 @@ function runBot(callback, options) {
         }
       } else {
         persistentLog(" - - no post to vote on");
+      }
+      if (numToVoteOn == 0) {
         deferred.resolve(true);
       }
       return deferred.promise;

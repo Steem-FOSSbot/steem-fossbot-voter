@@ -827,9 +827,23 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
+      var count = 0;
       // cast vote
       persistentLog(" - voting");
       if (postsMetadata.length > 0) {
+        var numToVoteOn = 0;
+        for (var i = 0 ; i < postsMetadata.length ; i++) {
+          var doVote = true;
+          if (options && options.test) {
+            doVote = false;
+          }
+          if (doVote) {
+            if (postsMetadata[i].vote) {
+              numToVoteOn++;
+            }
+          }
+        }
+        var numVotedOn = 0;
         for (var i = 0 ; i < postsMetadata.length ; i++) {
           persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
               +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
@@ -847,6 +861,10 @@ function runBot(callback, options) {
                 } else {
                   persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 }
+                if (++numVotedOn >= numToVoteOn) {
+                  persistentLog(" - finished voting");
+                  deferred.resolve(true);
+                }
               });
             } else {
               persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
@@ -857,9 +875,8 @@ function runBot(callback, options) {
         }
       } else {
         persistentLog(" - - no post to vote on");
+        deferred.resolve(true);
       }
-      // finish
-      deferred.resolve(true);
       return deferred.promise;
     },
     // send result messages

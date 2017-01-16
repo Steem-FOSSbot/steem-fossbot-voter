@@ -13,6 +13,6 @@ if (lib.hasFatalError()) {
 } else {
 	console.log("calling runBot...");
 	lib.runBot(function(msg) {
-		console.log("runBot finished with message: "+msg);
+		console.log("runBot finished with message: "+JSON.stringify(msg));
 	});
 }

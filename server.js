@@ -505,12 +505,27 @@ app.get("/test-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
-  // TODO : get options from post data
+  if (!req.query.api_key) {
+    handleError(res, "/test-algo Unauthorized", "test-algo: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/test-algo Unauthorized", "test-algo: api_key invalid", 401);
+    return;
+  }
   console.log("/test-algo POST request: "+req);
-  res.send(200, 
-    html_testAlgo1 
-    + html_test_emptyList
-    + html_testAlgo2);
+  if (req.body.author && req.body.permlink) {
+    testAlgoExec(res, {test: true, author: req.body.author, permlink: req.body.permlink});
+  } else {
+    res.send(200, 
+      html_testAlgo1 
+      + process.env.BOT_API_KEY
+      + html_testAlgo2
+      + process.env.BOT_API_KEY
+      + html_testAlgo3
+      + html_test_emptyList
+      + html_testAlgo4
+      );
+  }
 });
 
 function testAlgoExec(res, options) {
@@ -530,10 +545,14 @@ function testAlgoExec(res, options) {
     } else {
       html_list = html_test_emptyList;
     }
-    // TODO : make list
     res.send(200, 
       html_testAlgo1 
+      + process.env.BOT_API_KEY
+      + html_testAlgo2
+      + process.env.BOT_API_KEY
+      + html_testAlgo3
       + html_list
-      + html_testAlgo2);
+      + html_testAlgo4
+      );
   }, options);
 }

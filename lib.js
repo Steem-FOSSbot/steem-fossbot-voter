@@ -126,6 +126,7 @@ var avgWindowInfo = {
 };
 
 // logging and notification
+var logNumLines = 0;
 var log = "";
 var logHtml = "";
 var algorithmSet = false;
@@ -139,7 +140,10 @@ persistentLog(msg):
 * Logs to console and appends to log var
 */
 function persistentLog(msg) {
-  console.log(msg);
+  //console.log(msg);
+  if (++logNumLines % 50 == 0) {
+    console.log("persistentLog logged another 50 lines...");
+  }
   log += ((log.length > 0) ? "\n" : "") + msg;
   logHtml += ((logHtml.length > 0) ? "<br/>" : "") + msg;
 }
@@ -865,7 +869,7 @@ function runBot(callback, options) {
         callback(
           {
             status: 200, 
-            message: "Scores caluclated, but posts not decided on and no votes cast, this is a demo server.",
+            message: "Scores caluclated and votes cast",
             posts: postsMetadata
           });
       }
@@ -885,6 +889,7 @@ function runBot(callback, options) {
   .then(function(response) {
     if (response) {
       persistentLog("runBot finished successfully");
+      console.log("runBot finished successfully");)
       var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
       email += "<h3>at "+((new Date()).toUTCString())+"</h3>";
       //algorithmSet
@@ -1330,7 +1335,7 @@ function sendEmail(subject, message, isHtml) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
 		return false;
 	}
-  console.log("sendEmail, subject: "+subject+", message: "+message);
+  console.log("sendEmail, subject: "+subject);
 	var helper = require('sendgrid').mail;
 	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)

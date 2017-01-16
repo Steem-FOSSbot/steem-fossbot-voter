@@ -839,7 +839,7 @@ function runBot(callback, options) {
           }
           if (doVote) {
             if (postsMetadata[i].vote) {
-              steem.broadcast.upvote(process.env.POSTING_KEY_PRV, 
+              steem.broadcast.vote(process.env.POSTING_KEY_PRV, 
                     process.env.STEEM_USER, postsMetadata[i].author,
                     process.env.permlink, 100, function(err, upvoteResult) {
                 if (err) {

@@ -23,7 +23,7 @@
   "dependencies": {
     "body-parser": "^1.13.3",
     "express": "^4.13.3",
-    "steem": "0.3.31",
+    "steem": "^0.4.2",
     "sendgrid": "^4.2.0",
     "q": "1.4.1",
     "redis": "2.6.3",

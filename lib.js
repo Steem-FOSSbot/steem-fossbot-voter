@@ -140,10 +140,12 @@ persistentLog(msg):
 * Logs to console and appends to log var
 */
 function persistentLog(msg) {
-  //console.log(msg);
+  console.log(msg);
+  /*
   if (++logNumLines % 500 == 0) {
     console.log("persistentLog logged another 50 lines...");
   }
+  */
   log += ((log.length > 0) ? "\n" : "") + msg;
   logHtml += ((logHtml.length > 0) ? "<br/>" : "") + msg;
 }

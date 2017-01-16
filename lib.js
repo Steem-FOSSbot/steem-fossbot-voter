@@ -859,7 +859,7 @@ function runBot(callback, options) {
               persistentLog(" - - - - - process.env.POSTING_KEY_PRV: "+process.env.POSTING_KEY_PRV);
               persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
               persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
-              persistentLog(" - - - - - postsMetadata[i].permlink: "+process.env.POSTING_KEY_PRV);
+              persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
               persistentLog(" - - - - - weight: "+100);
               steem.broadcast.vote(process.env.POSTING_KEY_PRV, 
                     process.env.STEEM_USER, postsMetadata[i].author,
@@ -869,7 +869,6 @@ function runBot(callback, options) {
                 } else {
                   persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 }
-                // git commit -m "Add better logging for cast vote process"
                 numVotedOn++;
                 persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 if (numVotedOn >= numToVoteOn) {

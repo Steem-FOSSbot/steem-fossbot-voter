@@ -913,8 +913,6 @@ function runBot(callback, options) {
         });
       } else {
         persistentLog(" - - no post to vote on");
-      }
-      if (numToVoteOn == 0) {
         deferred.resolve(true);
       }
       return deferred.promise;

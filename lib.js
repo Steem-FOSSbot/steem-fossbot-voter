@@ -825,6 +825,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
+    /*
     // log in before casting votes
     function () {
       persistentLog("Q.deferred: log in before casting votes");
@@ -841,6 +842,7 @@ function runBot(callback, options) {
       });
       return deferred.promise;
     },
+    */
     // cast votes to steem
     function () {
       persistentLog("Q.deferred: cast votes to steem");
@@ -877,17 +879,13 @@ function runBot(callback, options) {
               persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
               persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
               persistentLog(" - - - - - weight: "+1);
+
               // DEBUG!!! remove
-              var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-              var ARGUMENT_NAMES = /([^\s,]+)/g;
-              var fnStr = steem.broadcast.vote.toString().replace(STRIP_COMMENTS, '');
-              var details = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-              if(details === null) {
-                 details = [];
-               }
-              persistentLog("steem.broadcast.vote details: "+details);
+              persistentLog("steem.broadcast.vote details: "+getFuncDetails(steem.broadcast.vote));
+              persistentLog("steem.broadcast.upvote details: "+getFuncDetails(steem.broadcast.vote));
+
               // try vote anyway
-              steem.broadcast.vote(
+              steem.broadcast.upvote(process.env.POSTING_KEY_PRV,
                     process.env.STEEM_USER, postsMetadata[i].author,
                     postsMetadata[i].permlink, 1, function(err, upvoteResult) {
                 if (err) {
@@ -1046,6 +1044,17 @@ function countWordsFromRetext(obj) {
     }
   }
   return 0;
+}
+
+function getFuncDetails(func) {
+  var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+  var ARGUMENT_NAMES = /([^\s,]+)/g;
+  var fnStr = func.toString().replace(STRIP_COMMENTS, '');
+  var details = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+  if(details === null) {
+     details = [];
+   }
+  return details;
 }
 
 /*

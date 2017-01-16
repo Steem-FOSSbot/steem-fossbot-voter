@@ -81,7 +81,7 @@ const
   MIN_KEYWORD_LEN = 4,
   MIN_SCORE_THRESHOLD = 10,
   SCORE_THRESHOLD_INC_PC = 0.3,
-  NUM_POSTS_FOR_AVG_WINDOW = 20,
+  NUM_POSTS_FOR_AVG_WINDOW = 10,
   MAX_VOTES_IN_24_HOURS = 40;
 
 /* Private variables */
@@ -121,7 +121,8 @@ var postsMetadata = [];
 var avgWindowInfo = {
   scoreThreshold: 0,
   postScores: [],
-  windowSize: NUM_POSTS_FOR_AVG_WINDOW
+  windowSize: NUM_POSTS_FOR_AVG_WINDOW,
+  lastThresholdUpAdjust: 0
 };
 
 // logging and notification
@@ -779,7 +780,8 @@ function runBot(callback, options) {
             // then add more (make more unlikely to vote on) proportional to how many votes already
             //   cast today. if there are max or exceeding max voted, threshold will be too high for
             //   vote and no post will be voted on, thus maintaining limit
-            threshold += (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
+            avgWindowInfo.lastThresholdUpAdjust = (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
+            threshold += avgWindowInfo.lastThresholdUpAdjust;
           }
           avgWindowInfo.scoreThreshold = threshold;
 
@@ -918,10 +920,11 @@ function runBot(callback, options) {
       email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
       email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
       email += "<h3>Averaging window</h3>";
-      email += "<p>Number of votes today: "+owner.num_votes_today+"</p>";
+      email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
-      email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
+      email += "<p>Number of votes today: "+owner.num_votes_today+"</p>";
+      email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
       email += "<h3>Misc constant settings</h3>";
       email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
       email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";

@@ -1,9 +1,19 @@
 function deleteMetric(idx) {
-	var apiKey = document.getElementById('delete_api_key').value;
-	window.location.href = "/edit-algo?api_key="+apiKey+"&remove="+idx;
+	window.location.href = "/edit-algo?api_key="+getApiKey(window.location.href)+"&remove="+idx;
 }
 
 function testAlgo() {
-	var apiKey = document.getElementById('test_api_key').value;
-	window.location.href = "/test-algo?api_key="+apiKey;
+	window.location.href = "/test-algo?api_key="+getApiKey(window.location.href);
+}
+
+function getApiKey(url) {
+	var apiKey = "";
+	var parts = window.location.href.split("&");
+	for (var i = 0 ; i < parts.length ; i++) {
+		var idx = parts[i].search("api_key=");
+		if (idx >= 0) {
+			var apiKey = parts[i].substring(idx + 8, parts[i].length);
+		}
+	}
+	return apiKey;
 }

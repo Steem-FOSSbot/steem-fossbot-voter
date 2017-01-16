@@ -13,7 +13,7 @@ var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
 var
   html_msgPage1 = "",
   html_msgPage2 = "",
-  html_msgPage2 = "",
+  html_msgPage3 = "",
   html_dashboard1 = "",
   html_dashboard2 = "",
   html_editAlgo1 = "",

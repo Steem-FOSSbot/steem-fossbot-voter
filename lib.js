@@ -889,7 +889,7 @@ function runBot(callback, options) {
   .then(function(response) {
     if (response) {
       persistentLog("runBot finished successfully");
-      console.log("runBot finished successfully");)
+      console.log("runBot finished successfully");
       var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
       email += "<h3>at "+((new Date()).toUTCString())+"</h3>";
       //algorithmSet

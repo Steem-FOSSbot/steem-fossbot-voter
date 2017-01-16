@@ -48,7 +48,7 @@
       <!--h2 class="sub-header">Message</h2-->
       <div class="row">
         <div class="col-sm-4">
-          <p><a class="btn btn-primary" href="/test-algo?limit=5" role="button">Test Newest 5 Posts</a></p>
+          <p><a class="btn btn-primary" href="/test-algo?limit=5&amp;api_key=" role="button">Test Newest 5 Posts</a></p>
         </div>
         <div class="col-sm-4">
           <p><strong>OR</strong></p>
@@ -59,6 +59,7 @@
             <input type="text" id="inputAuthor" class="form-control" placeholder="Author" required>
             <label for="inputPermlink" class="sr-only">Permlink</label>
             <input type="text" id="inputPermlink" class="form-control" placeholder="Permlink" required>
+            <input type="hidden" name="api_key" value="">
             <button class="btn btn-lg btn-primary btn-block" type="submit">Test Post</button>
           </form>
         </div>

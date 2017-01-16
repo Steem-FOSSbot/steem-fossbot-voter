@@ -23,6 +23,8 @@ var
   html_editAlgo5 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "",
+  html_testAlgo3 = "",
+  html_testAlgo4 = "",
   html_stats1 = "",
   html_stats2 = "";
 
@@ -112,6 +114,14 @@ function loadFiles() {
   loadFileToString("/html/test-algo-part-2.html", function(str) {
     html_testAlgo2 = str;
     console.log("got /html/test-algo-part-2.html from file");
+  });
+  loadFileToString("/html/test-algo-part-3.html", function(str) {
+    html_testAlgo3 = str;
+    console.log("got /html/test-algo-part-3.html from file");
+  });
+  loadFileToString("/html/test-algo-part-4.html", function(str) {
+    html_testAlgo4 = str;
+    console.log("got /html/test-algo-part-4.html from file");
   });
   loadFileToString("/html/stats-1.html", function(str) {
     html_stats1 = str;
@@ -483,8 +493,13 @@ app.get("/test-algo", function(req, res) {
   } else {
     res.send(200, 
       html_testAlgo1 
+      + process.env.BOT_API_KEY
+      + html_testAlgo2
+      + process.env.BOT_API_KEY
+      + html_testAlgo3
       + html_test_emptyList
-      + html_testAlgo2);
+      + html_testAlgo4
+      );
   }
 });
 

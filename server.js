@@ -505,10 +505,10 @@ app.get("/test-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
-  if (!req.query.api_key) {
+  if (!req.body.api_key) {
     handleError(res, "/test-algo Unauthorized", "test-algo: api_key not supplied", 401);
     return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY)) {
     handleError(res, "/test-algo Unauthorized", "test-algo: api_key invalid", 401);
     return;
   }

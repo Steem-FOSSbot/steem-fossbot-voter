@@ -804,6 +804,7 @@ function runBot(callback, options) {
             url: "https://steemit.com"+posts[i].url,
             author: posts[i].author,
             time: posts[i].created,
+            cur_est_payout: postsMetrics[i].post_est_payout,
             score: scores[i],
             permlink: posts[i].permlink,
             vote: toVote
@@ -823,7 +824,7 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: cast votes to steem");
       var deferred = Q.defer();
       // cast vote
-      persistentLog(" - voting (NOT YET IMPLEMENTED)");
+      persistentLog(" - voting");
       if (postsMetadata.length > 0) {
         for (var i = 0 ; i < postsMetadata.length ; i++) {
           persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
@@ -851,14 +852,13 @@ function runBot(callback, options) {
       } else {
         persistentLog(" - - no post to vote on");
       }
-      persistentLog(" - ! will not cast vote now");
       // finish
       deferred.resolve(true);
       return deferred.promise;
     },
     // send result messages
     function () {
-      persistentLog("Q.deferred: cast votes to steem");
+      persistentLog("Q.deferred: send result messages");
       var deferred = Q.defer();
       // back to http
       if (callback) {
@@ -901,7 +901,7 @@ function runBot(callback, options) {
         // add to email
         for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
           email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">Score <strong>"
-            +sortedPostsMetadata[i].score+"</strong> for "
+            +sortedPostsMetadata[i].score+"</strong> (cur est $"+sortedPostsMetadata[i].cur_est_payout+") for "
             +"<a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a>"
             + " by author "+sortedPostsMetadata[i].author + "</span></p>";
         }

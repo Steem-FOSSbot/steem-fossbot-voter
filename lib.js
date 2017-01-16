@@ -883,24 +883,25 @@ function runBot(callback, options) {
                 persistentLog(" - - - - - weight: "+10000);
 
                 // try vote anyway
-                wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
-                      process.env.STEEM_USER, postsMetadata[i].author,
-                      postsMetadata[i].permlink, 10000, function(err, upvoteResult) {
-                  console.log("!!! steem.broadcast.vote returned!");
-                  console.log(err, upvoteResult);
-                  if (err) {
-                    persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
-                  } else {
-                    persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
-                  }
-                  numVotedOn++;
-                  persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
-                });
+                try {
+                  var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
+                        process.env.STEEM_USER, postsMetadata[i].author,
+                        postsMetadata[i].permlink, 10000);
+                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                } catch (err) {
+                  persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
+                }
+                numVotedOn++;
+                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 // wait 5 seconds
                 persistentLog(" - - - waiting 5 seconds...");
-                wait.for(setTimeout, function() {
-                  persistentLog(" - - - - finished waiting");
-                }, 5000);
+                var timeOutWrapper = function (delay, func) {
+                  setTimeout(function() {
+                    function(null, true);
+                  }, delay);
+                }
+                var timeOutResult = wait.for(timeOutWrapper, 5000);
+                persistentLog(" - - - timeout result: "+timeOutResult);
               } else {
                 persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
               }

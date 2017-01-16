@@ -840,6 +840,8 @@ function runBot(callback, options) {
             posts: postsMetadata
           });
       }
+      // finish
+      deferred.resolve(true);
       return deferred.promise;
     },
     // cast votes to steem

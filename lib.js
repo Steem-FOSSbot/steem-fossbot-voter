@@ -876,10 +876,20 @@ function runBot(callback, options) {
               persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
               persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
               persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
-              persistentLog(" - - - - - weight: "+100);
+              persistentLog(" - - - - - weight: "+1);
+              // DEBUG!!! remove
+              var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+              var ARGUMENT_NAMES = /([^\s,]+)/g;
+              var fnStr = steem.broadcast.vote.toString().replace(STRIP_COMMENTS, '');
+              var details = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+              if(details === null) {
+                 details = [];
+               }
+              persistentLog("steem.broadcast.vote details: "+details);
+              // try vote anyway
               steem.broadcast.vote(
                     process.env.STEEM_USER, postsMetadata[i].author,
-                    postsMetadata[i].permlink, 100, function(err, upvoteResult) {
+                    postsMetadata[i].permlink, 1, function(err, upvoteResult) {
                 if (err) {
                   persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 } else {
@@ -905,23 +915,6 @@ function runBot(callback, options) {
       if (numToVoteOn == 0) {
         deferred.resolve(true);
       }
-      return deferred.promise;
-    },
-    // send result messages
-    function () {
-      persistentLog("Q.deferred: send result messages");
-      var deferred = Q.defer();
-      // back to http
-      if (callback) {
-        callback(
-          {
-            status: 200, 
-            message: "Scores caluclated and votes cast",
-            posts: postsMetadata
-          });
-      }
-      // finish
-      deferred.resolve(true);
       return deferred.promise;
     }
   ];
@@ -1013,6 +1006,16 @@ function runBot(callback, options) {
       persistString("last_log_html", email, function(err) {
         console.log("couldn't save last log html as persistent string");
       });
+      // finally, send good http response back
+      // back to http
+      if (callback) {
+        callback(
+          {
+            status: 200, 
+            message: "Scores caluclated and votes cast",
+            posts: postsMetadata
+          });
+      }
       return;
     }
   })

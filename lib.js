@@ -857,7 +857,7 @@ function runBot(callback, options) {
             if (postsMetadata[i].vote) {
               steem.broadcast.vote(process.env.POSTING_KEY_PRV, 
                     process.env.STEEM_USER, postsMetadata[i].author,
-                    process.env.permlink, 100, function(err, upvoteResult) {
+                    postsMetadata[i].permlink, 100, function(err, upvoteResult) {
                 if (err) {
                   persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 } else {

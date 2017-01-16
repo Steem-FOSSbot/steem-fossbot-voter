@@ -825,6 +825,22 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
+    // log in before casting votes
+    function () {
+      persistentLog("Q.deferred: log in before casting votes");
+      var deferred = Q.defer();
+      // login
+      steem.api.login(process.env.STEEM_USER, process.env.POSTING_KEY_PRV, function(err, loginResult) {
+        if (err) {
+          throw {message: "could not login "+process.env.STEEM_USER+": "+err.message};
+        } else {
+          persistentLog("logged in to cast votes with result: "+loginResult);
+          // finish
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
+    }
     // cast votes to steem
     function () {
       persistentLog("Q.deferred: cast votes to steem");
@@ -861,7 +877,7 @@ function runBot(callback, options) {
               persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
               persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
               persistentLog(" - - - - - weight: "+100);
-              steem.broadcast.vote(process.env.POSTING_KEY_PRV, 
+              steem.broadcast.vote(
                     process.env.STEEM_USER, postsMetadata[i].author,
                     postsMetadata[i].permlink, 100, function(err, upvoteResult) {
                 if (err) {

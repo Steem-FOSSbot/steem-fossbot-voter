@@ -891,6 +891,9 @@ function runBot(callback, options) {
       if (!algorithmSet) {
         email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
       }
+      if (options && options.test) {
+        email += "<h3>TEST RUN - no votes will be cast</h3>";
+      }
       email += "<h2>Posts and scores:</h2>";
       if (postsMetadata.length > 0) {
         // first sort postsMetadata

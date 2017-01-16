@@ -826,9 +826,27 @@ function runBot(callback, options) {
       persistentLog(" - voting (NOT YET IMPLEMENTED)");
       if (postsMetadata.length > 0) {
         for (var i = 0 ; i < postsMetadata.length ; i++) {
-          // TODO : actually cast vote
           persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
               +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
+          var doVote = true;
+          if (options && options.test) {
+            doVote = false;
+          }
+          if (doVote) {
+            if (postsMetadata[i].vote) {
+              steem.broadcast.upvote(process.env.POSTING_KEY_PRV, 
+                    process.env.STEEM_USER, postsMetadata[i].author,
+                    process.env.permlink, 100, function(err, upvoteResult) {
+                if (err) {
+                  persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
+                } else {
+                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                }
+              });
+            }
+          } else {
+            persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
+          }
         }
       } else {
         persistentLog(" - - no post to vote on");

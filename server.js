@@ -449,7 +449,7 @@ app.get("/test-algo", function(req, res) {
   }
   // check for options from query data
   if (req.query.limit) {
-    testAlgoExec(res, {limit: 5});
+    testAlgoExec(res, {test: true, limit: 5});
   } else {
     res.send(200, 
       html_testAlgo1 

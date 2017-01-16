@@ -20,6 +20,7 @@ var
   html_editAlgo2 = "",
   html_editAlgo3 = "",
   html_editAlgo4 = "",
+  html_editAlgo5 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "",
   html_stats1 = "",
@@ -99,6 +100,10 @@ function loadFiles() {
   loadFileToString("/html/edit-algo-part-4.html", function(str) {
     html_editAlgo4 = str;
     console.log("got /html/edit-algo-part-4.html from file");
+  });
+  loadFileToString("/html/edit-algo-part-5.html", function(str) {
+    html_editAlgo5 = str;
+    console.log("got /html/edit-algo-part-5.html from file");
   });
   loadFileToString("/html/test-algo-part-1.html", function(str) {
     html_testAlgo1 = str;
@@ -454,10 +459,12 @@ function editAlgoExec(res, message) {
       html_editAlgo1
       + (message ? message : "")
       + html_editAlgo2
-      + html_list
+      + process.env.BOT_API_KEY
       + html_editAlgo3
+      + html_list
+      + html_editAlgo4
       + html_whiteblacklists
-      + html_editAlgo4);
+      + html_editAlgo5);
     });
 }
 

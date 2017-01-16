@@ -67,7 +67,8 @@ const
   remark = require('remark'),
   stripMarkdownProcessor = remark().use(strip),
   retext = require('retext'),
-  sentiment = require('retext-sentiment');
+  sentiment = require('retext-sentiment'),
+  wait = require('wait.for');
 
 const
   MINNOW = 0,
@@ -851,60 +852,65 @@ function runBot(callback, options) {
       // cast vote
       persistentLog(" - voting");
       if (postsMetadata.length > 0) {
-        var numToVoteOn = 0;
-        for (var i = 0 ; i < postsMetadata.length ; i++) {
-          var doVote = true;
-          if (options && options.test) {
-            doVote = false;
-          }
-          if (doVote) {
-            if (postsMetadata[i].vote) {
-              numToVoteOn++;
+        wait.launchFiber(function() {
+          var numToVoteOn = 0;
+          for (var i = 0 ; i < postsMetadata.length ; i++) {
+            var doVote = true;
+            if (options && options.test) {
+              doVote = false;
+            }
+            if (doVote) {
+              if (postsMetadata[i].vote) {
+                numToVoteOn++;
+              }
             }
           }
-        }
-        var numVotedOn = 0;
-        for (var i = 0 ; i < postsMetadata.length ; i++) {
-          persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
-              +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
-          var doVote = true;
-          if (options && options.test) {
-            doVote = false;
-          }
-          if (doVote) {
-            if (postsMetadata[i].vote) {
-              persistentLog(" - - - steem.broadcast.vote: "+postsMetadata[i].permlink);
-              persistentLog(" - - - - - process.env.POSTING_KEY_PRV: "+process.env.POSTING_KEY_PRV);
-              persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
-              persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
-              persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
-              persistentLog(" - - - - - weight: "+10000);
+          var numVotedOn = 0;
+          for (var i = 0 ; i < postsMetadata.length ; i++) {
+            persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
+                +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
+            var doVote = true;
+            if (options && options.test) {
+              doVote = false;
+            }
+            if (doVote) {
+              if (postsMetadata[i].vote) {
+                persistentLog(" - - - steem.broadcast.vote: "+postsMetadata[i].permlink);
+                persistentLog(" - - - - - process.env.POSTING_KEY_PRV: "+process.env.POSTING_KEY_PRV);
+                persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
+                persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
+                persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
+                persistentLog(" - - - - - weight: "+10000);
 
-              // try vote anyway
-              steem.broadcast.vote(process.env.POSTING_KEY_PRV,
-                    process.env.STEEM_USER, postsMetadata[i].author,
-                    postsMetadata[i].permlink, 10000, function(err, upvoteResult) {
-                console.log("!!! steem.broadcast.vote returned!");
-                console.log(err, upvoteResult);
-                if (err) {
-                  persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
-                } else {
-                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
-                }
-                numVotedOn++;
-                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
-                if (numVotedOn >= numToVoteOn) {
-                  persistentLog(" - finished voting");
-                  deferred.resolve(true);
-                }
-              });
+                // try vote anyway
+                wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
+                      process.env.STEEM_USER, postsMetadata[i].author,
+                      postsMetadata[i].permlink, 10000, function(err, upvoteResult) {
+                  console.log("!!! steem.broadcast.vote returned!");
+                  console.log(err, upvoteResult);
+                  if (err) {
+                    persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
+                  } else {
+                    persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                  }
+                  numVotedOn++;
+                  persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
+                });
+                // wait 5 seconds
+                persistentLog(" - - - waiting 5 seconds...");
+                wait.for(setTimeout, function() {
+                  persistentLog(" - - - - finished waiting");
+                }, 5000);
+              } else {
+                persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
+              }
             } else {
-              persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
+              persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
             }
-          } else {
-            persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
           }
-        }
+          persistentLog(" - finished voting");
+          deferred.resolve(true);
+        });
       } else {
         persistentLog(" - - no post to vote on");
       }

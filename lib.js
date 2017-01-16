@@ -878,16 +878,14 @@ function runBot(callback, options) {
               persistentLog(" - - - - - process.env.STEEM_USER: "+process.env.STEEM_USER);
               persistentLog(" - - - - - postsMetadata[i].author: "+postsMetadata[i].author);
               persistentLog(" - - - - - postsMetadata[i].permlink: "+postsMetadata[i].permlink);
-              persistentLog(" - - - - - weight: "+1);
-
-              // DEBUG!!! remove
-              persistentLog("steem.broadcast.vote details: "+getFuncDetails(steem.broadcast.vote));
-              persistentLog("steem.broadcast.upvote details: "+getFuncDetails(steem.broadcast.vote));
+              persistentLog(" - - - - - weight: "+10000);
 
               // try vote anyway
-              steem.broadcast.upvote(process.env.POSTING_KEY_PRV,
+              steem.broadcast.vote(process.env.POSTING_KEY_PRV,
                     process.env.STEEM_USER, postsMetadata[i].author,
-                    postsMetadata[i].permlink, 1, function(err, upvoteResult) {
+                    postsMetadata[i].permlink, 10000, function(err, upvoteResult) {
+                console.log("!!! steem.broadcast.vote returned!");
+                console.log(err, upvoteResult);
                 if (err) {
                   persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 } else {
@@ -1044,17 +1042,6 @@ function countWordsFromRetext(obj) {
     }
   }
   return 0;
-}
-
-function getFuncDetails(func) {
-  var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-  var ARGUMENT_NAMES = /([^\s,]+)/g;
-  var fnStr = func.toString().replace(STRIP_COMMENTS, '');
-  var details = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-  if(details === null) {
-     details = [];
-   }
-  return details;
 }
 
 /*

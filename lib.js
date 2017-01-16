@@ -840,7 +840,7 @@ function runBot(callback, options) {
         }
       });
       return deferred.promise;
-    }
+    },
     // cast votes to steem
     function () {
       persistentLog("Q.deferred: cast votes to steem");

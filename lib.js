@@ -141,7 +141,7 @@ persistentLog(msg):
 */
 function persistentLog(msg) {
   //console.log(msg);
-  if (++logNumLines % 50 == 0) {
+  if (++logNumLines % 500 == 0) {
     console.log("persistentLog logged another 50 lines...");
   }
   log += ((log.length > 0) ? "\n" : "") + msg;
@@ -848,6 +848,8 @@ function runBot(callback, options) {
                   persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 }
               });
+            } else {
+              persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
             }
           } else {
             persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);

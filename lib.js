@@ -897,7 +897,7 @@ function runBot(callback, options) {
                 persistentLog(" - - - waiting 5 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function() {
-                    function(null, true);
+                    func(null, true);
                   }, delay);
                 }
                 var timeOutResult = wait.for(timeOutWrapper, 5000);

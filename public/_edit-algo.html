@@ -176,6 +176,7 @@
       <h2 class="sub-header">Keys Reference</h2>
       <p>See the <a href="https://github.com/evm2p/steem-fossbot-voter/blob/develop/docs/algorithm.md">algorithm and metrics docs</a> for more details</p>
       <p>Note that all boolean data types are intepreted numerically as false = 0, true = 1</p>
+      <h4>Click on the key to begin adding it as a metric</h4>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead>
@@ -191,14 +192,14 @@
             <!-- Strategic metrics -->
             <!-- bot owner -->
             <tr>
-              <td>owner_num_votes_today</td>
+              <td><a href="javascript:selectKey('owner_num_votes_today')">owner_num_votes_today</a></td>
               <td>Strategic</td>
               <td>Bot Owner</td>
               <td>Numeric</td>
               <th><p>Number of votes today</p></th>
             </tr>
             <tr>
-              <td>owner_last_post_time</td>
+              <td><a href="javascript:selectKey('owner_last_post_time')">owner_last_post_time</a></td>
               <td>Strategic</td>
               <td>Bot Owner</td>
               <td>Numeric</td>
@@ -206,28 +207,28 @@
             </tr>
             <!-- post -->
             <tr>
-              <td>post_alive_time</td>
+              <td><a href="javascript:selectKey('post_alive_time')">post_alive_time</a></td>
               <td>Strategic</td>
               <td>Post</td>
               <td>Numeric</td>
               <th><p>Time since post, in minutes</p></th>
             </tr>
             <tr>
-              <td>post_est_payout</td>
+              <td><a href="javascript:selectKey('post_est_payout')">post_est_payout</a></td>
               <td>Strategic</td>
               <td>Post</td>
               <td>Numeric</td>
               <th><p>Estimated payout</p></th>
             </tr>
             <tr>
-              <td>post_num_upvotes</td>
+              <td><a href="javascript:selectKey('post_num_upvotes')">post_num_upvotes</a></td>
               <td>Strategic</td>
               <td>Post</td>
               <td>Numeric</td>
               <th><p>Number of up votes (normal votes _for_ a post)</p></th>
             </tr>
             <tr>
-              <td>post_num_downvotes</td>
+              <td><a href="javascript:selectKey('post_num_downvotes')">post_num_downvotes</a></td>
               <td>Strategic</td>
               <td>Post</td>
               <td>Numeric</td>
@@ -236,35 +237,35 @@
             <!-- post details -->
             <!-- numeric -->
             <tr>
-              <td>post_voted_num_dolphin</td>
+              <td><a href="javascript:selectKey('post_voted_num_dolphin')">post_voted_num_dolphin</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Numeric</td>
               <th><p>Number of voters with captial category dolphin who voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_num_whale</td>
+              <td><a href="javascript:selectKey('post_voted_num_whale')">post_voted_num_whale</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Numeric</td>
               <th><p>Number of voters with captial category whale who voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_num_followed</td>
+              <td><a href="javascript:selectKey('post_voted_num_followed')">post_voted_num_followed</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Numeric</td>
               <th><p>Number of followed voters who voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_num_whitelisted</td>
+              <td><a href="javascript:selectKey('post_voted_num_whitelisted')">post_voted_num_whitelisted</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Numeric</td>
               <th><p>Number of whitelisted voters who voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_num_blacklisted</td>
+              <td><a href="javascript:selectKey('post_voted_num_blacklisted')">post_voted_num_blacklisted</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Numeric</td>
@@ -272,35 +273,35 @@
             </tr>
             <!-- boolean -->
             <tr>
-              <td>post_voted_any_dolphin</td>
+              <td><a href="javascript:selectKey('post_voted_any_dolphin')">post_voted_any_dolphin</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Boolean</td>
               <th><p>At least one voter with captial category dolphin as voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_any_whale</td>
+              <td><a href="javascript:selectKey('post_voted_any_whale')">post_voted_any_whale</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Boolean</td>
               <th><p>At least one voter with captial category whale as voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_any_followed</td>
+              <td><a href="javascript:selectKey('post_voted_any_followed')">post_voted_any_followed</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Boolean</td>
               <th><p> At least one followed voter voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_any_whitelisted</td>
+              <td><a href="javascript:selectKey('post_voted_any_whitelisted')">post_voted_any_whitelisted</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Boolean</td>
               <th><p>At least one whitelist voter voted on post</p></th>
             </tr>
             <tr>
-              <td>post_voted_any_blacklisted</td>
+              <td><a href="javascript:selectKey('post_voted_any_blacklisted')">post_voted_any_blacklisted</a></td>
               <td>Strategic</td>
               <td>Post Detail</td>
               <td>Boolean</td>
@@ -309,7 +310,7 @@
             <!-- post details -->
             <!-- numeric -->
             <tr>
-              <td>author_capital_val</td>
+              <td><a href="javascript:selectKey('author_capital_val')">author_capital_val</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Numeric</td>
@@ -317,42 +318,42 @@
             </tr>
             <!-- boolean -->
             <tr>
-              <td>author_is_minnow</td>
+              <td><a href="javascript:selectKey('author_is_minnow')">author_is_minnow</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
               <th><p>Capital category is minnow</p></th>
             </tr>
             <tr>
-              <td>author_is_dolphin</td>
+              <td><a href="javascript:selectKey('author_is_dolphin')">author_is_dolphin</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
               <th><p>Capital category is dolphin</p></th>
             </tr>
             <tr>
-              <td>author_is_whale</td>
+              <td><a href="javascript:selectKey('author_is_whale')">author_is_whale</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
               <th><p>Capital category is whale</p></th>
             </tr>
             <tr>
-              <td>author_is_followed</td>
+              <td><a href="javascript:selectKey('author_is_followed')">author_is_followed</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
               <th><p>Author is followed</p></th>
             </tr>
             <tr>
-              <td>author_is_whitelisted</td>
+              <td><a href="javascript:selectKey('author_is_whitelisted')">author_is_whitelisted</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
               <th><p>Presence of author on whitelist</p></th>
             </tr>
             <tr>
-              <td>author_is_blacklisted</td>
+              <td><a href="javascript:selectKey('author_is_blacklisted')">author_is_blacklisted</a></td>
               <td>Strategic</td>
               <td>Author of Post</td>
               <td>Boolean</td>
@@ -361,63 +362,63 @@
             <!-- Cultural metrics -->
             <!-- Content text -->
             <tr>
-              <td>post_num_chars</td>
+              <td><a href="javascript:selectKey('post_num_chars')">post_num_chars</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Post length in characters</p></th>
             </tr>
             <tr>
-              <td>post_num_words</td>
+              <td><a href="javascript:selectKey('post_num_words')">post_num_words</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Post length in words</p></th>
             </tr>
             <tr>
-              <td>post_sentiment_val</td>
+              <td><a href="javascript:selectKey('post_sentiment_val')">post_sentiment_val</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Sentiment / emotional score</p></th>
             </tr>
             <tr>
-              <td>post_num_tags_whitelisted</td>
+              <td><a href="javascript:selectKey('post_num_tags_whitelisted')">post_num_tags_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Number of whitelisted tags (uses content word lists)</p></th>
             </tr>
             <tr>
-              <td>post_num_tags_blacklisted</td>
+              <td><a href="javascript:selectKey('post_num_tags_blacklisted')">post_num_tags_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Number of blacklisted tags (uses content word lists)</p></th>
             </tr>
             <tr>
-              <td>post_num_keywords_whitelisted</td>
+              <td><a href="javascript:selectKey('post_num_keywords_whitelisted')">post_num_keywords_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Number of unique whitelisted keywords</p></th>
             </tr>
             <tr>
-              <td>post_num_keywords_blacklisted</td>
+              <td><a href="javascript:selectKey('post_num_keywords_blacklisted')">post_num_keywords_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Number of unique blacklisted keywords</p></th>
             </tr>
             <tr>
-              <td>post_num_words_whitelisted</td>
+              <td><a href="javascript:selectKey('post_num_words_whitelisted')">post_num_words_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
               <th><p>Number of unique whitelist words in entire content text</p></th>
             </tr>
             <tr>
-              <td>post_num_words_blacklisted</td>
+              <td><a href="javascript:selectKey('post_num_words_blacklisted')">post_num_words_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Numeric</td>
@@ -425,42 +426,42 @@
             </tr>
             <!-- boolean -->
             <tr>
-              <td>post_category_whitelisted</td>
+              <td><a href="javascript:selectKey('post_category_whitelisted')">post_category_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
               <th><p>Category (sub-steem) on whitelist</p></th>
             </tr>
             <tr>
-              <td>post_category_blacklisted</td>
+              <td><a href="javascript:selectKey('post_category_blacklisted')">post_category_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
               <th><p>Category (sub-steem) on blacklist</p></th>
             </tr>
             <tr>
-              <td>post_any_tag_whitelisted</td>
+              <td><a href="javascript:selectKey('post_any_tag_whitelisted')">post_any_tag_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
               <th><p>Any tag on whitelist</p></th>
             </tr>
             <tr>
-              <td>post_any_tag_blacklisted</td>
+              <td><a href="javascript:selectKey('post_any_tag_blacklisted')">post_any_tag_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
               <th><p>Any tag on blacklist</p></th>
             </tr>
             <tr>
-              <td>post_any_keyword_whitelisted</td>
+              <td><a href="javascript:selectKey('post_any_keyword_whitelisted')">post_any_keyword_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
               <th><p>Any keyword on whitelist</p></th>
             </tr>
             <tr>
-              <td>post_any_keyword_blacklisted</td>
+              <td><a href="javascript:selectKey('post_any_keyword_blacklisted')">post_any_keyword_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content text</td>
               <td>Boolean</td>
@@ -469,42 +470,42 @@
             <!-- Content link -->
             <!-- numeric -->
             <tr>
-              <td>post_num_links_video</td>
+              <td><a href="javascript:selectKey('post_num_links_video')">post_num_links_video</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
               <th><p>Number of video links</p></th>
             </tr>
             <tr>
-              <td>post_num_links_image</td>
+              <td><a href="javascript:selectKey('post_num_links_image')">post_num_links_image</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
               <th><p>Number of image links</p></th>
             </tr>
             <tr>
-              <td>post_num_links_page</td>
+              <td><a href="javascript:selectKey('post_num_links_page')">post_num_links_page</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
               <th><p>Number of webpage links</p></th>
             </tr>
             <tr>
-              <td>post_num_links_total</td>
+              <td><a href="javascript:selectKey('post_num_links_total')">post_num_links_total</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
               <th><p>Total number of links</p></th>
             </tr>
             <tr>
-              <td>post_num_link_domains_whitelisted</td>
+              <td><a href="javascript:selectKey('post_num_link_domains_whitelisted')">post_num_link_domains_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
               <th><p>Number of link domains on whitelist</p></th>
             </tr>
             <tr>
-              <td>post_num_link_domains_blacklisted</td>
+              <td><a href="javascript:selectKey('post_num_link_domains_blacklisted')">post_num_link_domains_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Numeric</td>
@@ -512,14 +513,14 @@
             </tr>
             <!-- boolean -->
             <tr>
-              <td>post_any_link_domains_whitelisted</td>
+              <td><a href="javascript:selectKey('post_any_link_domains_whitelisted')">post_any_link_domains_whitelisted</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Boolean</td>
               <th><p>Any link domains on whitelist</p></th>
             </tr>
             <tr>
-              <td>post_any_link_domains_blacklisted</td>
+              <td><a href="javascript:selectKey('post_any_link_domains_blacklisted')">post_any_link_domains_blacklisted</a></td>
               <td>Cultural</td>
               <td>Content links</td>
               <td>Boolean</td>
@@ -528,7 +529,7 @@
             <!-- Author -->
             <!-- numeric -->
             <tr>
-              <td>author_repuation</td>
+              <td><a href="javascript:selectKey('author_repuation')">author_repuation</a></td>
               <td>Cultural</td>
               <td>Author</td>
               <td>Numeric</td>

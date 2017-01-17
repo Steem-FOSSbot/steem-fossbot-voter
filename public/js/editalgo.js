@@ -6,6 +6,14 @@ function testAlgo() {
 	window.location.href = "/test-algo?api_key="+getApiKey(window.location.href);
 }
 
+function selectKey(key) {
+	var input = document.getElementById('inputKey');
+	if (input) {
+		input.value = key;
+		document.body.scrollTop = document.documentElement.scrollTop = 0;
+	}
+}
+
 function getApiKey(url) {
 	var apiKey = "";
 	var parts = window.location.href.split("&");

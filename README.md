@@ -2,19 +2,25 @@
 
 A Steem FOSSbot
 
-**Please note that the bot is still in planning and development and is not yet fully functional.**
-
-Documentation is [available here](/docs/index.md).
+Full documentation is [available here](/docs/index.md).
 
 ## What is this?
 
-_Voter_ is a bot for Steem, built as a Node.js server and intended for deployment on Heroku or compatible.
+_Voter_ is a bot for Steem, built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
 
-For more information about the planned Steem FOSSbot ecosystem, check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
+This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to other if you wish.
+
+You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See _Usage_ below for more details.
+
+More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
 
 ## How it works
 
-New posts are pulled from the Steem API and each is assigned a score based on a user customisable algorithm. Posts which have a high enough score are voted on.
+The bot works by scoring each new post using a collection of rules which are set by the user. If a post scores above a threshold, it is voted fore. The threshold is automatically adjusted based on a raised average of recent posts, and is also proportional to number of votes in last 24 hours, to keep votes per day at around a max of 40.
+
+Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for ever minute old the post is.
+
+The server is designed to be triggered for a bot run iteration periodically, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually by a regular GET method to ```/run-bot``` endpoint.
 
 Please see the [discussion doc page](/docs/discussion.md) for an overview on how the curation algorithm works and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md)
 
@@ -35,19 +41,37 @@ See the [installation guide](/docs/installation.md), but if you want to jump rig
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
 
-Make sure to read the instructions though!
+Make sure to read the instructions though! Heroku has a basic free plan but if not familiar with their service you will want to read their terms, privacy policy, etc.
 
 ## License and acknowledgements
 
 All original programming is under the CC0 license and so it completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
 
-The [steem Node.js package](https://www.npmjs.com/package/steem), used to access the Steem API, is available on NPM, and the [source is on GitHub](https://github.com/adcpm/steem).
+The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is central to the app, a big thank you to the creator. Please [star it on GitHub](https://github.com/adcpm/steem) to support their development.
 
-Bootstrap is used for web frontend and is under the MIT license copyright to Twitter.
+Several other Node NPM libraries are used as dependencies (thier source is not included in this repo). Thanks to their creators!
+- [express](https://www.npmjs.com/package/express) and [body-parser](https://www.npmjs.com/package/body-parser) by dougwilson, as basic glue used by nearly every Node.js app
+- [sendgrid](https://www.npmjs.com/package/sendgrid) by thinkingserious, to send email notifications
+- [Q](https://www.npmjs.com/package/q) by kriskowal, to promise-ify and de-callback-hell-ify the long process of running a bot iteration
+- [redis](https://www.npmjs.com/package/redis) by bridgear, to access a redis simple database
+- [glossary](https://www.npmjs.com/package/glossary) by harth, for keyword extraction from Steem post body contents using NLP
+- [string](https://www.npmjs.com/package/string) by az7arul, for misc super powered string manipulation
+- [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
+- [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
+- [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
+
+Additionally [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license copyright to Twitter.
+
+## Disclaimer
+
+We are not required to supply terms because we are not running a service. However obviously you are at your own liability if you use this software.
+
+Contributions via pull request are very welcome, as is issues logged via the GitHub issue tracker. You can also suggest features, such as metrics you'd like to see, UI upgrades, etc.
 
 ## Changelog
 
-- v0.0.11, **add actual voting**, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
+- **v0.1.0**, minor version 1, soft release as app now works fully in all basic functionality
+- v0.0.11, add actual voting, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
 - v0.0.10, add bot API key wall to all areas of front end UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes
 - v0.0.9, add white / black list editing in UI and supported in backend
 - v0.0.8, basic front end UI set up, several improvements and changes to support it and knock-on bug fixing

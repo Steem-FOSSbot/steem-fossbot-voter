@@ -329,9 +329,9 @@ function runBot(callback, options) {
         metric.post_num_downvotes = 0;
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
           if (posts[i].active_votes[j].percent < 0) {
-            metric.post_num_upvotes++;
-          } else {
             metric.post_num_downvotes++;
+          } else {
+            metric.post_num_upvotes++;
           }
         }
         persistentLog(" - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
@@ -587,8 +587,8 @@ function runBot(callback, options) {
               persistentLog(" - - checking tags");
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
-                postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentWordWhitelist.indexOf(tag) > 0) ? 1 : 0;
-                postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentWordBlacklist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
               }
             } else {
               persistentLog(" - - no tags to check");

@@ -403,14 +403,14 @@ function editAlgoExec(res, message) {
     for (var i = 0 ; i < algorithm.contentCategoryWhitelist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentCategoryWhitelist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category whitelist</button></form></div>";
+    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag whitelist</button></form></div>";
     //content_category_blacklist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
     html_whiteblacklists += "<textarea name=\"content_category_blacklist\" cols=\"60\" rows=\"3\">";
     for (var i = 0 ; i < algorithm.contentCategoryBlacklist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentCategoryBlacklist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category blacklist</button></form></div>";
+    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag blacklist</button></form></div>";
     html_whiteblacklists += "</div><div class=\"row\">";
     //content_word_whitelist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";

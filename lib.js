@@ -714,7 +714,7 @@ function runBot(callback, options) {
               } else if (value > upper) {
                 value = (upper - lower) + 1;
               } else {
-                value -= lower + 1;
+                value = (value - lower) + 1;
               }
               persistentLog(" - - - - - after bounding: "+value);
             }

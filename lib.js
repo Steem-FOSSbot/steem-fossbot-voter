@@ -13,7 +13,7 @@ const
       "post_alive_time",
       "post_est_payout",
       "post_num_upvotes",
-      "post_num_downvotes"
+      "post_num_downvotes",
       "post_voted_num_dolphin",
       "post_voted_num_whale",
       "post_voted_num_followed",
@@ -712,9 +712,9 @@ function runBot(callback, options) {
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
-                value = (upper - lower);
+                value = (upper - lower) + 1;
               } else {
-                value -= lower;
+                value -= lower + 1;
               }
               persistentLog(" - - - - - after bounding: "+value);
             }

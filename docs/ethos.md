@@ -20,7 +20,7 @@ Please see the [discussion doc page](/docs/discussion.md) for more information o
 
 _Note: When referencing a Steem user name, the @ symbol has been replaced with (at) so as not to notify users on GitHub._
 
-I don't wish to detract from the excellent third party software being writen for Steem, all these efforts expand the usefulness of the system and show what is possible. I do wish to illustrate the differences between offerings, especially with regards to cost and data protection.
+I don't wish to detract from the excellent third party software being writen for Steem, all these efforts expand the usefulness of the system and show what is possible. I do wish to illustrate the differences between offerings, especially with regards to cost and data protection. Criticism should be seen as a fundamental part of any healthy debate.
 
 ### Autosteem
 

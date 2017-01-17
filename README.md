@@ -6,23 +6,23 @@ Full documentation is [available here](/docs/index.md).
 
 ## What is this?
 
-_Voter_ is a bot for Steem, built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
+_Voter_ is a bot for Steem which decides which posts to vote for and casts vote on behalf of a registered user. It is built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
 
 This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to other if you wish.
 
-You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See _Usage_ below for more details.
+You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/evm2p/steem-fossbot-voter#usage) below for more details.
 
 More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
 
 ## How it works
 
-The bot works by scoring each new post using a collection of rules which are set by the user. If a post scores above a threshold, it is voted fore. The threshold is automatically adjusted based on a raised average of recent posts, and is also proportional to number of votes in last 24 hours, to keep votes per day at around a max of 40.
+The bot works by scoring each new post using a collection of rules which are set by you. If a post scores above a threshold, it is voted for. The threshold is automatically adjusted based on a raised average of recent posts, and is also proportional to the number of votes in last 24 hours, to keep votes per day at around a max of 40 (by default).
 
-Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for ever minute old the post is.
+Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for every minute since the post was created.
 
-The server is designed to be triggered for a bot run iteration periodically, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually by a regular GET method to ```/run-bot``` endpoint.
+The server is designed to be triggered periodically for a bot run iteration, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually on the dashboard provided, or even by a HTTP GET method to ```/run-bot?json=true&api_key=BOT_API_KEY``` endpoint, which is used internally and can be used externally by a seperate app.
 
-Please see the [discussion doc page](/docs/discussion.md) for an overview on how the curation algorithm works and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md)
+Please see the [discussion doc page](/docs/discussion.md) for in depth details on e curation algorithm and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md).
 
 ## Usage
 

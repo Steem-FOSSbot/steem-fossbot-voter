@@ -98,11 +98,8 @@ _Note: All data current at time of sample_
 
 1. ```post_alive_time```: Time since post, in minutes
 2. ```post_est_payout```: Estimated payout
-3. ```post_num_votes```: Number of votes
-
-**Can't access from API**
-
-~~metrics.post.num_downvotes: Number of flags / downvotes~~
+3. ```post_num_upvotes```: Number of up votes (normal votes _for_ a post)
+4. ```post_num_downvotes```: Number of downvotes / flags
 
 #### Post - votes in detail
 

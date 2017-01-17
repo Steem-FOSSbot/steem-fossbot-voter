@@ -12,7 +12,8 @@ const
       "owner_last_post_time",
       "post_alive_time",
       "post_est_payout",
-      "post_num_votes",
+      "post_num_upvotes",
+      "post_num_downvotes"
       "post_voted_num_dolphin",
       "post_voted_num_whale",
       "post_voted_num_followed",
@@ -322,9 +323,19 @@ function runBot(callback, options) {
         //post_est_payout: Estimated payout
         metric.post_est_payout = parseFloat(posts[i].total_pending_payout_value);
         persistentLog(" - - metrics.post.est_payout: "+metric.post_est_payout);
-        //post_num_votes: Number of votes
-        metric.post_num_votes = posts[i].net_votes;
-        persistentLog(" - - metrics.post.num_votes: "+metric.post_num_votes);
+        //post_num_upvotes: Number of up votes (normal votes for a post)
+        //post_num_downvotes: Number of flags / downvotes
+        metric.post_num_upvotes = 0;
+        metric.post_num_downvotes = 0;
+        for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
+          if (posts[i].active_votes[j].percent < 0) {
+            metric.post_num_upvotes++;
+          } else {
+            metric.post_num_downvotes++;
+          }
+        }
+        persistentLog(" - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
+        persistentLog(" - - metrics.post.post_num_downvotes: "+metric.post_num_downvotes);
         // add author and voters to user fetch list
         fetchUsers.push(posts[i].author);
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {

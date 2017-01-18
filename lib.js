@@ -1181,8 +1181,12 @@ function persistJson(key, json, error) {
       error();
     }
   });
-  redisClient.set(key, JSON.stringify(json), function() {
-    console.log("persistJson save for key "+key);
+  redisClient.set(key, JSON.stringify(json), function(err) {
+    if (err) {
+      setError(null, false, "persistJson redis error for key "+key+": "+err.message);
+    } else {
+      console.log("persistJson save for key "+key);
+    }
   });
 }
 

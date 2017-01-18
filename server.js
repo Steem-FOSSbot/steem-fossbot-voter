@@ -214,7 +214,7 @@ app.get("/stats-data-json", function(req, res) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
     return;
   }
-  lib.getPersistentString("posts_metadata", function(postsMetadata) {
+  lib.getPersistentJson("posts_metadata", function(postsMetadata) {
     console.log("attempted to get postsMetadata: "+JSON.parse(postsMetadata));
     if (postsMetadata != null) {
       res.json(postsMetadata);

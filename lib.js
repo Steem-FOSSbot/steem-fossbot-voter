@@ -726,7 +726,7 @@ function runBot(callback, options) {
               score: (value * weight)
             }
             scoreDetail.total += metricScore.score;
-            scoreDetail.push(metricScore);
+            scoreDetail.metrics.push(metricScore);
             persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+score);
           } else {
             persistentLog(" - - - - error, key not found in metrics: "+weight);

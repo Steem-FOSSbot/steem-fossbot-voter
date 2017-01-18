@@ -116,7 +116,6 @@ var following = [];
 var owner = {};
 var postsMetrics = [];
 // resulting
-var scores = [];
 var postsMetadata = [];
 
 // other
@@ -689,11 +688,14 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
       // calculate scores
-      scores = [];
+      postsMetadata = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - - score for post "+i);
         var metric = postsMetrics[i];
-        scores[i] = 0;
+        var scoreDetail = {
+          total: 0,
+          metrics: []
+        };
         for (var j = 0 ; j < algorithm.weights.length ; j++) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
             persistentLog(" - - - metric key: "+algorithm.weights[j].key);
@@ -718,14 +720,33 @@ function runBot(callback, options) {
               }
               persistentLog(" - - - - - after bounding: "+value);
             }
-            var result = value * weight;
-            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+result);
-            scores[i] += result;
+            var metricScore = {
+              value: value,
+              weight: weight,
+              score: (value * weight)
+            }
+            scoreDetail.total += metricScore.score;
+            scoreDetail.push(metricScore);
+            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+score);
           } else {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
         persistentLog(" - - final score: "+scores[i]);
+        postsMetadata.push(
+          {
+            title: posts[i].title,
+            url: "https://steemit.com"+posts[i].url,
+            author: posts[i].author,
+            time: posts[i].created,
+            cur_est_payout: postsMetrics[i].post_est_payout,
+            upvotes: postsMetrics[i].post_num_upvotes,
+            downvotes: postsMetrics[i].post_num_downvotes,
+            score: scoreDetail.total,
+            scoreDetail: scoreDetail,
+            permlink: posts[i].permlink,
+            vote: false //may be set to true in next process
+          });
       }
       // finish
       persistentLog(" - scores: "+JSON.stringify(scores));
@@ -737,7 +758,6 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       // determine if post score above threshold, recalculating threshold if needs be
-      postsMetadata = [];
       if (avgWindowInfo.scoreThreshold == 0) {
         var avg = 0;
         var maxScore = 0;
@@ -816,23 +836,13 @@ function runBot(callback, options) {
         } else {
           persistentLog(" - - "+scores[i]+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
-        postsMetadata.push(
-          {
-            title: posts[i].title,
-            url: "https://steemit.com"+posts[i].url,
-            author: posts[i].author,
-            time: posts[i].created,
-            cur_est_payout: postsMetrics[i].post_est_payout,
-            score: scores[i],
-            permlink: posts[i].permlink,
-            vote: toVote
-          });
+        postsMetadata[i].vote = toVote;
       }
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
       persistJson("avg_window_info", avgWindowInfo, function(err) {
         persistentLog(" - - ERROR SAVING avg_window_info");
-      })
+      });
       // finish
       deferred.resolve(true);
       return deferred.promise;
@@ -851,6 +861,11 @@ function runBot(callback, options) {
             posts: postsMetadata
           });
       }
+      // and save postsMetadata to persistent
+      persistentLog(" - saving posts_metadata");
+      persistJson("posts_metadata", postsMetadata, function(err) {
+        persistentLog(" - - ERROR SAVING posts_metadata");
+      });
       // finish
       deferred.resolve(true);
       return deferred.promise;

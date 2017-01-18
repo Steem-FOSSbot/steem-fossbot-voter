@@ -56,7 +56,6 @@ module.exports = app;
 // Utils
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason + ", MESSAGE: "+message);
-  //res.status(code || 500).json({"error": message});
   res.status(code || 500).send(
     html_msgPage1
     + "API error"
@@ -64,6 +63,12 @@ function handleError(res, reason, message, code) {
     + html_msg_api_err
     + html_msgPage3
     );
+}
+
+function handleErrorJson(res, reason, message, code) {
+  console.log("JSON ERROR: " + reason + ", MESSAGE: "+message);
+  var status = code || 500;
+  res.status(status).json({status:status, error: reason, message: message});
 }
 
 function loadFiles() {
@@ -200,6 +205,27 @@ app.get("/stats", function(req, res) {
     });
   });
 });
+
+app.get("/stats-data-json", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    return;
+  }
+  lib.getPersistentString("posts_metadata", function(postsMetadata) {
+    if (postsMetadata != null) {
+      res.send(200, 
+          html_stats1 
+          + "/tmp-stats.html"
+          + html_stats2);
+    } else {
+      handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: no data in store", 500);
+    }
+  });
+});
+
 
 /*
  * /run-bot endpoint

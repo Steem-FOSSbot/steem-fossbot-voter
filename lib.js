@@ -732,7 +732,7 @@ function runBot(callback, options) {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        persistentLog(" - - final score: "+scores[i]);
+        persistentLog(" - - final score: "+scoreDetail.total);
         postsMetadata.push(
           {
             title: posts[i].title,
@@ -748,8 +748,6 @@ function runBot(callback, options) {
             vote: false //may be set to true in next process
           });
       }
-      // finish
-      persistentLog(" - scores: "+JSON.stringify(scores));
       deferred.resolve(true);
       return deferred.promise;
     },
@@ -762,12 +760,12 @@ function runBot(callback, options) {
         var avg = 0;
         var maxScore = 0;
         var count = 0;
-        for (var j = 0 ; j < scores.length ; j++) {
-          if (scores[j] > MIN_SCORE_THRESHOLD) {
-            avg += scores[j];
+        for (var j = 0 ; j < postsMetadata.length ; j++) {
+          if (postsMetadata[j].score > MIN_SCORE_THRESHOLD) {
+            avg += postsMetadata[j].score;
             count++;
-            if (scores[j] > maxScore) {
-              maxScore = scores[j];
+            if (postsMetadata[j].score > maxScore) {
+              maxScore = postsMetadata[j].score;
             }
           }
         }
@@ -825,16 +823,18 @@ function runBot(callback, options) {
 
           avgWindowInfo.postScores = [];
           persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
+          // add score to avgWindowInfo
+          for (var i = 0 ; i < posts.length ; i++) {
+            avgWindowInfo.postScores.push(postsMetadata[j].score);
+          }
         }
-        // add score to avgWindowInfo
-        avgWindowInfo.postScores.push(scores[i]);
         // check if post or not
         var toVote = false;
-        if (scores[i] > avgWindowInfo.scoreThreshold) {
+        if (postsMetadata[i].score > avgWindowInfo.scoreThreshold) {
           toVote = true;
-          persistentLog(" - - "+scores[i]+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
+          persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
         } else {
-          persistentLog(" - - "+scores[i]+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
+          persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
         postsMetadata[i].vote = toVote;
       }

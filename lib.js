@@ -721,6 +721,7 @@ function runBot(callback, options) {
               persistentLog(" - - - - - after bounding: "+value);
             }
             var metricScore = {
+              key: algorithm.weights[j].key,
               value: value,
               weight: weight,
               score: (value * weight)

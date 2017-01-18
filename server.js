@@ -68,9 +68,7 @@ function handleError(res, reason, message, code) {
 function handleErrorJson(res, reason, message, code) {
   console.log("JSON ERROR: " + reason + ", MESSAGE: "+message);
   var status = code || 500;
-  res.sendStatus(code || 500);
-  res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify({status:status, error: reason, message: message});
+  res.json({status:status, error: reason, message: message});
 }
 
 function loadFiles() {

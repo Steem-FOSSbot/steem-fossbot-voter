@@ -68,7 +68,9 @@ function handleError(res, reason, message, code) {
 function handleErrorJson(res, reason, message, code) {
   console.log("JSON ERROR: " + reason + ", MESSAGE: "+message);
   var status = code || 500;
-  res.json({status:status, error: reason, message: message});
+  res.sendStatus(code || 500);
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify({status:status, error: reason, message: message});
 }
 
 function loadFiles() {
@@ -215,8 +217,9 @@ app.get("/stats-data-json", function(req, res) {
     return;
   }
   lib.getPersistentString("posts_metadata", function(postsMetadata) {
+    console.log("attempted to get postsMetadata: "+JSON.parse(postsMetadata));
     if (postsMetadata != null) {
-      res.send(200).json(postsMetadata);
+      res.json(postsMetadata);
     } else {
       handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: no data in store", 500);
     }

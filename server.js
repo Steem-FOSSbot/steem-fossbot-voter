@@ -216,10 +216,7 @@ app.get("/stats-data-json", function(req, res) {
   }
   lib.getPersistentString("posts_metadata", function(postsMetadata) {
     if (postsMetadata != null) {
-      res.send(200, 
-          html_stats1 
-          + "/tmp-stats.html"
-          + html_stats2);
+      res.send(200).json(postsMetadata);
     } else {
       handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: no data in store", 500);
     }

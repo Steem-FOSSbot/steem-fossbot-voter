@@ -727,7 +727,7 @@ function runBot(callback, options) {
             }
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
-            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+score);
+            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+scoreDetail.total);
           } else {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }

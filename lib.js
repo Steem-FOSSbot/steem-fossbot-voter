@@ -1212,7 +1212,7 @@ function getPersistentJson(key, callback) {
           var json = parseJson(reply);
           callback(json);
         } catch(err) {
-          setError(null, false, "getPersistentJson redis error for key "+key+": "+err.message);
+          setError(null, false, "getPersistentJson redis error for key "+key+": "+JSON.stringify(err));
           callback(null);
         }
       }

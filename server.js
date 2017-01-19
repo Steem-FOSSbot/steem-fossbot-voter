@@ -20,7 +20,6 @@ var
   html_editAlgo2 = "",
   html_editAlgo3 = "",
   html_editAlgo4 = "",
-  html_editAlgo5 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "",
   html_testAlgo3 = "",
@@ -107,10 +106,6 @@ function loadFiles() {
   loadFileToString("/html/edit-algo-part-4.html", function(str) {
     html_editAlgo4 = str;
     console.log("got /html/edit-algo-part-4.html from file");
-  });
-  loadFileToString("/html/edit-algo-part-5.html", function(str) {
-    html_editAlgo5 = str;
-    console.log("got /html/edit-algo-part-5.html from file");
   });
   loadFileToString("/html/test-algo-part-1.html", function(str) {
     html_testAlgo1 = str;
@@ -224,6 +219,23 @@ app.get("/stats-data-json", function(req, res) {
   });
 });
 
+app.get("/get-algo", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/get-algo Unauthorized", "get-algo: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/get-algo Unauthorized", "get-algo: api_key invalid", 401);
+    return;
+  }
+  lib.getPersistentJson("algorithm", function(algorithm) {
+    console.log("attempted to get algorithm: "+algorithm);
+    if (algorithm != null) {
+      res.json(algorithm);
+    } else {
+      handleErrorJson(res, "/get-algo Unauthorized", "get-algo: no data in store", 500);
+    }
+  });
+});
 
 /*
  * /run-bot endpoint
@@ -363,8 +375,23 @@ app.get("/edit-algo", function(req, res) {
 // POST /edit-algo
 app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
   console.log("/edit-algo POST request");
+  if (!req.body.api_key) {
+    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key not supplied", 401);
+    return;
+  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key invalid", 401);
+    return;
+  }
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));
+  if (req.body.json_algo) {
+    // is update algorithm query
+    // TODO : update for algorithm
+    console.log("TODO : update algorithm");
+    console.log(" - check algorithm is valid");
+    console.log(" - update algorithm");
+    handleError(res, "/edit-algo Unimplmented", "edit-algo: is not yet implemented", 500);
+  }
   // create query
   var query = {
     key: req.body.key,
@@ -493,12 +520,10 @@ function editAlgoExec(res, message) {
       html_editAlgo1
       + (message ? message : "")
       + html_editAlgo2
-      + process.env.BOT_API_KEY
-      + html_editAlgo3
       + html_list
-      + html_editAlgo4
+      + html_editAlgo3
       + html_whiteblacklists
-      + html_editAlgo5);
+      + html_editAlgo4);
     });
 }
 

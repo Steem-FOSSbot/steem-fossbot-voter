@@ -14,6 +14,27 @@ function selectKey(key) {
 	}
 }
 
+function exportAlgo() {
+	$.getJSON( "/get-algo?api_key="+getApiKey(window.location.href), function(data) {
+		var textArea = document.getElementById('json_algo');
+		if (textArea) {
+			textArea.value = data;
+		}
+	});
+}
+
+window.onload = function() {
+  var apiKey = getApiKey(window.location.href);
+  var hiddenInput1 = document.getElementById('metrics_api_key');
+  if (hiddenInput1) {
+  	hiddenInput1.value = apiKey;
+  }
+  var hiddenInput2 = document.getElementById('import_export_api_key');
+  if (hiddenInput2) {
+  	hiddenInput2.value = apiKey;
+  }
+};
+
 function getApiKey(url) {
 	var apiKey = "";
 	var parts = window.location.href.split("&");

@@ -57,7 +57,7 @@
             <input type="number" name="lower" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
             <label for="inputUpper" class="sr-only">Upper bound (optional)</label>
             <input type="number" name="upper" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
-            <input type="hidden" name="api_key" value="">
+            <input type="hidden" name="api_key" value="" id="metrics_api_key">
             <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Add Rule</button>
           </form>
         </div>
@@ -171,6 +171,20 @@
             <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Update Domain blacklist</button>
           </form>
         </div-->
+      </div>
+
+      <div class="container-fluid">
+        <h1 class="page-header">Export / Import Algorithm</h1>
+        <!--h2 class="sub-header">Message</h2-->
+        <div class="row">
+          <form class="form-list" action="/edit-algo" method="post">
+            <p><a class="btn btn-lg btn-primary btn-block" role="button" href="javascript:exportAlgo()">Export Current Algorithm</a></p>
+            <label for="inputKey" class="sr-only"></label>
+            <textarea name="json_algo" id="json_algo" cols="150" rows="10"></textarea>
+            <input type="hidden" name="api_key" value="" id="import_export_api_key">
+            <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Import This Algorithm</button>
+          </form>
+        </div>
       </div>
 
       <h2 class="sub-header">Keys Reference</h2>

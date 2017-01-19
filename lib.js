@@ -1206,7 +1206,7 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        if (yourVariable !== null && typeof yourVariable === 'object') {
+        if (reply !== null && typeof reply === 'object') {
           callback(reply);
           return;
         }

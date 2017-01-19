@@ -33,8 +33,6 @@
     "remark": "6.2.0",
     "retext": "4.0.0",
     "retext-sentiment": "2.0.2",
-    "wait.for": "0.6.6",
-    "atob": "2.0.3",
-    "btoa": "1.1.2"
+    "wait.for": "0.6.6"
   }
 }

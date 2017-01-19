@@ -69,9 +69,7 @@ const
   stripMarkdownProcessor = remark().use(strip),
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
-  wait = require('wait.for'),
-  btoa = require('btoa'),
-  atob = require('atob');
+  wait = require('wait.for');
 
 const
   MINNOW = 0,
@@ -736,9 +734,9 @@ function runBot(callback, options) {
           }
         }
         persistentLog(" - - final score: "+scoreDetail.total);
-        //title: posts[i].title,
         postsMetadata.push(
           {
+            title: posts[i].title,
             url: "https://steemit.com"+posts[i].url,
             author: posts[i].author,
             time: posts[i].created,
@@ -866,7 +864,7 @@ function runBot(callback, options) {
       }
       // and save postsMetadata to persistent
       persistentLog(" - saving posts_metadata");
-      persistJson("posts_metadata", {postsMetadata: postsMetadata}, function(err) {
+      persistJson("posts_metadata", {posts_metadata: postsMetadata}, function(err) {
         persistentLog(" - - ERROR SAVING posts_metadata");
       });
       // finish
@@ -1183,18 +1181,9 @@ function persistJson(key, json, error) {
       error();
     }
   });
-  var jsonAsStr;
-  try {
-    jsonAsStr = JSON.stringify(json);
-    var jsonAsStrB64 = btoa(jsonAsStr);
-    var decoded = atob(jsonAsStrB64);
-    var jsonTest = JSON.parse(decoded);
-    console.log("persistJson stringify / parse test passed for json with key: "+key);
-  } catch(err) {
-    setError(null, false, "persistJson redis error for key "+key+" trying parse test: "+err.message);
-    return
-  }
-  redisClient.set(key, jsonAsStrB64, function(err) {
+  var str = JSON.stringify(json);
+  console.log("persistJson for key "+key+", has JSON as str: "+str);
+  redisClient.set(key, str, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
     } else {
@@ -1218,15 +1207,12 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        if (reply !== null && typeof reply === 'object') {
-          callback(reply);
-          return;
-        }
+        console.log("getPersistentJson for key "+key+", raw: "+reply);
         try {
-          var json = JSON.parse(atob(reply));
+          var json = JSON.parse(reply);
           callback(json);
         } catch(err) {
-          setError(null, false, "getPersistentJson redis error for key "+key+": "+err);
+          setError(null, false, "getPersistentJson redis error for key "+key+": "+err.message);
           callback(null);
         }
       }

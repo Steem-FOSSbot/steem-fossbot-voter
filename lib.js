@@ -1465,6 +1465,7 @@ module.exports.hasFatalError = hasFatalError;
 module.exports.getServerState = getServerState;
 module.exports.showFatalError = showFatalError;
 module.exports.sendEmail = sendEmail;
+module.exports.persistJson = persistJson;
 module.exports.getPersistentJson = getPersistentJson;
 module.exports.getPersistentString = getPersistentString;
 module.exports.updateWeightMetric = updateWeightMetric;

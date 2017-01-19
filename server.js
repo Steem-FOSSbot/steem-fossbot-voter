@@ -424,8 +424,8 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
       return;
     }
     console.log(" - update algorithm");
-    persistJson("algorithm", JSON.parse(req.body.json_algo), function(err) {
-      persistentLog(" - - ERROR SAVING algorithm");
+    lib.persistJson("algorithm", JSON.parse(req.body.json_algo), function(err) {
+      console.log(" - - ERROR SAVING algorithm");
       // TODO : show this on page
     });
     editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");  

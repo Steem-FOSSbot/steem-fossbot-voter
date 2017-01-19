@@ -736,9 +736,9 @@ function runBot(callback, options) {
           }
         }
         persistentLog(" - - final score: "+scoreDetail.total);
+        //title: posts[i].title,
         postsMetadata.push(
           {
-            title: posts[i].title,
             url: "https://steemit.com"+posts[i].url,
             author: posts[i].author,
             time: posts[i].created,

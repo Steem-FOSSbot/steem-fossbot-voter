@@ -744,10 +744,9 @@ function runBot(callback, options) {
             upvotes: postsMetrics[i].post_num_upvotes,
             downvotes: postsMetrics[i].post_num_downvotes,
             score: scoreDetail.total,
-            scoreDetail: scoreDetail,
             permlink: posts[i].permlink,
             vote: false //may be set to true in next process
-          });
+          }); //scoreDetail: scoreDetail,
       }
       deferred.resolve(true);
       return deferred.promise;

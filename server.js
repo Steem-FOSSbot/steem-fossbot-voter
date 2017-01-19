@@ -230,7 +230,7 @@ app.get("/get-algo", function(req, res) {
   lib.getPersistentJson("algorithm", function(algorithm) {
     console.log("attempted to get algorithm: "+algorithm);
     if (algorithm != null) {
-      res.json(algorithm);
+      res.json(JSON.stringify(algorithm));
     } else {
       handleErrorJson(res, "/get-algo Unauthorized", "get-algo: no data in store", 500);
     }

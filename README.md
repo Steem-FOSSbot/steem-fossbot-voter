@@ -70,6 +70,11 @@ Contributions via pull request are very welcome, as is issues logged via the Git
 
 ## Changelog
 
+- v0.1.1
+- - break out vote counting to up and down votes; if metric bounds calculation
+- - add /stats-data-json and /get-algo endpoints to get last algo run stats and current algo, respectively
+- - update algo threshold window to use system to use **sliding window**, huge improvement to post selection for voting
+- - add algorithm direct export and import, for backup and algorithm sharing
 - **v0.1.0**, minor version 1, soft release as app now works fully in all basic functionality
 - v0.0.11, add actual voting, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
 - v0.0.10, add bot API key wall to all areas of front end UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes

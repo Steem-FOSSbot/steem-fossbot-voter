@@ -70,7 +70,8 @@ const
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
   wait = require('wait.for'),
-  parseJson = require('parse-json');
+  btoa = require('btoa'),
+  atob = require('atob');
 
 const
   MINNOW = 0,
@@ -1185,13 +1186,15 @@ function persistJson(key, json, error) {
   var jsonAsStr;
   try {
     jsonAsStr = JSON.stringify(json);
-    var jsonTest = JSON.parse(jsonAsStr);
+    var jsonAsStrB64 = btoa(jsonAsStr);
+    var decoded = atob(jsonAsStrB64);
+    var jsonTest = JSON.parse(decoded);
     console.log("persistJson stringify / parse test passed for json with key: "+key);
   } catch(err) {
     setError(null, false, "persistJson redis error for key "+key+" trying parse test: "+err.message);
     return
   }
-  redisClient.set(key, jsonAsStr, function(err) {
+  redisClient.set(key, jsonAsStrB64, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
     } else {
@@ -1220,8 +1223,7 @@ function getPersistentJson(key, callback) {
           return;
         }
         try {
-          //var json = JSON.parse(reply);
-          var json = parseJson(reply);
+          var json = JSON.parse(atob(reply));
           callback(json);
         } catch(err) {
           setError(null, false, "getPersistentJson redis error for key "+key+": "+err);

@@ -34,6 +34,7 @@
     "retext": "4.0.0",
     "retext-sentiment": "2.0.2",
     "wait.for": "0.6.6",
-    "parse-json": "2.2.0"
+    "atob": "2.0.3",
+    "btoa": "1.1.2"
   }
 }

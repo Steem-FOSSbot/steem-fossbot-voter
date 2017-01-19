@@ -429,6 +429,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
       // TODO : show this on page
     });
     editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");  
+    return;
   }
   // create query
   var query = {

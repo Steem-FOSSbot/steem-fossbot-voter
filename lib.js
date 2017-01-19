@@ -1205,10 +1205,12 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
+        console.log("getPersistentJson for key "+key+", raw: "+reply);
         try {
           var json = JSON.parse(reply);
           callback(json);
         } catch(err) {
+          setError(null, false, "getPersistentJson redis error for key "+key+": "+err.message);
           callback(null);
         }
       }

@@ -122,8 +122,7 @@ var postsMetadata = [];
 var avgWindowInfo = {
   scoreThreshold: 0,
   postScores: [],
-  windowSize: NUM_POSTS_FOR_AVG_WINDOW,
-  lastThresholdUpAdjust: 0
+  windowSize: NUM_POSTS_FOR_AVG_WINDOW
 };
 
 // logging and notification
@@ -788,48 +787,61 @@ function runBot(callback, options) {
         avgWindowInfo.scoreThreshold = threshold;
       }
       for (var i = 0 ; i < posts.length ; i++) {
-        if ((avgWindowInfo.postScores.length + 1) > avgWindowInfo.windowSize) {
-          // recalculate avgerage based on window value
-          persistentLog(" - - recalculate avgerage based on window value");
-
-          var avg = 0;
-          var maxScore = 0;
-          var count = 0;
-          for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
-            if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
-              avg += avgWindowInfo.postScores[j];
-              count++;
-              if (avgWindowInfo.postScores[j] > maxScore) {
-                maxScore = avgWindowInfo.postScores[j];
-              }
+        var thresholdInfo = {};
+        // add this score first
+        avgWindowInfo.postScores.push(postsMetadata[j].score);
+        // recalculate avgerage based on window value
+        persistentLog(" - - recalculating score threshold");
+        var avg = 0;
+        var maxScore = 0;
+        var count = 0;
+        for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
+          if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
+            avg += avgWindowInfo.postScores[j];
+            count++;
+            if (avgWindowInfo.postScores[j] > maxScore) {
+              maxScore = avgWindowInfo.postScores[j];
             }
           }
-          var threshold = 0;
-          if (avg != 0 && count > 0) {
-            threshold = avg / count;
-          }
-          if (threshold < MIN_SCORE_THRESHOLD) {
-            threshold = MIN_SCORE_THRESHOLD;
-          } else {
-            // first apply precentage increase on threshold,
-            //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
-            threshold *= (1 + SCORE_THRESHOLD_INC_PC);
-            // then add more (make more unlikely to vote on) proportional to how many votes already
-            //   cast today. if there are max or exceeding max voted, threshold will be too high for
-            //   vote and no post will be voted on, thus maintaining limit
-            avgWindowInfo.lastThresholdUpAdjust = (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
-            threshold += avgWindowInfo.lastThresholdUpAdjust;
-          }
-          avgWindowInfo.scoreThreshold = threshold;
-
-          avgWindowInfo.postScores = [];
-          persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
-          // add score to avgWindowInfo
-          for (var i = 0 ; i < posts.length ; i++) {
-            avgWindowInfo.postScores.push(postsMetadata[j].score);
-          }
         }
-        // check if post or not
+        var threshold = 0;
+        if (avg != 0 && count > 0) {
+          threshold = avg / count;
+        }
+        thresholdInfo.average = threshold;
+        if (threshold < MIN_SCORE_THRESHOLD) {
+          threshold = MIN_SCORE_THRESHOLD;
+          // stats
+          thresholdInfo.percentInc = 0;
+          thresholdInfo.voteAdjustmentInc = 0;
+          thresholdInfo.total = threshold;
+        } else {
+          // first apply precentage increase on threshold,
+          //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
+          thresholdInfo.percentInc = (threshold * SCORE_THRESHOLD_INC_PC);
+          threshold += thresholdInfo.percentInc;
+          // then add more (make more unlikely to vote on) proportional to how many votes already
+          //   cast today. if there are max or exceeding max voted, threshold will be too high for
+          //   vote and no post will be voted on, thus maintaining limit
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
+          threshold += thresholdInfo.voteAdjustmentInc;
+          thresholdInfo.total = threshold;
+          avgWindowInfo.scoreThreshold = threshold;
+        }
+        postsMetadata[i].thresholdInfo = thresholdInfo;
+        avgWindowInfo.scoreThreshold = threshold;
+        persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
+        persistentLog(" - - - new threshold info: "+JSON.stringify(thresholdInfo));
+        // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
+        if ((avgWindowInfo.postScores - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
+          var newScoresWindow = [];
+          for (int i = avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW ; i < avgWindowInfo.postScores.length ; i ++) {
+            newScoresWindow.push(avgWindowInfo.postScores[i]);
+          }
+          avgWindowInfo.postScores = newScoresWindow;
+        }
+
+        // check if post score is above threshold, set to vote if is
         var toVote = false;
         if (postsMetadata[i].score > avgWindowInfo.scoreThreshold) {
           toVote = true;
@@ -1007,11 +1019,12 @@ function runBot(callback, options) {
       email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
       email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
       email += "<h3>Averaging window</h3>";
+      // TODO : update this
       email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
       email += "<p>Number of votes today: "+owner.num_votes_today+"</p>";
-      email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
+      //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
       email += "<h3>Misc constant settings</h3>";
       email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
       email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";

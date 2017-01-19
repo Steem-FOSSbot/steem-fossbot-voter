@@ -69,7 +69,8 @@ const
   stripMarkdownProcessor = remark().use(strip),
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
-  wait = require('wait.for');
+  wait = require('wait.for'),
+  parseJson = require('parse-json');
 
 const
   MINNOW = 0,
@@ -1207,7 +1208,8 @@ function getPersistentJson(key, callback) {
       if (callback) {
         console.log("getPersistentJson for key "+key+", raw: "+reply);
         try {
-          var json = JSON.parse(reply);
+          //var json = JSON.parse(reply);
+          var json = parseJson(reply);
           callback(json);
         } catch(err) {
           setError(null, false, "getPersistentJson redis error for key "+key+": "+err.message);

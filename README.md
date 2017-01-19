@@ -12,7 +12,7 @@ This means _you own the server_ and control it completely. There are no fees or 
 
 You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/evm2p/steem-fossbot-voter#usage) below for more details.
 
-More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/steemfossbot.md) and [our ethos](/docs/ethos.md).
+More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/ecosystem.md) and [our ethos](/docs/ethos.md).
 
 ## How it works
 
@@ -70,20 +70,20 @@ Contributions via pull request are very welcome, as is issues logged via the Git
 
 ## Changelog
 
-- v0.1.1
-- - break out vote counting to up and down votes; if metric bounds calculation
-- - add /stats-data-json and /get-algo endpoints to get last algo run stats and current algo, respectively
-- - update algo threshold window to use system to use **sliding window**, huge improvement to post selection for voting
-- - add algorithm direct export and import, for backup and algorithm sharing
-- **v0.1.0**, minor version 1, soft release as app now works fully in all basic functionality
-- v0.0.11, add actual voting, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
-- v0.0.10, add bot API key wall to all areas of front end UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes
-- v0.0.9, add white / black list editing in UI and supported in backend
-- v0.0.8, basic front end UI set up, several improvements and changes to support it and knock-on bug fixing
-- v0.0.7, improve successful run bot reporting to http (via callback) and email with nice format
-- v0.0.6, basic metrics finished, score calculation confirmed working
-- v0.0.5, basic strategic post metrics complete
-- v0.0.4, lastPost saving working with redis, so new post fetch and clean to newest only is working
-- v0.0.3, refactoring bot library, improving docs
-- v0.0.2, early development, including email, develop installation instructions
-- v0.0.1, set up basic app structure
+ - v0.1.1
+ -	- break out vote counting to up and down votes; if metric bounds calculation
+ -	- add /stats-data-json and /get-algo endpoints to get last algo run stats and current algo, respectively
+ -	- update algo threshold window to use system to use **sliding window**, huge improvement to post selection for voting
+ -	- add algorithm direct export and import, for backup and algorithm sharing
+ - **v0.1.0**, minor version 1, soft release as app now works fully in all basic functionality
+ - v0.0.11, add actual voting, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
+ - v0.0.10, add bot API key wall to all areas of front end UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes
+ - v0.0.9, add white / black list editing in UI and supported in backend
+ - v0.0.8, basic front end UI set up, several improvements and changes to support it and knock-on bug fixing
+ - v0.0.7, improve successful run bot reporting to http (via callback) and email with nice format
+ - v0.0.6, basic metrics finished, score calculation confirmed working
+ - v0.0.5, basic strategic post metrics complete
+ - v0.0.4, lastPost saving working with redis, so new post fetch and clean to newest only is working
+ - v0.0.3, refactoring bot library, improving docs
+ - v0.0.2, early development, including email, develop installation instructions
+ - v0.0.1, set up basic app structure

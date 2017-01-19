@@ -864,7 +864,7 @@ function runBot(callback, options) {
       }
       // and save postsMetadata to persistent
       persistentLog(" - saving posts_metadata");
-      persistJson("posts_metadata", {time: new Date(), posts_metadata: postsMetadata}, function(err) {
+      persistJson("posts_metadata", {postsMetadata: postsMetadata}, function(err) {
         persistentLog(" - - ERROR SAVING posts_metadata");
       });
       // finish

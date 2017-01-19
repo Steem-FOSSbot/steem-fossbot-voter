@@ -215,7 +215,7 @@ app.get("/stats-data-json", function(req, res) {
     return;
   }
   lib.getPersistentJson("posts_metadata", function(postsMetadata) {
-    console.log("attempted to get postsMetadata: "+JSON.parse(postsMetadata));
+    console.log("attempted to get postsMetadata: "+postsMetadata);
     if (postsMetadata != null) {
       res.json(postsMetadata);
     } else {

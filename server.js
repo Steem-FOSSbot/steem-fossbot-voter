@@ -386,12 +386,49 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   console.log(" - req.body: "+JSON.stringify(req.body));
   if (req.body.json_algo) {
     // is update algorithm query
-    // TODO : update for algorithm
-    console.log("TODO : update algorithm");
     console.log(" - check algorithm is valid");
+    try {
+      var parsed = JSON.parse(req.body.json_algo);
+      for (var i = 0 ; i < parsed.weights.length ; i++) {
+        if (!parsed.weights[i].hasOwnProperty("key")
+            || !parsed.weights[i].hasOwnProperty("value")) {
+          throw {message: "Parsed JSON does not have valid weights object at array index "+i};
+        }
+      }
+      if (!parsed.weights[i].hasOwnProperty("authorWhitelist")) {
+        throw {message: "Parsed JSON does not have authorWhitelist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("authorBlacklist")) {
+        throw {message: "Parsed JSON does not have authorBlacklist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("contentCategoryWhitelist")) {
+        throw {message: "Parsed JSON does not have contentCategoryWhitelist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("contentCategoryBlacklist")) {
+        throw {message: "Parsed JSON does not have contentCategoryBlacklist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("contentWordWhitelist")) {
+        throw {message: "Parsed JSON does not have contentWordWhitelist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("contentWordBlacklist")) {
+        throw {message: "Parsed JSON does not have contentWordBlacklist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("domainWhitelist")) {
+        throw {message: "Parsed JSON does not have domainWhitelist array"};
+      }
+      if (!parsed.weights[i].hasOwnProperty("domainBlacklist")) {
+        throw {message: "Parsed JSON does not have domainBlacklist array"};
+      }
+    } catch(err) {
+      handleError(res, "/edit-algo Unimplmented", "edit-algo: supplied JSON failed test: "+err.message, 401);
+      return;
+    }
     console.log(" - update algorithm");
-    handleError(res, "/edit-algo Unimplmented", "edit-algo: is not yet implemented", 500);
-    return;
+    persistJson("algorithm", JSON.parse(req.body.json_algo), function(err) {
+      persistentLog(" - - ERROR SAVING algorithm");
+      // TODO : show this on page
+    });
+    editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");  
   }
   // create query
   var query = {

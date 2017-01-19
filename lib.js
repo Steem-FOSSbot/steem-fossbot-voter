@@ -1182,7 +1182,16 @@ function persistJson(key, json, error) {
       error();
     }
   });
-  redisClient.set(key, JSON.stringify(json), function(err) {
+  var jsonAsStr;
+  try {
+    jsonAsStr = JSON.stringify(json);
+    var jsonTest = JSON.parse(jsonAsStr);
+    console.log("persistJson stringify / parse test passed for json with key: "+key);
+  } catch(err) {
+    setError(null, false, "persistJson redis error for key "+key+" trying parse test: "+err.message);
+    return
+  }
+  redisClient.set(key, jsonAsStr, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
     } else {

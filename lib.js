@@ -755,41 +755,10 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
-      // determine if post score above threshold, recalculating threshold if needs be
-      if (avgWindowInfo.scoreThreshold == 0) {
-        var avg = 0;
-        var maxScore = 0;
-        var count = 0;
-        for (var j = 0 ; j < postsMetadata.length ; j++) {
-          if (postsMetadata[j].score > MIN_SCORE_THRESHOLD) {
-            avg += postsMetadata[j].score;
-            count++;
-            if (postsMetadata[j].score > maxScore) {
-              maxScore = postsMetadata[j].score;
-            }
-          }
-        }
-        var threshold = 0;
-        if (avg != 0 && count > 0) {
-          threshold = avg / count;
-        }
-        if (threshold < MIN_SCORE_THRESHOLD) {
-          threshold = MIN_SCORE_THRESHOLD;
-        } else {
-          // first apply precentage increase on threshold,
-          //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
-          threshold *= (1 + SCORE_THRESHOLD_INC_PC);
-          // then add more (make more unlikely to vote on) proportional to how many votes already
-          //   cast today. if there are max or exceeding max voted, threshold will be too high for
-          //   vote and no post will be voted on, thus maintaining limit
-          threshold += (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
-        }
-        avgWindowInfo.scoreThreshold = threshold;
-      }
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {};
         // add this score first
-        avgWindowInfo.postScores.push(postsMetadata[j].score);
+        avgWindowInfo.postScores.push(postsMetadata[i].score);
         // recalculate avgerage based on window value
         persistentLog(" - - recalculating score threshold");
         var avg = 0;

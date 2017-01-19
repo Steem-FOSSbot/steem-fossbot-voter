@@ -1206,7 +1206,10 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        console.log("getPersistentJson for key "+key+", raw: "+reply);
+        if (yourVariable !== null && typeof yourVariable === 'object') {
+          callback(reply);
+          return;
+        }
         try {
           //var json = JSON.parse(reply);
           var json = parseJson(reply);

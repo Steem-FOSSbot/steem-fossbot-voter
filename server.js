@@ -395,28 +395,28 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
           throw {message: "Parsed JSON does not have valid weights object at array index "+i};
         }
       }
-      if (!parsed.weights[i].hasOwnProperty("authorWhitelist")) {
+      if (!parsed.hasOwnProperty("authorWhitelist")) {
         throw {message: "Parsed JSON does not have authorWhitelist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("authorBlacklist")) {
+      if (!parsed.hasOwnProperty("authorBlacklist")) {
         throw {message: "Parsed JSON does not have authorBlacklist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("contentCategoryWhitelist")) {
+      if (!parsed.hasOwnProperty("contentCategoryWhitelist")) {
         throw {message: "Parsed JSON does not have contentCategoryWhitelist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("contentCategoryBlacklist")) {
+      if (!parsed.hasOwnProperty("contentCategoryBlacklist")) {
         throw {message: "Parsed JSON does not have contentCategoryBlacklist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("contentWordWhitelist")) {
+      if (!parsed.hasOwnProperty("contentWordWhitelist")) {
         throw {message: "Parsed JSON does not have contentWordWhitelist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("contentWordBlacklist")) {
+      if (!parsed.hasOwnProperty("contentWordBlacklist")) {
         throw {message: "Parsed JSON does not have contentWordBlacklist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("domainWhitelist")) {
+      if (!parsed.hasOwnProperty("domainWhitelist")) {
         throw {message: "Parsed JSON does not have domainWhitelist array"};
       }
-      if (!parsed.weights[i].hasOwnProperty("domainBlacklist")) {
+      if (!parsed.hasOwnProperty("domainBlacklist")) {
         throw {message: "Parsed JSON does not have domainBlacklist array"};
       }
     } catch(err) {

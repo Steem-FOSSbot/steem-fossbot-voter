@@ -391,6 +391,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     console.log(" - check algorithm is valid");
     console.log(" - update algorithm");
     handleError(res, "/edit-algo Unimplmented", "edit-algo: is not yet implemented", 500);
+    return;
   }
   // create query
   var query = {

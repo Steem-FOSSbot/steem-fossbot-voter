@@ -825,7 +825,7 @@ function runBot(callback, options) {
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
-        if ((avgWindowInfo.postScores - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
+        if ((avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
           var newScoresWindow = [];
           for (var i = avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW ; i < avgWindowInfo.postScores.length ; i ++) {
             newScoresWindow.push(avgWindowInfo.postScores[i]);

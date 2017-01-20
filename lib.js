@@ -778,10 +778,24 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
+      // clean scores if negative
+      boolean doClean = false;
+      for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
+      	if (avgWindowInfo.postScores[j] < MIN_SCORE_THRESHOLD) {
+      		doClean = true;
+      		break;
+      	}
+      }
+      if (doClean) {
+      	persistentLog(" - clean post scores threshold list, migrate from prev version");
+      	avgWindowInfo.postScores = [];
+      }
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {};
-        // add this score first
-        avgWindowInfo.postScores.push(postsMetadata[i].score);
+        // add this score first, if meets minimum
+        if (postsMetadata[i].score >= MIN_SCORE_THRESHOLD) {
+        	avgWindowInfo.postScores.push(postsMetadata[i].score);
+        }
         // recalculate avgerage based on window value
         persistentLog(" - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
         var avg = 0;

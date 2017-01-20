@@ -54,7 +54,11 @@ const
       "post_num_link_domains_blacklisted",
       "post_any_link_domains_whitelisted",
       "post_any_link_domains_blacklisted",
-      "author_repuation"
+      "author_repuation",
+      "post_very_short",
+      "post_images_only",
+      "post_videos_only",
+      "post_mixed_links_only"
       ];
 
 const

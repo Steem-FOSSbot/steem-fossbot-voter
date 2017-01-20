@@ -514,7 +514,7 @@ function runBot(callback, options) {
           .latinise()
           .s;
         // remove markdown formatting
-        persistentLog(" - - nlp.content: "+nlp.content);
+        persistentLog(" - - nlp.content (length): "+nlp.content.length);
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
         //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
@@ -702,7 +702,7 @@ function runBot(callback, options) {
       }
       // finish
       persistentLog(" - finished gathering metrics");
-      persistentLog(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      //persistentLog(" - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
@@ -756,7 +756,7 @@ function runBot(callback, options) {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        persistentLog(" - - final score: "+scoreDetail.total);
+        persistentLog(" - final score: "+scoreDetail.total);
         postsMetadata.push(
           {
             title: posts[i].title,

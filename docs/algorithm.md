@@ -67,6 +67,8 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 All metrics show the key name first, then a short description
 
+Boolean type metrics are given numeric value 0 for false or 1 true when used in an algorithm.
+
 ##### Note on capital category
 
 Capital category (minnow, dolphin, whale) is defined as
@@ -115,11 +117,11 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Boolean
 
-1. ```post_voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post (false = 0, true = 1)
-2. ```post_voted_any_whale```: At least one voter with captial category _whale_ as voted on post (false = 0, true = 1)
-3. ```post_voted_any_followed```: At least one followed voter voted on post (false = 0, true = 1)
-4. ```post_voted_any_whitelisted```: At least one whitelist voter voted on post (false = 0, true = 1)
-5. ```post_voted_any_blacklisted```: At least one blacklist voter voted on post (false = 0, true = 1)
+1. ```post_voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post
+2. ```post_voted_any_whale```: At least one voter with captial category _whale_ as voted on post
+3. ```post_voted_any_followed```: At least one followed voter voted on post
+4. ```post_voted_any_whitelisted```: At least one whitelist voter voted on post
+5. ```post_voted_any_blacklisted```: At least one blacklist voter voted on post
 
 #### Author of Post
 
@@ -135,12 +137,12 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Boolean
 
-1. ```author_is_minnow```: Capital category is _minnow_ (false = 0, true = 1)
-2. ```author_is_dolphin```: Capital category is _dolphin_ (false = 0, true = 1)
-3. ```author_is_whale```: Capital category is _whale_ (false = 0, true = 1)
-4. ```author_is_followed```: Author is followed (false = 0, true = 1)
-5. ```author_is_whitelisted```: Presence of author on whitelist (false = 0, true = 1)
-6. ```author_is_blacklisted```: Presence of author on blacklist (false = 0, true = 1)
+1. ```author_is_minnow```: Capital category is _minnow_
+2. ```author_is_dolphin```: Capital category is _dolphin_
+3. ```author_is_whale```: Capital category is _whale_
+4. ```author_is_followed```: Author is followed
+5. ```author_is_whitelisted```: Presence of author on whitelist
+6. ```author_is_blacklisted```: Presence of author on blacklist
 
 ### Cultural metrics
 
@@ -162,17 +164,17 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 
 ##### Boolean
 
-1. ```post_category_whitelisted```: Category (sub-steem) on whitelist (false = 0, true = 1)
-2. ```post_category_blacklisted```: Category (sub-steem) on blacklist (false = 0, true = 1)
-3. ```post_any_tag_whitelisted```: Any tag on whitelist (false = 0, true = 1)
-4. ```post_any_tag_blacklisted```: Any tag on blacklist (false = 0, true = 1)
-3. ```post_any_keyword_whitelisted```: Any keyword on whitelist (false = 0, true = 1)
-4. ```post_any_keyword_blacklisted```: Any keyword on blacklist (false = 0, true = 1)
+1. ```post_category_whitelisted```: Category (sub-steem) on whitelist
+2. ```post_category_blacklisted```: Category (sub-steem) on blacklist
+3. ```post_any_tag_whitelisted```: Any tag on whitelist
+4. ```post_any_tag_blacklisted```: Any tag on blacklist
+3. ```post_any_keyword_whitelisted```: Any keyword on whitelist
+4. ```post_any_keyword_blacklisted```: Any keyword on blacklist
 
 ##### Proposed, not implemented, need to create topic trainer for natural js library
 
-1. ```post_topic_whitelisted```: Topic on whitelist (false = 0, true = 1)
-2. ```post_topic_blacklisted```: Topic on blacklist (false = 0, true = 1)
+1. ```post_topic_whitelisted```: Topic on whitelist
+2. ```post_topic_blacklisted```: Topic on blacklist
 
 #### Content - Links
 
@@ -187,8 +189,19 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 
 ##### Boolean
 
-1. ```post_any_link_domains_whitelisted```: Any link domains on whitelist (false = 0, true = 1)
-2. ```post_any_link_domains_blacklisted```: Any link domains on blacklist (false = 0, true = 1)
+1. ```post_any_link_domains_whitelisted```: Any link domains on whitelist
+2. ```post_any_link_domains_blacklisted```: Any link domains on blacklist
+
+#### Content - Complex
+
+##### Boolean
+
+_Note: negligible text content is defined as less than ```MIN_WORDS_FOR_ARTICLE``` words, which is currently hard set to 100, but will be editable in a future release._
+
+1. ```post_very_short```: Post has negligible text content with no links
+2. ```post_images_only```: Post has negligible text content and mainly images
+3. ```post_videos_only```: Post has negligible text content and mainly videos
+4. ```post_mixed_links_only```: Post has negligible text content and a mix of link types
 
 #### Author
 

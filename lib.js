@@ -84,7 +84,8 @@ const
   MIN_SCORE_THRESHOLD = 50,
   SCORE_THRESHOLD_INC_PC = 0.6,
   NUM_POSTS_FOR_AVG_WINDOW = 10,
-  MAX_VOTES_IN_24_HOURS = 40;
+  MAX_VOTES_IN_24_HOURS = 40,
+  MIN_WORDS_FOR_ARTICLE = 100;
 
 /* Private variables */
 var fatalError = false;
@@ -670,6 +671,25 @@ function runBot(callback, options) {
           // check for domain presence on white / black list
           postsMetrics[i].post_num_link_domains_whitelisted += (algorithm.domainWhitelist.indexOf(domain) > 0) ? 1 : 0;
           postsMetrics[i].post_num_link_domains_blacklisted += (algorithm.domainBlacklist.indexOf(domain) > 0) ? 1 : 0;
+          // Content - complex, using more than one other metric to create a metric
+          postsMetrics[i].post_very_short = 0;
+          postsMetrics[i].post_images_only = 0;
+          postsMetrics[i].post_videos_only = 0;
+          postsMetrics[i].post_mixed_links_only = 0;
+          if (postsMetrics[i].post_num_words < MIN_WORDS_FOR_ARTICLE) {
+            postsMetrics[i].post_very_short = 1;
+            if (postsMetrics[i].post_num_links_image > 0
+                && postsMetrics[i].post_num_links_image > postsMetrics[i].post_num_links_video
+                && postsMetrics[i].post_num_links_image > postsMetrics[i].post_num_links_page) {
+              postsMetrics[i].post_images_only = 1;
+            } else if (postsMetrics[i].post_num_links_video > 0
+                && postsMetrics[i].post_num_links_video > postsMetrics[i].post_num_links_image
+                && postsMetrics[i].post_num_links_video > postsMetrics[i].post_num_links_page) {
+              postsMetrics[i].post_videos_only = 1;
+            } else if (postsMetrics[i].post_num_links_page > 0) {
+              postsMetrics[i].post_mixed_links_only = 1;
+            }
+          }
         }
         postsMetrics[i].post_any_link_domains_whitelisted = (postsMetrics[i].post_num_link_domains_whitelisted > 0) ? 1 : 0;
         postsMetrics[i].post_any_link_domains_blacklisted = (postsMetrics[i].post_num_link_domains_blacklisted > 0) ? 1 : 0;

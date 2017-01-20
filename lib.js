@@ -530,14 +530,14 @@ function runBot(callback, options) {
           }
         }
         persistentLog(" - - nlp.keywords: "+nlp.keywords);
-        persistentLog(" - - - removed "+removedCount+" short keywords");
+        //persistentLog(" - - - removed "+removedCount+" short keywords");
         // get all url links
         nlp.urls = [];
         var urlResult;
         while((urlResult = urlRegex.exec(posts[i].body)) !== null) {
           nlp.urls.push(urlResult[0]);
         }
-        persistentLog(" - - nlp.urls: "+JSON.stringify(nlp.urls));
+        //persistentLog(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // sentiment
         retext()
           .use(sentiment)
@@ -550,11 +550,11 @@ function runBot(callback, options) {
                 nlp.sentiment = 0;
                 persistentLog(" - - - sentiment extraction error: "+err.message);
               }
-              persistentLog(" - - nlp.sentiment: "+nlp.sentiment);
+              //persistentLog(" - - nlp.sentiment: "+nlp.sentiment);
               postsNlp.push(nlp);
               // count words using tree, i.e. count WordNode instances
               nlp.num_words = countWordsFromRetext(tree);
-              persistentLog(" - - nlp.num_words: "+nlp.num_words);
+              //persistentLog(" - - nlp.num_words: "+nlp.num_words);
               // commit to postsNlp
               persistentLog(" - - nlp done on post");
               postCount++;
@@ -573,7 +573,7 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
       var deferred = Q.defer();
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - postsMetrics ["+i+"]");
+        //persistentLog(" - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
         // content - text
         postsMetrics[i].post_num_chars = nlp.content.length;
@@ -587,7 +587,7 @@ function runBot(callback, options) {
           try {
             var metadata = JSON.parse(posts[i].json_metadata);
             if (metadata && metadata.hasOwnProperty("tags")) {
-              persistentLog(" - - checking tags");
+              //persistentLog(" - - checking tags");
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
                 postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
@@ -606,7 +606,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_num_keywords_blacklisted = 0;
         postsMetrics[i].post_num_words_whitelisted = 0;
         postsMetrics[i].post_num_words_blacklisted = 0;
-        persistentLog(" - - checking keywords");
+        //persistentLog(" - - checking keywords");
         for (var j = 0 ; j < nlp.keywords.length ; j++) {
           var keyword = nlp.keywords[j];
           postsMetrics[i].post_num_keywords_whitelisted += (algorithm.contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
@@ -629,11 +629,11 @@ function runBot(callback, options) {
         postsMetrics[i].post_num_links_total = 0; 
         postsMetrics[i].post_num_link_domains_whitelisted = 0;
         postsMetrics[i].post_num_link_domains_blacklisted = 0;
-        persistentLog(" - - classifying urls");
+        //persistentLog(" - - classifying urls");
         for (var j = 0 ; j < nlp.urls.length ; j++) {
           var url = nlp.urls[j];
           postsMetrics[i].post_num_links_total++;
-          persistentLog(" - - - url: "+url);
+          //persistentLog(" - - - url: "+url);
           // get domain
           var domain = "";
           var urlParts = S(url).splitLeft("//", 1);
@@ -648,14 +648,14 @@ function runBot(callback, options) {
               } // else failed, leave domain blank
             }
           }
-          persistentLog(" - - - domain: "+domain);
+          //persistentLog(" - - - domain: "+domain);
           // track matching progress
           var match = false;
           // check if is image
           for (var k = 0 ; k < imagesExt.length ; k++) {
             if (S(url).endsWith("."+imagesExt[k])) {
               postsMetrics[i].post_num_links_image++;
-              persistentLog(" - - - - is image");
+              //persistentLog(" - - - - is image");
               match = true;
               break;
             }
@@ -664,7 +664,7 @@ function runBot(callback, options) {
           if (!match) {
             if (videoDomains.indexOf(domain) >= 0) {
               postsMetrics[i].post_num_links_video++;
-              persistentLog(" - - - - is video");
+              //persistentLog(" - - - - is video");
               match = true;
             }
           }
@@ -713,7 +713,7 @@ function runBot(callback, options) {
       // calculate scores
       postsMetadata = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - - score for post "+i);
+        persistentLog(" - - post "+i);
         var metric = postsMetrics[i];
         var scoreDetail = {
           total: 0,
@@ -721,7 +721,6 @@ function runBot(callback, options) {
         };
         for (var j = 0 ; j < algorithm.weights.length ; j++) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
-            persistentLog(" - - - metric key: "+algorithm.weights[j].key);
             var value = metric[algorithm.weights[j].key];
             var weight = algorithm.weights[j].value;
             if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
@@ -733,7 +732,7 @@ function runBot(callback, options) {
               if (algorithm.weights[j].hasOwnProperty("upper")) {
                 upper = algorithm.weights[j].upper;
               }
-              persistentLog(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
+              //persistentLog(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
@@ -741,7 +740,7 @@ function runBot(callback, options) {
               } else {
                 value = (value - lower) + 1;
               }
-              persistentLog(" - - - - - after bounding: "+value);
+              //persistentLog(" - - - - - after bounding: "+value);
             }
             var metricScore = {
               key: algorithm.weights[j].key,
@@ -751,12 +750,12 @@ function runBot(callback, options) {
             }
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
-            persistentLog(" - - - - metric ("+value+") * weight("+weight+") = "+scoreDetail.total);
+            persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+scoreDetail.total);
           } else {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        persistentLog(" - final score: "+scoreDetail.total);
+        persistentLog(" - - FINAL SCORE: "+scoreDetail.total);
         postsMetadata.push(
           {
             title: posts[i].title,
@@ -784,7 +783,7 @@ function runBot(callback, options) {
         // add this score first
         avgWindowInfo.postScores.push(postsMetadata[i].score);
         // recalculate avgerage based on window value
-        persistentLog(" - - recalculating score threshold");
+        persistentLog(" - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
         var avg = 0;
         var maxScore = 0;
         var count = 0;
@@ -824,7 +823,7 @@ function runBot(callback, options) {
         postsMetadata[i].thresholdInfo = thresholdInfo;
         avgWindowInfo.scoreThreshold = threshold;
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
-        persistentLog(" - - - new threshold info: "+JSON.stringify(thresholdInfo));
+        persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
         if ((avgWindowInfo.postScores - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
           var newScoresWindow = [];
@@ -912,29 +911,29 @@ function runBot(callback, options) {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
                         process.env.STEEM_USER, postsMetadata[i].author,
                         postsMetadata[i].permlink, 10000);
-                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                  console.log(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 } catch (err) {
                   persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 }
                 numVotedOn++;
-                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
+                console.log(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 // wait 5 seconds
-                persistentLog(" - - - waiting 3 seconds...");
+                console.log(" - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function() {
                     func(null, true);
                   }, delay);
                 }
                 var timeOutResult = wait.for(timeOutWrapper, 5000);
-                persistentLog(" - - - finished waiting");
+                console.log(" - - - finished waiting");
               } else {
-                persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
+                console.log(" - - - - not voting on post: "+postsMetadata[i].permlink);
               }
             } else {
-              persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
+              console.log(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
             }
           }
-          persistentLog(" - finished voting");
+          console.log(" - finished voting");
           deferred.resolve(true);
         });
       } else {
@@ -1023,9 +1022,9 @@ function runBot(callback, options) {
       email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";
       email += "<p>Whale min SP: "+CAPITAL_WHALE_MIN+"</p>";
       email += "<p>Key detector, min keyword length: "+MIN_KEYWORD_LEN+"</p>";
-      email += "<h2>Raw results metadata:</h2>";
-      var metadataHtml = JSON.stringify(postsMetadata, null, 4);
-      email += "<p>"+metadataHtml+"</p>";
+      //email += "<h2>Raw results metadata:</h2>";
+      //var metadataHtml = JSON.stringify(postsMetadata, null, 4);
+      //email += "<p>"+metadataHtml+"</p>";
       email += "<h3>Process logs:</h3>";
       email += "<p>"+logHtml+"</p>";
       email += "</body></html>";

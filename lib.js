@@ -827,8 +827,8 @@ function runBot(callback, options) {
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
         if ((avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
           var newScoresWindow = [];
-          for (var i = avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW ; i < avgWindowInfo.postScores.length ; i ++) {
-            newScoresWindow.push(avgWindowInfo.postScores[i]);
+          for (var j = avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW ; j < avgWindowInfo.postScores.length ; j++) {
+            newScoresWindow.push(avgWindowInfo.postScores[j]);
           }
           avgWindowInfo.postScores = newScoresWindow;
         }

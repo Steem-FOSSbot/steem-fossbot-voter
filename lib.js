@@ -86,8 +86,8 @@ const
   CAPITAL_WHALE_MIN = 100000,
   MIN_KEYWORD_LEN = 4,
   MIN_SCORE_THRESHOLD = 50,
-  SCORE_THRESHOLD_INC_PC = 0.6,
-  NUM_POSTS_FOR_AVG_WINDOW = 10,
+  SCORE_THRESHOLD_INC_PC = 0.5,
+  NUM_POSTS_FOR_AVG_WINDOW = 20,
   MAX_VOTES_IN_24_HOURS = 40,
   MIN_WORDS_FOR_ARTICLE = 100;
 
@@ -817,7 +817,7 @@ function runBot(callback, options) {
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * (owner.num_votes_today / MAX_VOTES_IN_24_HOURS);
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow(owner.num_votes_today / MAX_VOTES_IN_24_HOURS, 2);
           threshold += thresholdInfo.voteAdjustmentInc;
           thresholdInfo.total = threshold;
           avgWindowInfo.scoreThreshold = threshold;

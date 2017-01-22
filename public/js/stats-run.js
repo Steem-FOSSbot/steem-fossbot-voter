@@ -14,7 +14,7 @@ function getApiKey(url) {
 	return apiKey;
 }
 
-function getApiKey(url) {
+function getKey(url) {
 	var apiKey = "";
 	var parts = window.location.href.split("&");
 	for (var i = 0 ; i < parts.length ; i++) {

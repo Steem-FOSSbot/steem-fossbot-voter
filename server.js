@@ -228,7 +228,7 @@ app.get("/stats", function(req, res) {
     } else {
       for (var i = 0 ; i < keys.length ; i++) {
         if (req.query.key) {
-          if (req.query.key.localeCompare(keys[i].key) == 0) {
+          if (req.query.pd_key.localeCompare(keys[i].key) == 0) {
             dateStr = new Date(keys[i].date);
           }
         }

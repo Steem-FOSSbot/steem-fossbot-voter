@@ -272,8 +272,8 @@ app.get("/stats", function(req, res) {
         html_stats1 
         + html
         + html_stats2
-        + "<p>To see record and proof of voting, visit <a href=\"https://steemd.com/@"+process.env.STEEM_USERNAME
-            +"\">https://steemd.com/@"+process.env.STEEM_USERNAME+"</a></p>"
+        + "<p>To see record and proof of voting, visit <a href=\"https://steemd.com/@"+process.env.STEEM_USER
+            +"\">https://steemd.com/@"+process.env.STEEM_USER+"</a></p>"
         + html_stats3);
     }
   });

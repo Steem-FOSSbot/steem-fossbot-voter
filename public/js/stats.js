@@ -6,7 +6,7 @@ function loadChart() {
 		for (var i = 0 ; i < data.summary.length ; i++) {
 			numPostsData.push(data.summary[i].num_posts);
 			numVotesData.push(data.summary[i].num_votes);
-			timeSeries.push(data.summary[i].date_str);
+			timeSeries.push(data.summary[i].date);
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',
@@ -17,6 +17,15 @@ function loadChart() {
 		    		numPostsData
 		    	],
 		    	type: 'bar'
+		    },
+		    axis: {
+		    	x: {
+		    		type: 'timeseries',
+		    		localtime: true,
+		    		tick: {
+		    			format: '%Y-%m-%d %H:%M:%S'
+		    		}
+		    	}
 		    },
 		    bar: {
 		    	width: {
@@ -36,6 +45,15 @@ function loadChart() {
 		    		numVotesData
 		    	],
 		    	type: 'bar'
+		    },
+		    axis: {
+		    	x: {
+		    		type: 'timeseries',
+		    		localtime: true,
+		    		tick: {
+		    			format: '%Y-%m-%d %H:%M:%S'
+		    		}
+		    	}
 		    },
 		    bar: {
 		    	width: {

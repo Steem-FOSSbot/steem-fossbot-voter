@@ -30,12 +30,31 @@ function loadChart() {
 	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&pd_key="+getKey(), function(data) {
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
+		var numData_metrics = [];
+		var metricsNames = [];
+		// first, create metrics arrays
+		// metrics
+		var metrics = data.postsMetadata[0].scoreDetail.metrics;
+		for (var j = 0 ; j < metrics.length ; j++) {
+			numData_metrics.push([metrics[j].key]);
+			metricsNames.push(metrics[j].key);
+		}
 		for (var i = 0 ; i < data.postsMetadata.length ; i++) {
-			numData_score_total.push(data.postsMetadata[i].score);
 			xTicks.push(data.postsMetadata[i].title);
+			numData_score_total.push(data.postsMetadata[i].score);
+			// metrics
+			metrics = data.postsMetadata[i].scoreDetail.metrics;
+			for (var j = 0 ; j < metrics.length ; j++) {
+				numData_metrics[j].push(metrics[j].score);
+			}
+		}
+		// combine data to columns for metrics data
+		var chart_score_breakdown_columns = [xTicks];
+		for (var i = 0 ; i < numData_metrics.length ; i++) {
+			chart_score_breakdown_columns.push(numData_metrics[i]);
 		}
 		var chart_posts = c3.generate({
-		    bindto: '#chart',
+		    bindto: '#chart_score_summary',
 		    data: {
 		    	x : 'x',
 		    	columns: [
@@ -61,6 +80,39 @@ function loadChart() {
 		            },
 		            height: 300
 		        }
+		    },
+		    legend: {
+		        position: 'top'
+		    }
+		});
+		var chart_posts = c3.generate({
+		    bindto: '#chart_score_breakdown',
+		    data: {
+		    	x : 'x',
+		    	columns: chart_score_breakdown_columns,
+		    	type: 'bar',
+		    	groups: [metricsNames]
+		    },
+		    bar: {
+		    	width: {
+		    		ratio: 0.2
+		    	}
+		    },
+    		color: {
+    			pattern: ['#1f77b4']
+    		},
+    		axis: {
+		        x: {
+		            type: 'category',
+		            tick: {
+		                rotate: 90,
+		                multiline: false
+		            },
+		            height: 300
+		        }
+		    },
+		    legend: {
+		        position: 'top'
 		    }
 		});
 	});

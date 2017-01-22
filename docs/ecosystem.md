@@ -1,7 +1,5 @@
 # Steem FOSSbot
 
-_This document is very incomplete_
-
 ## Overview
 
 Steem FOSSbot (Free Open Source bot), is a software ecosystem which comprises a solution for automation on Steem. _Voter_ is the first and most central piece of this, as it is the **curration 'bot'** which actually decides which posts to vote on, and also performs the voting action.

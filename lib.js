@@ -1102,7 +1102,7 @@ function getUserAccount() {
   }
   if (process.env.STEEM_USER) {
     steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-      //console.log(err, result);
+      console.log(err, result);
       if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
       } else {

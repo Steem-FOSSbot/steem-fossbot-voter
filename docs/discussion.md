@@ -12,15 +12,15 @@ Where the general tools exist to add automatic curation, they come at a cost, wh
 
 ### So what is this?
 
-The goal of this project is to bring a high quality and fully customisable bot to anyone who is willing to put in the time to set up a simple server and write their own customisations. I'd like to see bot programming guilds of people helping each other.
+The goal of this project is to bring a high quality and fully customisable bot to anyone who is willing to put in the time to set up a simple server and make their own customisations.
 
 We recognise that there is a investment of time and patience required to set this up and ever effort has been made to make this as easy as possible. In the future it would be ideal to have a super simple, consumer grade interface but at present there is some overhead.
 
-Be encouraged though that it is certainly possible to set up without any existing technical knowledge, just a user's knowledge of Steem.
+Be encouraged though that it is certainly possible to set up without any existing technical knowledge, just a user's knowledge of Steem and patience to follow the tutorial.
+
+To get started, see the [insatllation instructions](/docs/installation.md).
 
 ## How it works
-
-_Note, none of this is implemented yet, it's still in the ideation stage_
 
 See my [original Steemit post here](https://steemit.com/curation/@personz/5qnnnx-free-open-source-steemit-bot-proposal-and-question) where this idea was proposed.
 

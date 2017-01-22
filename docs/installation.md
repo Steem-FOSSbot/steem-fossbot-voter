@@ -20,7 +20,7 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 
 1. Create a Heroku account
 2. Deploy this project to the Heroku using the Heroku Button above
-3. Choose a name for your Voter bot (if you want) and click the _Deploy_ button
+3. Choose a name for your Voter bot (if you want)
 4. Set Configuration Variables. Note that without the required variables, the bot and server will not start.
 	1. **STEEM_USER**, set to your user name, without a preceding "@" symbol.
 	2. **POSTING_KEY_PRV**, set to your private Steemit posting key, used to cast votes
@@ -28,16 +28,20 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
 	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
 	6. **SENDGRID_API_KEY** (optional), set to SendGrid API key, _which you will set up later_ if you want email notifications, so leave as default 'none' for now
-
-You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
+5. Click the _Deploy_ button
+6. **Wait**, this process can take up to five minutes, do not refresh your browser.
 
 After the app finishes deploying as a server, you can view the dashboard by clicking the **View ->** button and confirm it was set up correctly. Use the root URL of your app as hosted on Heroku, e.g. https://voter.herokuapp.com
+
+##### Please note
+
+You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
 
 Please see the usage information above this section for more information about the dashboard.
 
 #### IMPORTANT! Configure bot to run periodically
 
-A free Heroku app (called a "dyno") will idle after a certain amount of time, and so we cannot run a continuous code on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
+A free Heroku app (called a "dyno") will idle after a certain amount of time, and so we cannot run a continuous code loop on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
 
 The **Heroku Scheduler** add-on was created with the app (if you had a verified account), so we'll add a scheduled task there with these steps:
 

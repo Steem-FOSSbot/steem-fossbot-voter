@@ -52,7 +52,7 @@ function loadChart() {
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metricsNames.length ; j++) {
-				boolean match = false;
+				var match = false;
 				for (var k = 0 ; k < metrics.length ; k++) {
 					if (metrics[k].key.localeCompare(metricsNames[j]) == 0) {
 						numData_metrics[j].push(metrics[k].score.toFixed(2));

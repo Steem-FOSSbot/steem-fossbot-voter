@@ -225,10 +225,8 @@ app.get("/stats-data-json", function(req, res) {
     for (var i = 0 ; i < keys.length ; i++) {
       justKeys.push(keys[i].key);
     }
-    redisClient.get(justKeys, function(err, resultList) {
-      if (err) {
-        handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data: "+err.message, 500);
-      } else if (resultList == null) {
+    recursiveGetPostsMetadata(justKeys, 0, function(list) {
+      if (list == null || list.length < 1) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
       } else {
         if (justKeys.length > 1) {
@@ -252,9 +250,25 @@ app.get("/stats-data-json", function(req, res) {
           res.json({postsMetadataList: JSON.parse(resultList)});
         }
       }
-    });
+    }, []);
   });
 });
+
+function recursiveGetPostsMetadata(keys, index, callback, list) {
+  redisClient.get(keys[index], function(err, result) {
+    if (err || result == null) {
+      callback(list);
+      return;
+    }
+    list.push(result);
+    index++;
+    if (index >= keys.length) {
+      callback(list);
+      return;
+    }
+    recursiveGetPostsMetadata(keys, index, callback, list);
+  }
+}
 
 
 app.get("/get-algo", function(req, res) {

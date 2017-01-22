@@ -236,7 +236,7 @@ app.get("/stats", function(req, res) {
           +(new Date(keys[i].date))+"</a></li>"
       }
     }
-    if (req.query.key) {
+    if (req.query.pd_key) {
       res.send(200,
         html_stats_run1 
         + html

@@ -42,12 +42,12 @@ function loadChart() {
 		}
 		for (var i = 0 ; i < data.postsMetadata.length ; i++) {
 			xTicks.push(data.postsMetadata[i].title);
-			numData_score_total.push(data.postsMetadata[i].score);
-			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total);
+			numData_score_total.push(data.postsMetadata[i].score.toFixed(2));
+			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total.toFixed(2));
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metrics.length ; j++) {
-				numData_metrics[j].push(metrics[j].score);
+				numData_metrics[j].push(metrics[j].score.toFixed(2));
 			}
 		}
 		// combine data to columns for metrics data
@@ -70,6 +70,10 @@ function loadChart() {
 		    	type: 'bar',
 		    	types: {
 		    		Threshold: 'area'
+		    	},
+		    	colors: {
+		    		'Total score': '#1f77b4'
+		    		Threshold: '#ff7f0e'
 		    	}
 		    },
 		    bar: {
@@ -77,9 +81,6 @@ function loadChart() {
 		    		ratio: 0.3
 		    	}
 		    },
-    		color: {
-    			pattern: ['#1f77b4', '#ff7f0e']
-    		},
     		axis: {
 		        x: {
 		            type: 'category',
@@ -91,7 +92,7 @@ function loadChart() {
 		        }
 		    },
 		    legend: {
-		        position: 'top'
+		        position: 'right'
 		    },
 		    color: {
     			pattern: ['#1f77b4']
@@ -124,7 +125,7 @@ function loadChart() {
 		        }
 		    },
 		    legend: {
-		        position: 'top'
+		        position: 'right'
 		    },
 		    color: {
 		        pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']

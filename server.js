@@ -31,6 +31,7 @@ var
   html_last_log2 = "",
   html_stats1 = "",
   html_stats2 = "",
+  html_stats3 = "",
   html_stats_run1 = "",
   html_stats_run2 = "",
   html_stats_run3 = "",
@@ -154,6 +155,10 @@ function loadFiles() {
     html_stats2 = str;
     console.log("got /html/stats-2.html from file");
   });
+  loadFileToString("/html/stats-3.html", function(str) {
+    html_stats3 = str;
+    console.log("got /html/stats-3.html from file");
+  });
   loadFileToString("/html/stats-run-1.html", function(str) {
     html_stats_run1 = str;
     console.log("got /html/stats-run-1.html from file");
@@ -266,7 +271,10 @@ app.get("/stats", function(req, res) {
       res.send(200,
         html_stats1 
         + html
-        + html_stats2);
+        + html_stats2
+        + "<p>To see record and proof of voting, visit <a href=\"https://steemd.com/@"+process.env.STEEM_USERNAME
+            +"\">https://steemd.com/@"+process.env.STEEM_USERNAME+"</a></p>"
+        + html_stats3);
     }
   });
 });

@@ -218,31 +218,20 @@ app.get("/stats-data-json", function(req, res) {
       return;
     }
     console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
-    console.log(" - - starting fiber to get keys");
-    wait.launchFiber(function() {
-      try {
-        var postsMetadataList = [];
-        for (var i = 0 ; i < keys.length ; i++) {
-          var postsMetadataObj = wait.for(redisClient.get, keys[i]);
-          postsMetadataList.push(postsMetadataObj);
-        }
-        res.json({postsMetadataList: postsMetadataList});
-      } catch(err) {
+    var justKeys = [];
+    for (var i = 0 ; i < keys.length ; i++) {
+      justKeys.push(keys[i].key);
+    }
+    redisClient.get(justKeys, function(err, resultList) {
+      if (err) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data: "+err.message, 500);
-        return;
+      } else if (resultList == null) {
+        handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
+      } else {
+        res.json({postsMetadataList: resultList});
       }
     });
   });
-  /*
-  lib.getPersistentJson("posts_metadata", function(postsMetadata) {
-    console.log("attempted to get postsMetadata: "+postsMetadata);
-    if (postsMetadata != null) {
-      res.json(postsMetadata);
-    } else {
-      handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: no data in store", 500);
-    }
-  });
-*/
 });
 
 

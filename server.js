@@ -33,7 +33,8 @@ var
   html_stats2 = "",
   html_stats_run1 = "",
   html_stats_run2 = "",
-  html_stats_run3 = "";
+  html_stats_run3 = "",
+  html_stats_run4 = "";
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.",
@@ -165,6 +166,10 @@ function loadFiles() {
     html_stats_run3 = str;
     console.log("got /html/stats-run-3.html from file");
   });
+  loadFileToString("/html/stats-run-4.html", function(str) {
+    html_stats_run4 = str;
+    console.log("got /html/stats-run-4.html from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -237,12 +242,31 @@ app.get("/stats", function(req, res) {
       }
     }
     if (req.query.pd_key) {
-      res.send(200,
-        html_stats_run1 
-        + html
-        + html_stats_run2
-        + dateStr
-        + html_stats_run3);
+      redisClient.get(req.query.pd_key, function(err, postsMetadataStr) {
+        if (err || postsMetadataStr == null) {
+          handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.pd_key+" could not be fetched", 500);
+          return;
+        }
+        //console.log("/stats-data-json, for pd_key "+req.query.pd_key+", got object (as string): "+postsMetadata);
+        var postsMetadata = JSON.parse(postsMetadataStr);
+        var html_list = "";
+        if (postsMetadata.length > 0) {
+          for (var i = 0 ; i < postsMetadata.length ; i++) {
+            html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
+                + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+          }
+        } else {
+          html_list = html_test_emptyList;
+        }
+        res.send(200,
+          html_stats_run1 
+          + html
+          + html_stats_run2
+          + dateStr
+          + html_stats_run3
+          + html_list
+          + html_stats_run4);
+      });
     } else {
       res.send(200,
         html_stats1 

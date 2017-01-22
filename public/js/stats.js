@@ -27,11 +27,6 @@ function loadChart() {
 		    		}
 		    	}
 		    },
-		    bar: {
-		    	width: {
-		    		ratio: 0.5
-		    	}
-		    },
     		color: {
     			pattern: ['#1f77b4']
     		}
@@ -53,11 +48,6 @@ function loadChart() {
 		    		tick: {
 		    			format: '%Y-%m-%d %H:%M:%S'
 		    		}
-		    	}
-		    },
-		    bar: {
-		    	width: {
-		    		ratio: 0.5
 		    	}
 		    },
     		color: {

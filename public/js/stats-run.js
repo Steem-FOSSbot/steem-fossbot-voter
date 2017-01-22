@@ -72,7 +72,7 @@ function loadChart() {
 		    		Threshold: 'area'
 		    	},
 		    	colors: {
-		    		'Total score': '#1f77b4'
+		    		'Total score': '#1f77b4',
 		    		Threshold: '#ff7f0e'
 		    	}
 		    },

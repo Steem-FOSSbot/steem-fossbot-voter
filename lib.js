@@ -1385,10 +1385,14 @@ function savePostsMetadata(postsMetadataObj, callback) {
 }
 
 function getPostsMetadataKeys(callback) {
+  console.log("getPostsMetadataKeys");
   wait.launchFiber(function() {
     try {
+      console.log(" - getting keys");
       var keys = wait.for(redisClient.GET, "postsMetadata_keys");
+      console.log(" - parsing keys");
       var keysObj = JSON.parse(keys);
+      console.log(" - returning keys");
       callback(null, keysObj.keys);
     } catch(err) {
       console.log("getPostsMetadataKeys, error: "+err.message);

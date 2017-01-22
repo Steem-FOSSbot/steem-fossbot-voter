@@ -1388,7 +1388,7 @@ function getPostsMetadataKeys(callback) {
   console.log("getPostsMetadataKeys");
   console.log(" - getting keys");
   redisClient.get("postsMetadata_keys", function(err, keys) {
-    if (err) {
+    if (err || keys == null) {
       console.log("getPostsMetadataKeys, error: "+err.message);
       callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
     } else {

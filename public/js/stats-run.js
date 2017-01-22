@@ -52,9 +52,15 @@ function loadChart() {
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metricsNames.length ; j++) {
-				if (metrics.hasOwnProperty(metricsNames[j])) {
-					numData_metrics[j].push(metrics[metricsNames[j]].score.toFixed(2));
-				} else {
+				boolean match = false;
+				for (var k = 0 ; k < metrics.length ; k++) {
+					if (metrics[k].key.localeCompare(metricsNames[j]) == 0) {
+						numData_metrics[j].push(metrics[k].score.toFixed(2));
+						match = true;
+						break;
+					}
+				}
+				if (!match) {
 					numData_metrics[j].push(0);
 				}
 			}

@@ -225,8 +225,8 @@ app.get("/stats-data-json", function(req, res) {
     for (var i = 0 ; i < keys.length ; i++) {
       justKeys.push(keys[i].key);
     }
-    recursiveGetPostsMetadata(justKeys, 0, function(list) {
-      if (list == null || list.length < 1) {
+    recursiveGetPostsMetadata(justKeys, 0, function(resultList) {
+      if (resultList == null || resultList.length < 1) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
       } else {
         if (justKeys.length > 1) {

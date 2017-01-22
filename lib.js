@@ -990,6 +990,10 @@ function runBot(callback, options) {
       if (options && options.test) {
         email += "<h3>TEST RUN - no votes will be cast</h3>";
       }
+      email += "<h2>User stats</h2>";
+      email += "<p>User: "+process.env.STEEM_USER+"</p>";
+      var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
+      email += "<p>Voting power: "+votingPower+"</p>";
       email += "<h2>Posts and scores:</h2>";
       if (postsMetadata.length > 0) {
         // first sort postsMetadata
@@ -1000,13 +1004,13 @@ function runBot(callback, options) {
         // add to email
         for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
           email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">"
-            +"Score <strong>"+sortedPostsMetadata[i].score+"</strong> "
+            +"Score <strong>"+sortedPostsMetadata[i].score.toFixed(2)+"</strong> "
             +"| <a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a> "
             +"| author: "+sortedPostsMetadata[i].author + " "
-            +"| cur est $"+sortedPostsMetadata[i].cur_est_payout+" "
+            +"| cur est $"+sortedPostsMetadata[i].cur_est_payout.toFixed(3)+" "
             +"| upvotes: "+postsMetrics[i].post_num_upvotes+" "
             +"| downvotes: "+postsMetrics[i].post_num_downvotes+" "
-            +"| age: "+postsMetrics[i].post_alive_time+" mins "
+            +"| age: "+postsMetrics[i].post_alive_time.toFixed(2)+" mins "
             +"</span></p>";
         }
       } else {

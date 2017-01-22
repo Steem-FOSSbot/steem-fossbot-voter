@@ -74,7 +74,7 @@ const
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
   wait = require('wait.for'),
-  extra = require('/extra.js');
+  extra = require('./extra.js');
 
 const
   MINNOW = 0,

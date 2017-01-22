@@ -1339,7 +1339,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
   wait.launchFiber(function() {
     var keys = null;
     try {
-      keys = wait.for(redisClient.get, "postsMetadata_keys");
+      keys = wait.for(redisClient.GET, "postsMetadata_keys");
     } catch(err) {
       console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
     }
@@ -1387,7 +1387,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
 function getPostsMetadataKeys(callback) {
   wait.launchFiber(function() {
     try {
-      var keys = wait.for(redisClient.get, "postsMetadata_keys");
+      var keys = wait.for(redisClient.GET, "postsMetadata_keys");
       var keysObj = JSON.parse(keys);
       callback(null, keysObj.keys);
     } catch(err) {

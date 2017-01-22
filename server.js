@@ -291,7 +291,7 @@ app.get("/stats-data-json", function(req, res) {
   }
   if (req.query.pd_key) {
     redisClient.get(req.query.pd_key, function(err, postsMetadata) {
-      if (err || result == null) {
+      if (err || postsMetadata == null) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.pd_key+" could not be fetched", 500);
         return;
       }

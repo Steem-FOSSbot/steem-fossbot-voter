@@ -228,7 +228,11 @@ app.get("/stats-data-json", function(req, res) {
       } else if (resultList == null) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
       } else {
-        res.json({postsMetadataList: resultList});
+        var postsMetadataList = [];
+        for (var i = 0 ; i < resultList.length ; i++) {
+          postsMetadataList.push(JSON.parse(resultList[i]));
+        }
+        res.json({postsMetadataList: postsMetadataList});
       }
     });
   });

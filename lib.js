@@ -1335,51 +1335,53 @@ function updateMetricList(list, contents, apiKey, callback) {
 }
 
 function savePostsMetadata(postsMetadataObj, callback) {
-  console.log("savePostsMetadata");
-  var keys = null;
-  try {
-    keys = wait.for(redisClient.get, "postsMetadata_keys");
-  } catch(err) {
-    console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
-  }
-  try {
-    var toKeep = [];
-    if (keys != null) {
-      var keysObj = JSON.parse(keys);
-      console.log(" - removing old keys");
-      // mark old keys for deletion, to clear space before saving
-      var toDelete = [];
-      for (var i = 0 ; i < keysObj.keys.length ; i++) {
-        if (((new Date()).getTime() - keysObj.keys[i].date) > (DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-          toDelete.push(keysObj.keys[i].key);
-        } else {
-          toKeep.push(keysObj.keys[i]);
-        }
-      }
-      console.log(" - - keeping "+toKeep.length+" keys");
-      console.log(" - - deleting "+toDelete.length+" keys");
-      for (var i = 0 ; i < toDelete.length ; i++) {
-        var result = wait.for(redisClient.del, keysObj.keys[i]);
-        if (result > 0) {
-          console.log(" - - - deleted redis key: "+key)
-        } else {
-          console.log(" - - - COULDNT delete redis key: "+key)
-        }
-      }
+  console.log("savePostsMetadata, using fiber");
+  wait.launchFiber(function() {
+    var keys = null;
+    try {
+      keys = wait.for(redisClient.get, "postsMetadata_keys");
+    } catch(err) {
+      console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
     }
-    var stringifiedJson = JSON.stringify(postsMetadataObj);
-    var key = extra.calcMD5(stringifiedJson);
-    console.log(" - adding new postsMetadata key: "+key);
-    toKeep.push({date: (new Date()).getTime(), key: key});
-    wait.for(redisClient.set, "postsMetadata_keys", JSON.stringify({keys: toKeep}));
-    console.log(" - adding new postsMetadata under key: "+key);
-    wait.for(redisClient.set, key, stringifiedJson);
-    console.log(" - finished saving postsMetadata");
-    callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: "+key});
-  } catch(err) {
-    console.log("savePostsMetadata, error: "+err.message);
-    callback({status: 500, message: "savePostsMetadata, error: "+err.message});
-  }
+    try {
+      var toKeep = [];
+      if (keys != null) {
+        var keysObj = JSON.parse(keys);
+        console.log(" - removing old keys");
+        // mark old keys for deletion, to clear space before saving
+        var toDelete = [];
+        for (var i = 0 ; i < keysObj.keys.length ; i++) {
+          if (((new Date()).getTime() - keysObj.keys[i].date) > (DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+            toDelete.push(keysObj.keys[i].key);
+          } else {
+            toKeep.push(keysObj.keys[i]);
+          }
+        }
+        console.log(" - - keeping "+toKeep.length+" keys");
+        console.log(" - - deleting "+toDelete.length+" keys");
+        for (var i = 0 ; i < toDelete.length ; i++) {
+          var result = wait.for(redisClient.del, keysObj.keys[i]);
+          if (result > 0) {
+            console.log(" - - - deleted redis key: "+key)
+          } else {
+            console.log(" - - - COULDNT delete redis key: "+key)
+          }
+        }
+      }
+      var stringifiedJson = JSON.stringify(postsMetadataObj);
+      var key = extra.calcMD5(stringifiedJson);
+      console.log(" - adding new postsMetadata key: "+key);
+      toKeep.push({date: (new Date()).getTime(), key: key});
+      wait.for(redisClient.set, "postsMetadata_keys", JSON.stringify({keys: toKeep}));
+      console.log(" - adding new postsMetadata under key: "+key);
+      wait.for(redisClient.set, key, stringifiedJson);
+      console.log(" - finished saving postsMetadata");
+      callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: "+key});
+    } catch(err) {
+      console.log("savePostsMetadata, error: "+err.message);
+      callback({status: 500, message: "savePostsMetadata, error: "+err.message});
+    }
+  });
 }
 
 function getPostsMetadataKeys(callback) {

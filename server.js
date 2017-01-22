@@ -5,7 +5,10 @@ const
   express = require("express"),
   path = require("path"),
   bodyParser = require("body-parser"),
-  fs = require('fs');
+  fs = require('fs'),
+  redis = require("redis"),
+  redisClient = require('redis').createClient(process.env.REDIS_URL),
+  wait = require('wait.for');
 
 var html_algo_emptyList = "<tr><td>None</td><td></td><td>-</td><td>-</td><th><p><a class=\"btn btn-default\" href=\"#\" role=\"button\"><strike>Delete<strike></a></p></th></tr>";
 var html_test_emptyList = "<tr><td>None</td><td>-</td>-<td></tr>";
@@ -209,6 +212,25 @@ app.get("/stats-data-json", function(req, res) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
     return;
   }
+  lib.getPostsMetadataKeys(function(err, keys) {
+    if (err) {
+      handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no data in store, no keys", 500);
+      return;
+    }
+    console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
+    try {
+      var postsMetadataList = [];
+      for (var i = 0 ; i < keys.length ; i++) {
+        var postsMetadataObj = wait.for(redisClient.get, keys[i]);
+        postsMetadataList.push(postsMetadataObj);
+      }
+      res.json({postsMetadataList: postsMetadataList});
+    } catch(err) {
+      handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data: "+err.message, 500);
+      return;
+    }
+  });
+  /*
   lib.getPersistentJson("posts_metadata", function(postsMetadata) {
     console.log("attempted to get postsMetadata: "+postsMetadata);
     if (postsMetadata != null) {
@@ -217,7 +239,9 @@ app.get("/stats-data-json", function(req, res) {
       handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: no data in store", 500);
     }
   });
+*/
 });
+
 
 app.get("/get-algo", function(req, res) {
   if (!req.query.api_key) {

@@ -47,9 +47,15 @@ Make sure to read the instructions though! Heroku has a basic free plan but if n
 
 All original programming is under the CC0 license and so it completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
 
-The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is central to the app, a big thank you to the creator. Please [star it on GitHub](https://github.com/adcpm/steem) to support their development.
+Included in this repo are the following libraries:
+
+- [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license, copyright to Twitter
+- MD5 Hashing algorithm ([modified from this source](http://www.queness.com/code-snippet/6523/generate-md5-hash-with-javascript) by Paul Johnston and Greg Holt is under copyright and licensed under the BSD license. Legal text [available here](http://pajhome.org.uk/site/legal.html)
+
+The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is central to the app, a big thank you to the creators. Please [star it on GitHub](https://github.com/adcpm/steem) to support their development and check out their project [Busy](https://github.com/adcpm/busy).
 
 Several other Node NPM libraries are used as dependencies (thier source is not included in this repo). Thanks to their creators!
+
 - [express](https://www.npmjs.com/package/express) and [body-parser](https://www.npmjs.com/package/body-parser) by dougwilson, as basic glue used by nearly every Node.js app
 - [sendgrid](https://www.npmjs.com/package/sendgrid) by thinkingserious, to send email notifications
 - [Q](https://www.npmjs.com/package/q) by kriskowal, to promise-ify and de-callback-hell-ify the long process of running a bot iteration
@@ -59,8 +65,6 @@ Several other Node NPM libraries are used as dependencies (thier source is not i
 - [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
-
-Additionally [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license copyright to Twitter.
 
 ## Disclaimer
 

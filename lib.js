@@ -73,7 +73,8 @@ const
   stripMarkdownProcessor = remark().use(strip),
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
-  wait = require('wait.for');
+  wait = require('wait.for'),
+  extra = require('/extra.js');
 
 const
   MINNOW = 0,
@@ -81,6 +82,9 @@ const
   WHALE = 2;
 
 const
+  MILLIS_IN_DAY = 86400000;
+
+var
   MAX_POST_TO_READ = 100,
   CAPITAL_DOLPHIN_MIN = 25000,
   CAPITAL_WHALE_MIN = 100000,
@@ -89,7 +93,8 @@ const
   SCORE_THRESHOLD_INC_PC = 0.5,
   NUM_POSTS_FOR_AVG_WINDOW = 20,
   MAX_VOTES_IN_24_HOURS = 40,
-  MIN_WORDS_FOR_ARTICLE = 100;
+  MIN_WORDS_FOR_ARTICLE = 100,
+  DAYS_KEEP_LOGS = 5;
 
 /* Private variables */
 var fatalError = false;
@@ -870,11 +875,11 @@ function runBot(callback, options) {
       }
       // and save postsMetadata to persistent
       persistentLog(" - saving posts_metadata");
-      persistJson("posts_metadata", {posts_metadata: postsMetadata}, function(err) {
-        persistentLog(" - - ERROR SAVING posts_metadata");
-      });
-      // finish
-      deferred.resolve(true);
+      savePostsMetadata({postsMetadata: postsMetadata}, function(res) {
+        persistentLog(" - - SAVING posts_metadata: "+res.message);
+        // finish
+        deferred.resolve(true);
+      })
       return deferred.promise;
     },
     // cast votes to steem
@@ -1329,6 +1334,65 @@ function updateMetricList(list, contents, apiKey, callback) {
   });
 }
 
+function savePostsMetadata(postsMetadataObj, callback) {
+  console.log("savePostsMetadata");
+  var keys = null;
+  try {
+    keys = wait.for(redisClient.get, "postsMetadata_keys");
+  } catch(err) {
+    console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
+  }
+  try {
+    var toKeep = [];
+    if (keys != null) {
+      var keysObj = JSON.parse(keys);
+      console.log(" - removing old keys");
+      // mark old keys for deletion, to clear space before saving
+      var toDelete = [];
+      for (var i = 0 ; i < keysObj.keys.length ; i++) {
+        if (((new Date()).getTime() - keysObj.keys[i].date) > (DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+          toDelete.push(keysObj.keys[i].key);
+        } else {
+          toKeep.push(keysObj.keys[i]);
+        }
+      }
+      console.log(" - - keeping "+toKeep.length+" keys");
+      console.log(" - - deleting "+toDelete.length+" keys");
+      for (var i = 0 ; i < toDelete.length ; i++) {
+        var result = wait.for(redisClient.del, keysObj.keys[i]);
+        if (result > 0) {
+          console.log(" - - - deleted redis key: "+key)
+        } else {
+          console.log(" - - - COULDNT delete redis key: "+key)
+        }
+      }
+    }
+    var stringifiedJson = JSON.stringify(postsMetadataObj);
+    var key = extra.calcMD5(stringifiedJson);
+    console.log(" - adding new postsMetadata key: "+key);
+    toKeep.push({date: (new Date()).getTime(), key: key});
+    wait.for(redisClient.set, "postsMetadata_keys", JSON.stringify({keys: toKeep});
+    console.log(" - adding new postsMetadata under key: "+key);
+    wait.for(redisClient.set, key, stringifiedJson);
+    console.log(" - finished saving postsMetadata");
+    callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: "+key});
+  } catch(err) {
+    console.log("savePostsMetadata, error: "+err.message);
+    callback({status: 500, message: "savePostsMetadata, error: "+err.message});
+  }
+}
+
+function getPostsMetadataKeys(callback) {
+  try {
+    var keys = wait.for(redisClient.get, "postsMetadata_keys");
+    var keysObj = JSON.parse(keys);
+    callback(null, keysObj.keys);
+  } catch(err) {
+    console.log("getPostsMetadataKeys, error: "+err.message);
+    callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
+  }
+}
+
 /*
 * Steem Utils
 */
@@ -1496,3 +1560,4 @@ module.exports.getPersistentString = getPersistentString;
 module.exports.updateWeightMetric = updateWeightMetric;
 module.exports.deleteWeightMetric = deleteWeightMetric;
 module.exports.updateMetricList = updateMetricList;
+module.exports.getPostsMetadataKeys = getPostsMetadataKeys;

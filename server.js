@@ -27,12 +27,12 @@ var
   html_testAlgo2 = "",
   html_testAlgo3 = "",
   html_testAlgo4 = "",
-  html_stats1 = "",
-  html_stats2 = "";
+  html_last_log1 = "",
+  html_last_log2 = "";
 
 var
-  html_msg_api_err = "<h1>API error</h1><p class=\"lead\">API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.</p>",
-  html_msg_run_bot = "<h1>Run bot success</h1><p class=\"lead\">Bot successfully run.<br/>The votes will take a few seconds to be cast and registered on Steemit because of cast limiting.<br/>You can check the logs in a few minutes or wait for the email if you have set that up.</p>";
+  html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.",
+  html_msg_run_bot_body = "Bot successfully run.<br/>The votes will take a few seconds to be cast and registered on Steemit because of cast limiting.<br/>You can check the logs in a few minutes or wait for the email if you have set that up.";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -56,15 +56,21 @@ app.listen(app.get('port'), function() {
 module.exports = app;
 
 // Utils
+function createMsgPageMessage(title, message) {
+  return "<h1>"+title+"</h1><p class=\"lead\">"+message+"</p>";
+}
+
+function createMsgPageHTML(title, message) {
+  return html_msgPage1
+    + title + " - Voter"
+    + html_msgPage2
+    + createMsgPageMessage(title, message)
+    + html_msgPage3;
+}
+
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason + ", MESSAGE: "+message);
-  res.status(code || 500).send(
-    html_msgPage1
-    + "API error"
-    + html_msgPage2
-    + html_msg_api_err
-    + html_msgPage3
-    );
+  res.status(code || 500).send(createMsgPageHTML("API error", html_msg_api_err_body + "<br/><br/>Details: "+message));
 }
 
 function handleErrorJson(res, reason, message, code) {
@@ -126,13 +132,13 @@ function loadFiles() {
     html_testAlgo4 = str;
     console.log("got /html/test-algo-part-4.html from file");
   });
-  loadFileToString("/html/stats-1.html", function(str) {
-    html_stats1 = str;
-    console.log("got /html/stats-1.html from file");
+  loadFileToString("/html/last-log-1.html", function(str) {
+    html_last_log1 = str;
+    console.log("got /html/last-log-1.html from file");
   });
-  loadFileToString("/html/stats-2.html", function(str) {
-    html_stats2 = str;
-    console.log("got /html/stats-2.html from file");
+  loadFileToString("/html/last-log-2.html", function(str) {
+    html_last_log2 = str;
+    console.log("got /html/last-log-2.html from file");
   });
 }
 
@@ -186,19 +192,33 @@ app.get("/stats", function(req, res) {
     handleError(res, "/stats Unauthorized", "stats: api_key invalid", 401);
     return;
   }
+  // TODO 
+});
+
+/*
+* /stats
+*/
+app.get("/last-log", function(req, res) {
+  if (!req.query.api_key) {
+    handleError(res, "/last-log Unauthorized", "last-log: api_key not supplied", 401);
+    return;
+  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
+    handleError(res, "/last-log Unauthorized", "last-log: api_key invalid", 401);
+    return;
+  }
   lib.getPersistentString("last_log_html", function(logs) {
-    var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
+    var html_logs = createMsgPageHTML("Last log", "No logs yet, please run bot for first time!");
     if (logs != null) {
       html_logs = logs;
     }
     saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
       if (err) {
-        handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
+        handleError(res, "can't save temp file", "/last-log: can't save temp file", 500);
       } else {
         res.send(200, 
-          html_stats1 
+          html_last_log1 
           + "/tmp-stats.html"
-          + html_stats2);
+          + html_last_log2);
       }
     });
   });
@@ -325,12 +345,7 @@ app.get("/run-bot", function(req, res) {
               handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
             } else {
               res.status(200).send(
-                html_msgPage1
-                + "Run bot success - Voter"
-                + html_msgPage2
-                + html_msg_run_bot
-                + html_msgPage3
-                );
+                createMsgPageHTML("Run bot success", html_msg_run_bot_body));
             }
           });
         });

@@ -28,7 +28,9 @@ var
   html_testAlgo3 = "",
   html_testAlgo4 = "",
   html_last_log1 = "",
-  html_last_log2 = "";
+  html_last_log2 = "",
+  html_stats1 = "",
+  html_stats2 = "";
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.",
@@ -140,6 +142,14 @@ function loadFiles() {
     html_last_log2 = str;
     console.log("got /html/last-log-2.html from file");
   });
+  loadFileToString("/html/stats-1.html", function(str) {
+    html_stats1 = str;
+    console.log("got /html/stats-1.html from file");
+  });
+  loadFileToString("/html/stats-2.html", function(str) {
+    html_stats2 = str;
+    console.log("got /html/stats-2.html from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -192,8 +202,24 @@ app.get("/stats", function(req, res) {
     handleError(res, "/stats Unauthorized", "stats: api_key invalid", 401);
     return;
   }
-  // TODO 
-  res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
+  //res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
+  lib.getPostsMetadataKeys(function(err, keys) {
+    var html = "";
+    if (err || keys == null || keys.length < 1) {
+      //handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
+      console.log("No keys for /stats");
+      return;
+    } else {
+      for (var i = 0 ; i < keys.length ; i++) {
+        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&key="+keys[i].key"\">"
+          +(new Date(keys[i].date))+"</a></li>"
+      }
+    }
+    res.send(200,
+      html_stats1 
+      + html
+      + html_stats2);
+  });
 });
 
 /*
@@ -241,6 +267,7 @@ app.get("/stats-data-json", function(req, res) {
     console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
     if (req.query.count_only) {
       res.json({num_keys: keys.length});
+      return;
     }
     var justKeys = [];
     for (var i = 0 ; i < keys.length ; i++) {
@@ -250,6 +277,7 @@ app.get("/stats-data-json", function(req, res) {
       if (resultList == null || resultList.length < 1) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
       } else {
+        var postsMetadataList = [];
         if (justKeys.length > 1) {
           var limit = resultList.length;
           if (req.query.limit) {
@@ -262,13 +290,30 @@ app.get("/stats-data-json", function(req, res) {
             }
           }
           console.log("get num keys: "+limit+" of "+resultList.length);
-          var postsMetadataList = [];
           for (var i = 0 ; i < limit ; i++) {
             postsMetadataList.push(JSON.parse(resultList[i]));
           }
-          res.json({postsMetadataList: postsMetadataList});
         } else {
-          res.json({postsMetadataList: JSON.parse(resultList)});
+          postsMetadataList.push(JSON.parse(resultList));
+        }
+        if (req.query.summary) {
+          var summary = [];
+          for (var i = 0 ; i < postsMetadataList.length ; i++) {
+            var numVotes = 0;
+            for (var j = 0 ; j < postsMetadataList[i].postsMetadata.length ; j++) {
+              if (postsMetadataList[i].postsMetadata[j].vote) {
+                numVotes++;
+              }
+            }
+            summary.push({
+              date: keys[i].date,
+              num_posts: postsMetadataList[i].postsMetadata.length,
+              num_votes: numVotes
+            });
+          }
+          res.json({summary: summary});
+        } else {
+          res.json({postsMetadataList: postsMetadataList});
         }
       }
     }, []);

@@ -51,6 +51,8 @@ Included in this repo are the following libraries:
 
 - [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license, copyright to Twitter. The license document is in the root folder.
 - MD5 Hashing algorithm ([modified from this source](http://www.queness.com/code-snippet/6523/generate-md5-hash-with-javascript) by Paul Johnston and Greg Holt is under copyright and licensed under the BSD license. Legal text [available here](http://pajhome.org.uk/site/legal.html)
+- C3js is used for charting stats data and is under [MIT license](/LICENSE-c3), copyright Masayuki Tanaka
+- D3js is a dependency for CSjs, and is under [3-part BSD license](/LICENSE-d3), copyright Michael Bostock
 
 The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is central to the app, a big thank you to the creators. Please [star it on GitHub](https://github.com/adcpm/steem) to support their development and check out their project [Busy](https://github.com/adcpm/busy).
 

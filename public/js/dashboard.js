@@ -14,5 +14,7 @@ function gotoPage(page) {
 		window.location.href = "/edit-algo?api_key="+apiKey;
 	} else if (page == 3) {
 		window.location.href = "/test-algo?api_key="+apiKey;
+	} else if (page == 4) {
+		window.location.href = "/last-log?api_key="+apiKey;
 	}
 }

@@ -218,6 +218,9 @@ app.get("/stats-data-json", function(req, res) {
       return;
     }
     console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
+    if (req.query.count_only) {
+      res.json({num_keys: keys.length});
+    }
     var justKeys = [];
     for (var i = 0 ; i < keys.length ; i++) {
       justKeys.push(keys[i].key);
@@ -229,9 +232,19 @@ app.get("/stats-data-json", function(req, res) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: error fetching data, no results for key fetch", 500);
       } else {
         if (justKeys.length > 1) {
-          console.log("get keys results: "+resultList);
+          var limit = resultList.length;
+          if (req.query.limit) {
+            limit = req.query.limit;
+            if (limit < 1) {
+              limit = 1;
+            }
+            if (limit > resultList.length) {
+              limit = resultList.length;
+            }
+          }
+          console.log("get num keys: "+limit+" of "+resultList.length);
           var postsMetadataList = [];
-          for (var i = 0 ; i < resultList.length ; i++) {
+          for (var i = 0 ; i < limit ; i++) {
             postsMetadataList.push(JSON.parse(resultList[i]));
           }
           res.json({postsMetadataList: postsMetadataList});

@@ -248,7 +248,8 @@ app.get("/stats", function(req, res) {
           return;
         }
         //console.log("/stats-data-json, for pd_key "+req.query.pd_key+", got object (as string): "+postsMetadata);
-        var postsMetadata = JSON.parse(postsMetadataStr);
+        var postsMetadataObj = JSON.parse(postsMetadataStr);
+        var postMetadata = postsMetadataObj.postMetadata;
         var html_list = "";
         if (postsMetadata.length > 0) {
           for (var i = 0 ; i < postsMetadata.length ; i++) {

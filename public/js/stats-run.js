@@ -56,10 +56,10 @@ function loadChart() {
 		        x: {
 		            type: 'category',
 		            tick: {
-		                rotate: 75,
+		                rotate: 90,
 		                multiline: false
 		            },
-		            height: 130
+		            height: 300
 		        }
 		    }
 		});

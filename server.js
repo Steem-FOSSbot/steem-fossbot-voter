@@ -257,7 +257,7 @@ app.get("/stats", function(req, res) {
           html_stats_run1 
           + html
           + html_stats_run2
-          + (new Date(postsMetadata.time))
+          + postsMetadata.time
           + html_stats_run3
           + html_list
           + html_stats_run4);

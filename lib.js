@@ -1385,14 +1385,16 @@ function savePostsMetadata(postsMetadataObj, callback) {
 }
 
 function getPostsMetadataKeys(callback) {
-  try {
-    var keys = wait.for(redisClient.get, "postsMetadata_keys");
-    var keysObj = JSON.parse(keys);
-    callback(null, keysObj.keys);
-  } catch(err) {
-    console.log("getPostsMetadataKeys, error: "+err.message);
-    callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
-  }
+  wait.launchFiber(function() {
+    try {
+      var keys = wait.for(redisClient.get, "postsMetadata_keys");
+      var keysObj = JSON.parse(keys);
+      callback(null, keysObj.keys);
+    } catch(err) {
+      console.log("getPostsMetadataKeys, error: "+err.message);
+      callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
+    }
+  });
 }
 
 /*

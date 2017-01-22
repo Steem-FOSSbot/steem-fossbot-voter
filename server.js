@@ -225,7 +225,7 @@ app.get("/stats", function(req, res) {
   //res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
-    var dateStr = "";
+    var dateStr = "<strong>Bot run: [date parse failed]</strong>";
     if (err || keys == null || keys.length < 1) {
       //handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
       console.log("No keys for /stats");
@@ -234,7 +234,7 @@ app.get("/stats", function(req, res) {
       for (var i = 0 ; i < keys.length ; i++) {
         if (req.query.key) {
           if (req.query.pd_key.localeCompare(keys[i].key) == 0) {
-            dateStr = new Date(keys[i].date);
+            dateStr = "<strong>Bot run: "+(new Date(keys[i].date))+"</strong>";
           }
         }
         html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&pd_key="+keys[i].key+"\">"

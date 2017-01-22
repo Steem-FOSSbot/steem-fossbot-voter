@@ -57,6 +57,9 @@ function loadChart() {
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_score_summary',
+		    size: {
+		        height: 600
+		    },
 		    data: {
 		    	x : 'x',
 		    	columns: [

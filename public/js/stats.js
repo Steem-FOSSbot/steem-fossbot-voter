@@ -25,3 +25,15 @@ function loadChart() {
 }
 
 window.onload = loadChart;
+
+function getApiKey(url) {
+	var apiKey = "";
+	var parts = window.location.href.split("&");
+	for (var i = 0 ; i < parts.length ; i++) {
+		var idx = parts[i].search("api_key=");
+		if (idx >= 0) {
+			var apiKey = parts[i].substring(idx + 8, parts[i].length);
+		}
+	}
+	return apiKey;
+}

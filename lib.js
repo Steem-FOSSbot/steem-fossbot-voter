@@ -1601,3 +1601,4 @@ module.exports.updateWeightMetric = updateWeightMetric;
 module.exports.deleteWeightMetric = deleteWeightMetric;
 module.exports.updateMetricList = updateMetricList;
 module.exports.getPostsMetadataKeys = getPostsMetadataKeys;
+module.exports.getEpochMillis = getEpochMillis;

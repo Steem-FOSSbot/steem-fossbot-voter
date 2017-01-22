@@ -67,7 +67,10 @@ function loadChart() {
 		    		numData_score_total,
 		    		numData_threshold
 		    	],
-		    	type: 'bar'
+		    	type: 'bar',
+		    	types: {
+		    		Threshold: 'area'
+		    	}
 		    },
 		    bar: {
 		    	width: {

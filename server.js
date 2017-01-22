@@ -299,6 +299,7 @@ app.get("/stats-data-json", function(req, res) {
       res.json(postsMetadata);
       return;
     });
+    return;
   }
   lib.getPostsMetadataKeys(function(err, keys) {
     if (err) {

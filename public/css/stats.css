@@ -7,6 +7,9 @@ body {
   padding-top: 50px;
 }
 
+.chart-large {
+  height: 600px;
+}
 
 /*
  * Global add-ons

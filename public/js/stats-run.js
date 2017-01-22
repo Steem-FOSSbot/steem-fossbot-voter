@@ -30,6 +30,7 @@ function loadChart() {
 	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&pd_key="+getKey(), function(data) {
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
+		var numData_threshold = ['Threshold'];
 		var numData_metrics = [];
 		var metricsNames = [];
 		// first, create metrics arrays
@@ -42,6 +43,7 @@ function loadChart() {
 		for (var i = 0 ; i < data.postsMetadata.length ; i++) {
 			xTicks.push(data.postsMetadata[i].title);
 			numData_score_total.push(data.postsMetadata[i].score);
+			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total);
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metrics.length ; j++) {
@@ -59,17 +61,18 @@ function loadChart() {
 		    	x : 'x',
 		    	columns: [
 		    		xTicks,
-		    		numData_score_total
+		    		numData_score_total,
+		    		numData_threshold
 		    	],
 		    	type: 'bar'
 		    },
 		    bar: {
 		    	width: {
-		    		ratio: 0.2
+		    		ratio: 0.3
 		    	}
 		    },
     		color: {
-    			pattern: ['#1f77b4']
+    			pattern: ['#1f77b4', '#ff7f0e']
     		},
     		axis: {
 		        x: {
@@ -83,7 +86,10 @@ function loadChart() {
 		    },
 		    legend: {
 		        position: 'top'
-		    }
+		    },
+		    color: {
+    			pattern: ['#1f77b4']
+    		}
 		});
 		var chart_posts = c3.generate({
 		    bindto: '#chart_score_breakdown',
@@ -95,7 +101,7 @@ function loadChart() {
 		    },
 		    bar: {
 		    	width: {
-		    		ratio: 0.2
+		    		ratio: 0.5
 		    	}
 		    },
     		color: {
@@ -113,6 +119,9 @@ function loadChart() {
 		    },
 		    legend: {
 		        position: 'top'
+		    },
+		    color: {
+		        pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
 		    }
 		});
 	});

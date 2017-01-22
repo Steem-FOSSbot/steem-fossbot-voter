@@ -11,6 +11,10 @@ body {
   height: 600px;
 }
 
+.chart-x-large {
+  height: 800px;
+}
+
 /*
  * Global add-ons
  */

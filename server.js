@@ -193,6 +193,7 @@ app.get("/stats", function(req, res) {
     return;
   }
   // TODO 
+  res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
 });
 
 /*

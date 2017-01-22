@@ -2,9 +2,11 @@ function loadChart() {
 	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&summary=true", function(data) {
 		var numPostsData = ['Num posts processed'];
 		var numVotesData = ['Num votes cast'];
+		var timeSeries = [];
 		for (var i = 0 ; i < data.summary.length ; i++) {
 			numPostsData.push(data.summary[i].num_posts);
 			numVotesData.push(data.summary[i].num_votes);
+			timeSeries.push(data.summary[i].date);
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',
@@ -18,7 +20,18 @@ function loadChart() {
 		    	width: {
 		    		ratio: 0.5
 		    	}
-		    }
+		    },
+		    axis: {
+		        x: {
+		            type: 'timeseries',
+		            tick: {
+		                values: timeSeries
+		            }
+		        }
+    		},
+    		color: {
+    			pattern: ['#1f77b4']
+    		}
 		});
 		var chart_votes = c3.generate({
 		    bindto: '#chart_votes',
@@ -32,7 +45,18 @@ function loadChart() {
 		    	width: {
 		    		ratio: 0.5
 		    	}
-		    }
+		    },
+		    axis: {
+		        x: {
+		            type: 'timeseries',
+		            tick: {
+		                values: timeSeries
+		            }
+		        }
+    		},
+    		color: {
+    			pattern: ['#ff7f0e']
+    		}
 		});
 	});
 }

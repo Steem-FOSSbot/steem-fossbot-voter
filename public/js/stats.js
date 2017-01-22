@@ -22,7 +22,7 @@ function loadChart() {
 		    	}
 		    },
 		    axis: {
-		        x: {
+		        columns: {
 		            type: 'timeseries',
 		            tick: {
 		                values: timeSeries
@@ -47,7 +47,7 @@ function loadChart() {
 		    	}
 		    },
 		    axis: {
-		        x: {
+		        columns: {
 		            type: 'timeseries',
 		            tick: {
 		                values: timeSeries

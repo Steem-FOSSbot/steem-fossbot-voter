@@ -137,6 +137,7 @@ var avgWindowInfo = {
 };
 
 // logging and notification
+var numVoteOn = 0;
 var logNumLines = 0;
 var log = "";
 var logHtml = "";
@@ -182,6 +183,7 @@ function runBot(callback, options) {
   var processes = [
     // pre set up
     function () {
+      numVoteOn = 0;
       log = "";
       persistentLog("Q.deffered: pre set up");
       var deferred = Q.defer();
@@ -283,7 +285,7 @@ function runBot(callback, options) {
             if (timeDiff > 0) {
               timeDiff /= (60 * 1000);
             }
-            if (timeDiff >= MIN_POST_AGE_TO_CONSIDER)) {
+            if (timeDiff >= MIN_POST_AGE_TO_CONSIDER) {
               cleanedPosts.push(posts[i]);
             }
           }
@@ -908,6 +910,7 @@ function runBot(callback, options) {
       if (postsMetadata.length > 0) {
         wait.launchFiber(function() {
           var numToVoteOn = 0;
+          numVoteOn = numToVoteOn;
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             var doVote = true;
             if (options && options.test) {
@@ -1043,7 +1046,7 @@ function runBot(callback, options) {
       email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
       email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
-      email += "<p>Number of votes today: "+owner.num_votes_today+"</p>";
+      email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
       //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
       email += "<h3>Misc constant settings</h3>";
       email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";

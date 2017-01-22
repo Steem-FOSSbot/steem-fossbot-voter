@@ -29,7 +29,7 @@ function loadChart() {
 		    },
 		    bar: {
 		    	width: {
-		    		ratio: 0.5
+		    		ratio: 0.2
 		    	}
 		    },
     		color: {

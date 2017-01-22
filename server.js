@@ -30,7 +30,10 @@ var
   html_last_log1 = "",
   html_last_log2 = "",
   html_stats1 = "",
-  html_stats2 = "";
+  html_stats2 = "",
+  html_stats_run1 = "",
+  html_stats_run2 = "",
+  html_stats_run3 = "";
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.",
@@ -150,6 +153,18 @@ function loadFiles() {
     html_stats2 = str;
     console.log("got /html/stats-2.html from file");
   });
+  loadFileToString("/html/stats-run-1.html", function(str) {
+    html_stats_run1 = str;
+    console.log("got /html/stats-run-1.html from file");
+  });
+  loadFileToString("/html/stats-run-2.html", function(str) {
+    html_stats_run2 = str;
+    console.log("got /html/stats-run-2.html from file");
+  });
+  loadFileToString("/html/stats-run-3.html", function(str) {
+    html_stats_run3 = str;
+    console.log("got /html/stats-run-3.html from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -205,20 +220,35 @@ app.get("/stats", function(req, res) {
   //res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
+    var dateStr = "";
     if (err || keys == null || keys.length < 1) {
       //handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
       console.log("No keys for /stats");
       return;
     } else {
       for (var i = 0 ; i < keys.length ; i++) {
-        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&key="+keys[i].key+"\">"
+        if (req.query.key) {
+          if (req.query.key.localeCompare(keys[i].key) == 0) {
+            dateStr = new Date(keys[i].date);
+          }
+        }
+        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&pd_key="+keys[i].key+"\">"
           +(new Date(keys[i].date))+"</a></li>"
       }
     }
-    res.send(200,
-      html_stats1 
-      + html
-      + html_stats2);
+    if (req.query.key) {
+      res.send(200,
+        html_stats_run1 
+        + html
+        + html_stats_run2
+        + dateStr
+        + html_stats_run3);
+    } else {
+      res.send(200,
+        html_stats1 
+        + html
+        + html_stats2);
+    }
   });
 });
 
@@ -258,6 +288,16 @@ app.get("/stats-data-json", function(req, res) {
   } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
     return;
+  }
+  if (req.query.pd_key) {
+    redisClient.get(req.query.pd_key, function(err, postsMetadata) {
+      if (err || result == null) {
+        handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.pd_key+" could not be fetched", 500);
+        return;
+      }
+      var postsMetadataObj = JSON.parse(postsMetadata);
+      res.json({key: req.query.pd_key, postsMetadata: postsMetadataObj});
+    });
   }
   lib.getPostsMetadataKeys(function(err, keys) {
     if (err) {

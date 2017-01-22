@@ -211,7 +211,7 @@ app.get("/stats", function(req, res) {
       return;
     } else {
       for (var i = 0 ; i < keys.length ; i++) {
-        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&key="+keys[i].key"\">"
+        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&key="+keys[i].key+"\">"
           +(new Date(keys[i].date))+"</a></li>"
       }
     }

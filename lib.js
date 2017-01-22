@@ -1371,7 +1371,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
     var key = extra.calcMD5(stringifiedJson);
     console.log(" - adding new postsMetadata key: "+key);
     toKeep.push({date: (new Date()).getTime(), key: key});
-    wait.for(redisClient.set, "postsMetadata_keys", JSON.stringify({keys: toKeep});
+    wait.for(redisClient.set, "postsMetadata_keys", JSON.stringify({keys: toKeep}));
     console.log(" - adding new postsMetadata under key: "+key);
     wait.for(redisClient.set, key, stringifiedJson);
     console.log(" - finished saving postsMetadata");

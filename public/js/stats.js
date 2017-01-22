@@ -1,5 +1,5 @@
-function demoChart() {
-	$.getJSON( "//stats-data-json?api_key="+getApiKey(window.location.href)+"&summary=true", function(data) {
+function loadChart() {
+	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&summary=true", function(data) {
 		var numPostsData = ['Num posts'];
 		var numVotesData = ['Num votes'];
 		for (var i = 0 ; i < data.summary.length ; i++) {
@@ -24,4 +24,4 @@ function demoChart() {
 	});
 }
 
-window.onload = demoChart;
+window.onload = loadChart;

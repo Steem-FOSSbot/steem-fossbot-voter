@@ -1,16 +1,29 @@
 function loadChart() {
 	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&summary=true", function(data) {
-		var numPostsData = ['Num posts'];
-		var numVotesData = ['Num votes'];
+		var numPostsData = ['Num posts processed'];
+		var numVotesData = ['Num votes cast'];
 		for (var i = 0 ; i < data.summary.length ; i++) {
 			numPostsData.push(data.summary[i].num_posts);
 			numVotesData.push(data.summary[i].num_votes);
 		}
-		var chart = c3.generate({
-		    bindto: '#chart',
+		var chart_posts = c3.generate({
+		    bindto: '#chart_posts',
 		    data: {
 		      columns: [
-		        numPostsData,
+		        numPostsData
+		      ],
+		      type: 'bar'
+		    },
+		    bar: {
+		    	width: {
+		    		ratio: 0.5
+		    	}
+		    }
+		});
+		var chart_votes = c3.generate({
+		    bindto: '#chart_votes',
+		    data: {
+		      columns: [
 		        numVotesData
 		      ],
 		      type: 'bar'

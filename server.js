@@ -249,7 +249,7 @@ app.get("/stats", function(req, res) {
         }
         //console.log("/stats-data-json, for pd_key "+req.query.pd_key+", got object (as string): "+postsMetadata);
         var postsMetadataObj = JSON.parse(postsMetadataStr);
-        var postsMetadata = postsMetadataObj.postMetadata;
+        var postsMetadata = postsMetadataObj.postsMetadata;
         var html_list = "";
         if (postsMetadata.length > 0) {
           for (var i = 0 ; i < postsMetadata.length ; i++) {

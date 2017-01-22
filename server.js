@@ -296,7 +296,8 @@ app.get("/stats-data-json", function(req, res) {
         return;
       }
       var postsMetadataObj = JSON.parse(postsMetadata);
-      res.json({key: req.query.pd_key, postsMetadata: postsMetadataObj});
+      res.json(postsMetadata);
+      return;
     });
   }
   lib.getPostsMetadataKeys(function(err, keys) {

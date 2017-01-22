@@ -295,9 +295,9 @@ app.get("/stats-data-json", function(req, res) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.pd_key+" could not be fetched", 500);
         return;
       }
-      console.log("/stats-data-json, for pd_key "+req.query.pd_key+", got object (as string): "+postsMetadata);
+      //console.log("/stats-data-json, for pd_key "+req.query.pd_key+", got object (as string): "+postsMetadata);
       var postsMetadataObj = JSON.parse(postsMetadata);
-      res.json(postsMetadata);
+      res.json(postsMetadataObj);
       return;
     });
     return;

@@ -236,7 +236,7 @@ app.get("/stats-data-json", function(req, res) {
           }
           res.json({postsMetadataList: postsMetadataList});
         } else {
-          res.json({postsMetadataList: resultList});
+          res.json({postsMetadataList: JSON.parse(resultList)});
         }
       }
     });

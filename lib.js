@@ -1386,17 +1386,16 @@ function savePostsMetadata(postsMetadataObj, callback) {
 
 function getPostsMetadataKeys(callback) {
   console.log("getPostsMetadataKeys");
-  wait.launchFiber(function() {
-    try {
-      console.log(" - getting keys");
-      var keys = wait.for(redisClient.GET, "postsMetadata_keys");
+  console.log(" - getting keys");
+  redisClient.get("postsMetadata_keys", function(err, keys) {
+    if (err) {
+      console.log("getPostsMetadataKeys, error: "+err.message);
+      callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
+    } else {
       console.log(" - parsing keys");
       var keysObj = JSON.parse(keys);
       console.log(" - returning keys");
       callback(null, keysObj.keys);
-    } catch(err) {
-      console.log("getPostsMetadataKeys, error: "+err.message);
-      callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
     }
   });
 }

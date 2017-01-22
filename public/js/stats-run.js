@@ -36,6 +36,11 @@ function loadChart() {
 		// first, create metrics arrays
 		// metrics
 		var metrics = data.postsMetadata[0].scoreDetail.metrics;
+		for (var i = 1 ; i < data.postsMetadata.length ; i++) {
+			if (data.postsMetadata[i].scoreDetail.metrics.length > metrics.length) {
+				metrics = data.postsMetadata[i].scoreDetail.metrics;
+			}
+		}
 		for (var j = 0 ; j < metrics.length ; j++) {
 			numData_metrics.push([metrics[j].key]);
 			metricsNames.push(metrics[j].key);
@@ -46,8 +51,12 @@ function loadChart() {
 			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total.toFixed(2));
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
-			for (var j = 0 ; j < metrics.length ; j++) {
-				numData_metrics[j].push(metrics[j].score.toFixed(2));
+			for (var j = 0 ; j < metricsNames.length ; j++) {
+				if (metrics.hasOwnProperty(metricsNames[j])) {
+					numData_metrics[j].push(metrics[metricsNames[j]].score.toFixed(2));
+				} else {
+					numData_metrics[j].push(0);
+				}
 			}
 		}
 		// combine data to columns for metrics data

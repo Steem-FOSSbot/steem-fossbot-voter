@@ -267,7 +267,7 @@ function recursiveGetPostsMetadata(keys, index, callback, list) {
       return;
     }
     recursiveGetPostsMetadata(keys, index, callback, list);
-  }
+  });
 }
 
 

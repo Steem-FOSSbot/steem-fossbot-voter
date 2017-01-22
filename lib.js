@@ -94,7 +94,8 @@ var
   NUM_POSTS_FOR_AVG_WINDOW = 20,
   MAX_VOTES_IN_24_HOURS = 40,
   MIN_WORDS_FOR_ARTICLE = 100,
-  DAYS_KEEP_LOGS = 5;
+  DAYS_KEEP_LOGS = 5,
+  MIN_POST_AGE_TO_CONSIDER = 30;
 
 /* Private variables */
 var fatalError = false;
@@ -273,10 +274,25 @@ function runBot(callback, options) {
           }
           posts = cleanedPosts;
         }
+        // only keep posts older than limit
+        if (MIN_POST_AGE_TO_CONSIDER > 0) {
+          var now = (new Date()).getTime();
+          var cleanedPosts = [];
+          for (var i = 0 ; i < posts.length ; i++) {
+            var timeDiff = now - getEpochMillis(posts[i].created);
+            if (timeDiff > 0) {
+              timeDiff /= (60 * 1000);
+            }
+            if (timeDiff >= MIN_POST_AGE_TO_CONSIDER)) {
+              cleanedPosts.push(posts[i]);
+            }
+          }
+          posts = cleanedPosts;
+        }
       }
       // throw nice error if no posts left
       if (posts.length < 1) {
-        throw {message: "No new posts"};
+        throw {message: "No new posts since last post and within minimum time of "+MIN_POST_AGE_TO_CONSIDER+" minutes"};
       }
       // update last fetched post
       lastPost = posts[0];
@@ -980,10 +996,15 @@ function runBot(callback, options) {
         });
         // add to email
         for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
-          email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">Score <strong>"
-            +sortedPostsMetadata[i].score+"</strong> (cur est $"+sortedPostsMetadata[i].cur_est_payout+") for "
-            +"<a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a>"
-            + " by author "+sortedPostsMetadata[i].author + "</span></p>";
+          email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">"
+            +"Score <strong>"+sortedPostsMetadata[i].score+"</strong> "
+            +"| <a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a> "
+            +"| author: "+sortedPostsMetadata[i].author + " "
+            +"| cur est $"+sortedPostsMetadata[i].cur_est_payout+" "
+            +"| upvotes: "+postsMetrics[i].post_num_upvotes+" "
+            +"| downvotes: "+postsMetrics[i].post_num_downvotes+" "
+            +"| age: "+postsMetrics[i].post_alive_time+" mins "
+            +"</span></p>";
         }
       } else {
         email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
@@ -1006,8 +1027,8 @@ function runBot(callback, options) {
       } else {
         email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
       }
-      var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
-      email += "<p>"+weightsHtml+"</p>";
+      //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
+      //email += "<p>"+weightsHtml+"</p>";
       email += "<h3>White and black lists</h3>";
       email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
       email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";

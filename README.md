@@ -72,6 +72,8 @@ We are not required to supply terms because we are not running a service. Howeve
 
 Contributions via pull request are very welcome, as is issues logged via the GitHub issue tracker. You can also suggest features, such as metrics you'd like to see, UI upgrades, etc.
 
+Also please note that development of this project was done piece-wise, and there are many commits with very little added as a commit was required in order to test any code change.
+
 ## Changelog
 
  - v0.1.1

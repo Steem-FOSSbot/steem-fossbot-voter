@@ -307,10 +307,12 @@ app.get("/stats-data-json", function(req, res) {
             }
             summary.push({
               date: keys[i].date,
+              date_str: ("" + new Date(keys[i].date)),
               num_posts: postsMetadataList[i].postsMetadata.length,
               num_votes: numVotes
             });
           }
+          console.log("Sending summary: "+JSON.stringify(summary));
           res.json({summary: summary});
         } else {
           res.json({postsMetadataList: postsMetadataList});

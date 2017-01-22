@@ -6,7 +6,7 @@ function loadChart() {
 		for (var i = 0 ; i < data.summary.length ; i++) {
 			numPostsData.push(data.summary[i].num_posts);
 			numVotesData.push(data.summary[i].num_votes);
-			timeSeries.push(""+new Date(data.summary[i].date));
+			timeSeries.push(data.summary[i].date_str);
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',

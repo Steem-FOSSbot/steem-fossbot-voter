@@ -70,6 +70,7 @@ function loadChart() {
 window.onload = loadChart;
 
 function getCookie(cname) {
+	console.log("getCookie: all cookies: "+document.cookie);
   var name = cname + "=";
   var ca = document.cookie.split(';');
   for (var i = 0; i < ca.length; i++) {

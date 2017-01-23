@@ -509,13 +509,12 @@ app.get("/edit-algo", function(req, res) {
     handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key invalid", 401);
     return;
   }
-  if (req.query.remove) {
-    // TODO : remove process.env.BOT_API_KEY, force from user
-    lib.deleteWeightMetric(req.query.remove, process.env.BOT_API_KEY, function(result) {
+  if (req.query.delete) {
+    lib.deleteWeightMetric(req.query.delete, process.env.BOT_API_KEY, function(result) {
       console.log("lib.deleteWeightMetric result: "+JSON.stringify(result));
       // show edit-algo as normal
       editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
-    })
+    });
     return;
   }
   var str = "";
@@ -733,7 +732,7 @@ function editAlgoExec(res, message) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class=\"btn btn-default\" role=\"button\" href=\"javascript:deleteMetric("+i+")\">Delete</a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" role=\"button\" href=\"javascript:deleteMetric("+algorithm.weights[i].key+")\">Delete</a></p></th>";
         html_list += "</tr>";
       }
     } else {

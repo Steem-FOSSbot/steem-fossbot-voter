@@ -1351,7 +1351,7 @@ function updateWeightMetric(query, apiKey, callback) {
 deleteWeightMetric(index, apiKey, callback):
 * update weight metric
 */
-function deleteWeightMetric(index, apiKey, callback) {
+function deleteWeightMetric(key, apiKey, callback) {
   console.log("deleteWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
     if (callback) {
@@ -1365,13 +1365,10 @@ function deleteWeightMetric(index, apiKey, callback) {
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
     var newWeights = [];
-    var key;
     for (var i = 0 ; i < algorithm.weights.length ; i++) {
-      if (i != index) {
+      if (algorithm.weights[i].key.localeCompare(key) != 0) {
         newWeights.push(algorithm.weights[i]);
-      } else {
-        key = algorithm.weights[i].key;
-      }
+      } // else don't add, effectively delete
     }
     algorithm.weights = newWeights;
     persistJson("algorithm", algorithm, null);

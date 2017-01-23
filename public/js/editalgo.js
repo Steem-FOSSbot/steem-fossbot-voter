@@ -1,5 +1,5 @@
-function deleteMetric(idx) {
-	window.location.href = "/edit-algo?api_key="+getApiKey(window.location.href)+"&remove="+idx;
+function deleteMetric(key) {
+	window.location.href = "/edit-algo?api_key="+getApiKey(window.location.href)+"&delete="+key;
 }
 
 function testAlgo() {

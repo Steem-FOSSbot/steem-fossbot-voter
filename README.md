@@ -20,6 +20,8 @@ The bot works by scoring each new post using a collection of rules which are set
 
 Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for every minute since the post was created.
 
+These rules, called an algorithm, is editable through the server app Dashboard, and you can also view run statistics, logs and tests here.
+
 The server is designed to be triggered periodically for a bot run iteration, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually on the dashboard provided, or even by a HTTP GET method to ```/run-bot?json=true&api_key=BOT_API_KEY``` endpoint, which is used internally and can be used externally by a seperate app.
 
 Please see the [discussion doc page](/docs/discussion.md) for in depth details on e curation algorithm and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md).
@@ -31,9 +33,10 @@ Open the bot dashboard using your Heroku app root URL, as above. All operations 
 The operations you can perform are:
 
 - Run bot now (WILL VOTE)
-- Check bot stats and logs
-- Edit curation algorithm values and weight
+- Check bot stats (this is pretty cool)
+- Edit curation algorithm weights and white / black lists
 - Run algorithm test (does not actually vote)
+- View last log (same as email log)
 
 ## Installation
 

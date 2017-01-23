@@ -28,6 +28,7 @@ _Finally, there is a usage limit to the free account on Heroku which you should 
 	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
 	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
 	6. **SENDGRID_API_KEY** (optional), set to SendGrid API key, _which you will set up later_ if you want email notifications, so leave as default 'none' for now
+	7. **COOKIE_SECRET** Change this to a random string to secure your sessions cookies, where your BOT_API_KEY will be stored in the browser. It doesn't matter what it is but make it **unique**.
 5. Click the _Deploy_ button
 6. **Wait**, this process can take up to five minutes, do not refresh your browser.
 

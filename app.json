@@ -10,6 +10,7 @@
   	"BOT_API_KEY": "",
   	"EMAIL_ADDRESS_TO": "none",
   	"EMAIL_ADDRESS_SENDER": "none",
-  	"SENDGRID_API_KEY": "none"
+  	"SENDGRID_API_KEY": "none",
+    "COOKIE_SECRET": "pk7uKiAbQHcVxNBLQVnBwbwd"
   }
 }

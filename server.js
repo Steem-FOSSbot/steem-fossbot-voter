@@ -38,13 +38,16 @@ var
   html_stats_run4 = "";
 
 var
-  html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.",
+  html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.<br/><br/>You might need to supply your API key again in at the <a href=\"/\">Dashboard</a>",
   html_msg_run_bot_body = "Bot successfully run.<br/>The votes will take a few seconds to be cast and registered on Steemit because of cast limiting.<br/>You can check the logs in a few minutes or wait for the email if you have set that up.";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
+// set up cookies and session
+app.use(express.cookieParser());
+app.use(express.session({secret: process.env.COOKIE_SECRET}));
 
 // Start server
 app.listen(app.get('port'), function() {
@@ -220,13 +223,13 @@ app.get("/", function(req, res) {
 * /stats
 */
 app.get("/stats", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/stats Unauthorized", "stats: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/stats Unauthorized", "stats: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
+  console.log("req.session.api_key = "+req.session.api_key);
   //res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
@@ -283,11 +286,10 @@ app.get("/stats", function(req, res) {
 * /stats
 */
 app.get("/last-log", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/last-log Unauthorized", "last-log: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/last-log Unauthorized", "last-log: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
   lib.getPersistentString("last_log_html", function(logs) {
@@ -438,11 +440,10 @@ app.get("/get-algo", function(req, res) {
  * optional json=true
  */
 app.get("/run-bot", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
   lib.runBot(function(obj) {
@@ -475,13 +476,9 @@ app.get("/run-bot", function(req, res) {
 });
 
 /*
- * /run-bot endpoint
- *
- * Starts an iteration of the bot mainLoop
- *
- * Example usage:
- * /run-bot?api_key=1234
+ * TO DELETE
  */
+/*
 app.get("/run-bot", function(req, res) {
   if (!req.query.api_key) {
     handleError(res, "/run-bot Unauthorized", "Run bot: api_key not supplied", 401);
@@ -499,14 +496,14 @@ app.get("/run-bot", function(req, res) {
     }
   });
 });
+*/
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
   if (req.query.delete) {
@@ -558,14 +555,13 @@ app.get("/edit-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
-  console.log("/edit-algo POST request");
-  if (!req.body.api_key) {
-    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key not supplied", 401);
-    return;
-  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/edit-algo Unauthorized", "edit-algo: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
+  console.log("/edit-algo POST request");
   // get options from post data
   console.log(" - req.body: "+JSON.stringify(req.body));
   if (req.body.json_algo) {
@@ -752,11 +748,10 @@ function editAlgoExec(res, message) {
 
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/test-algo Unauthorized", "test-algo: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/test-algo Unauthorized", "test-algo: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
   // check for options from query data
@@ -777,11 +772,10 @@ app.get("/test-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
-  if (!req.body.api_key) {
-    handleError(res, "/test-algo Unauthorized", "test-algo: api_key not supplied", 401);
-    return;
-  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/test-algo Unauthorized", "test-algo: api_key invalid", 401);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+  } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
   }
   console.log("/test-algo POST request: "+req);

@@ -775,7 +775,7 @@ function runBot(callback, options) {
         // author metrics
         postsMetrics[i].author_repuation = steem.formatter.reputation(posts[i].author_reputation);
         // get language usage
-        persistentLog("langDetector, available languages: "+JSON.parse(langDetector.getLanguages()));
+        persistentLog("langDetector, available languages: "+langDetector.getLanguages());
         postsMetrics[i].post_has_english_language_use = 0;
         postsMetrics[i].post_has_german_language_use = 0;
         postsMetrics[i].post_has_spanish_language_use = 0;

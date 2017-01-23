@@ -12,17 +12,17 @@ function selectKey(key, weight, lower, upper) {
 	if (weight) {
 		inputWeight.value = weight;
 	} else {
-    inputWeight.value = 0;
+    inputWeight.value = "";
   }
   if (lower) {
 		inputLower.value = lower;
   } else {
-    inputLower.value = 0;
+    inputLower.value = "";
 	}
   if (upper) {
     inputUpper.value = upper;
   } else {
-    inputUpper.value = 0;
+    inputUpper.value = "";
 	}
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }

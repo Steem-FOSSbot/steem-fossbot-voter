@@ -6,6 +6,7 @@
   <div class="row">
     <form class="form-list" action="/edit-algo" method="post">
       <p><a class="btn btn-lg btn-primary btn-block" role="button" href="javascript:exportAlgo()">Export Current Algorithm</a></p>
+      <label for="inputKey" class="sr-only"></label>
       <textarea name="json_algo" id="json_algo" cols="150" rows="10"></textarea>
       <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Import This Algorithm</button>
     </form>
@@ -375,6 +376,34 @@
       <td>Content text</td>
       <td>Boolean</td>
       <th><p>Any keyword on blacklist</p></th>
+    </tr>
+    <tr>
+      <td><a href="javascript:selectKey('post_has_english_language_use')">post_has_english_language_use</a></td>
+      <td>Cultural</td>
+      <td>Content text</td>
+      <td>Boolean</td>
+      <th><p>Significant amount of English language use</p></th>
+    </tr>
+    <tr>
+      <td><a href="javascript:selectKey('post_has_german_language_use')">post_has_german_language_use</a></td>
+      <td>Cultural</td>
+      <td>Content text</td>
+      <td>Boolean</td>
+      <th><p>Significant amount of German language use</p></th>
+    </tr>
+    <tr>
+      <td><a href="javascript:selectKey('post_has_spanish_language_use')">post_has_spanish_language_use</a></td>
+      <td>Cultural</td>
+      <td>Content text</td>
+      <td>Boolean</td>
+      <th><p>Significant amount of Spanish language use</p></th>
+    </tr>
+    <tr>
+      <td><a href="javascript:selectKey('post_has_french_language_use')">post_has_french_language_use</a></td>
+      <td>Cultural</td>
+      <td>Content text</td>
+      <td>Boolean</td>
+      <th><p>Significant amount of French language use</p></th>
     </tr>
     <!-- Content link -->
     <!-- numeric -->

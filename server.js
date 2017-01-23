@@ -778,7 +778,17 @@ function editAlgoExec(res, message) {
     var html_list = "";
     if (algorithm.weights.length > 0) {
       for (var i = 0 ; i < algorithm.weights.length ; i++) {
-        html_list += "<tr><td>"+algorithm.weights[i].key+"</td><td>"+algorithm.weights[i].value+"</td>";
+        html_list += "<tr><td><a href=\"javascript:selectKey(\'"+algorithm.weights[i].key+"\', "+algorithm.weights[i].value;
+        if (algorithm.weights[i].hasOwnProperty("lower")) {
+          html_list += ", "+algorithm.weights[i].lower;
+          if (algorithm.weights[i].hasOwnProperty("upper")) {
+            html_list += ", 0";
+          }
+        }
+        if (algorithm.weights[i].hasOwnProperty("upper")) {
+          html_list += ", "+algorithm.weights[i].upper;
+        }
+        html_list += ")\">"+algorithm.weights[i].key+"</a></td><td>"+algorithm.weights[i].value+"</td>";
         if (algorithm.weights[i].hasOwnProperty("lower")) {
           html_list += "<td>"+algorithm.weights[i].lower+"</td>";
         } else {

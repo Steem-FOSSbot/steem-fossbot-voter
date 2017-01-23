@@ -2,12 +2,30 @@ function deleteMetric(key) {
 	window.location.href = "/edit-algo?delete="+key;
 }
 
-function selectKey(key) {
+function selectKey(key, weight, lower, upper) {
 	var input = document.getElementById('inputKey');
 	if (input) {
 		input.value = key;
-		document.body.scrollTop = document.documentElement.scrollTop = 0;
 	}
+	if (weight) {
+    var inputWeight = document.getElementById('inputWeight');
+    if (inputWeight) {
+      inputWeight.value = weight;
+    }
+	}
+  if (lower) {
+    var inputLower = document.getElementById('inputLower');
+    if (inputLower) {
+      inputLower.value = lower;
+    }
+  }
+  if (upper) {
+    var inputUpper = document.getElementById('inputUpper');
+    if (inputUpper) {
+      inputWeight.value = upper;
+    }
+  }
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 
 function exportAlgo() {

@@ -231,12 +231,12 @@ app.get("/", function(req, res) {
 app.get("/stats", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
     console.log("created session_key cookie for client: "+cookieSessionKey);
-    cookies.set("session_key", cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
@@ -301,12 +301,13 @@ app.get("/stats", function(req, res) {
 app.get("/last-log", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
@@ -463,12 +464,13 @@ app.get("/get-algo", function(req, res) {
 app.get("/run-bot", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
@@ -529,12 +531,13 @@ app.get("/run-bot", function(req, res) {
 app.get("/edit-algo", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
@@ -590,12 +593,13 @@ app.get("/edit-algo", function(req, res) {
 app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
@@ -789,12 +793,13 @@ function editAlgoExec(res, message) {
 app.get("/test-algo", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;
@@ -819,12 +824,13 @@ app.get("/test-algo", function(req, res) {
 app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
+    var cookies = new Cookies(req, res, {httpOnly: false});
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
-    cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;

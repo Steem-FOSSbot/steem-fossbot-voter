@@ -1,5 +1,5 @@
 function loadChart() {
-	$.getJSON( "/stats-data-json?api_key="+getApiKey(window.location.href)+"&summary=true", function(data) {
+	$.getJSON( "/stats-data-json?api_key="+getCookie("api_key")+"&summary=true", function(data) {
 		var numPostsData = ['Num posts processed'];
 		var numVotesData = ['Num votes cast'];
 		var timeSeries = ['x'];
@@ -69,14 +69,13 @@ function loadChart() {
 
 window.onload = loadChart;
 
-function getApiKey(url) {
-	var apiKey = "";
-	var parts = window.location.href.split("&");
-	for (var i = 0 ; i < parts.length ; i++) {
-		var idx = parts[i].search("api_key=");
-		if (idx >= 0) {
-			var apiKey = parts[i].substring(idx + 8, parts[i].length);
-		}
-	}
-	return apiKey;
+function getCookie(cname) {
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1);
+    if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+  }
+  return "";
 }

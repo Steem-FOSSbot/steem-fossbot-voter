@@ -805,9 +805,15 @@ function runBot(callback, options) {
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
-                value = (upper - lower) + 1;
+                value = (upper - lower);
+                if (value > 0 && lower > 0) {
+                  value++;
+                }
               } else {
-                value = (value - lower) + 1;
+                value = (value - lower);
+                if (value > 0 && lower > 0) {
+                  value++;
+                }
               }
               //persistentLog(" - - - - - after bounding: "+value);
             }

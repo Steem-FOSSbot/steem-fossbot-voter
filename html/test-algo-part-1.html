@@ -1,51 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    
-    <title>Test Algorithm - Voter</title>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+  <title>Test Algorithm - Voter</title>
 
-    <!-- Custom styles for this template -->
-    <link href="css/edit-algo.css" rel="stylesheet">
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
+  <!-- Custom styles for this template -->
+  <link href="css/edit-algo.css" rel="stylesheet">
 
-  <body>
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Voter</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/">Dashboard</a></li>
-            <li><a href="https://github.com/evm2p/steem-fossbot-voter/blob/develop/docs/algorithm.md">Docs</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+<body>
 
-    <div class="container-fluid">
-      <h1 class="page-header">Test Algorithm</h1>
-      <!--h2 class="sub-header">Message</h2-->
-      <div class="row">
-        <div class="col-sm-4">
-          <p><a class="btn btn-primary" href="/test-algo?limit=5&amp;api_key=
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Voter</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="https://github.com/evm2p/steem-fossbot-voter/blob/develop/docs/algorithm.md">Docs</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <h1 class="page-header">Test Algorithm</h1>
+  <!--h2 class="sub-header">Message</h2-->
+  <div class="row">
+    <div class="col-sm-4">
+      <p><a class="btn btn-primary" href="/test-algo?limit=5" role="button">Test Newest 5 Posts</a></p>
+    </div>
+    <div class="col-sm-4">
+      <p><strong>OR</strong></p>
+    </div>
+    <div class="col-sm-4">
+      <form class="form-add" action="/test-algo" method="post">
+        <label for="inputAuthor" class="sr-only">Author</label>
+        <input type="text" id="inputAuthor" name="author" class="form-control" placeholder="Author" required>
+        <label for="inputPermlink" class="sr-only">Permlink</label>
+        <input type="text" id="inputPermlink" name="permlink" class="form-control" placeholder="Permlink" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Test Post</button>
+      </form>
+    </div>
+  </div>
+
+  <h2 class="sub-header">Post test results</h2>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Post title</th>
+        <th>Score</th>
+        <th>Vote</th>
+      </tr>
+      </thead>
+      <tbody>

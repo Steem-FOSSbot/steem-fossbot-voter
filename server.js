@@ -31,8 +31,6 @@ var
   html_editAlgo4 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "",
-  html_testAlgo3 = "",
-  html_testAlgo4 = "",
   html_last_log1 = "",
   html_last_log2 = "",
   html_stats1 = "",
@@ -139,14 +137,6 @@ function loadFiles() {
   loadFileToString("/html/test-algo-part-2.html", function(str) {
     html_testAlgo2 = str;
     console.log("got /html/test-algo-part-2.html from file");
-  });
-  loadFileToString("/html/test-algo-part-3.html", function(str) {
-    html_testAlgo3 = str;
-    console.log("got /html/test-algo-part-3.html from file");
-  });
-  loadFileToString("/html/test-algo-part-4.html", function(str) {
-    html_testAlgo4 = str;
-    console.log("got /html/test-algo-part-4.html from file");
   });
   loadFileToString("/html/last-log-1.html", function(str) {
     html_last_log1 = str;
@@ -813,13 +803,9 @@ app.get("/test-algo", function(req, res) {
     testAlgoExec(res, {test: true, limit: 5});
   } else {
     res.send(200, 
-      html_testAlgo1 
-      + process.env.BOT_API_KEY
-      + html_testAlgo2
-      + process.env.BOT_API_KEY
-      + html_testAlgo3
+      html_testAlgo1
       + html_test_emptyList
-      + html_testAlgo4
+      + html_testAlgo2
       );
   }
 });
@@ -844,13 +830,8 @@ app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, r
     testAlgoExec(res, {test: true, author: req.body.author, permlink: req.body.permlink});
   } else {
     res.send(200, 
-      html_testAlgo1 
-      + process.env.BOT_API_KEY
+      html_testAlgo1
       + html_testAlgo2
-      + process.env.BOT_API_KEY
-      + html_testAlgo3
-      + html_test_emptyList
-      + html_testAlgo4
       );
   }
 });
@@ -873,13 +854,9 @@ function testAlgoExec(res, options) {
       html_list = html_test_emptyList;
     }
     res.send(200, 
-      html_testAlgo1 
-      + process.env.BOT_API_KEY
-      + html_testAlgo2
-      + process.env.BOT_API_KEY
-      + html_testAlgo3
+      html_testAlgo1
       + html_list
-      + html_testAlgo4
+      + html_testAlgo2
       );
   }, options);
 }

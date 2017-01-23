@@ -1,9 +1,5 @@
 function deleteMetric(key) {
-	window.location.href = "/edit-algo?api_key="+getApiKey(window.location.href)+"&delete="+key;
-}
-
-function testAlgo() {
-	window.location.href = "/test-algo?api_key="+getApiKey(window.location.href);
+	window.location.href = "/edit-algo?delete="+key;
 }
 
 function selectKey(key) {
@@ -15,7 +11,7 @@ function selectKey(key) {
 }
 
 function exportAlgo() {
-	$.getJSON( "/get-algo?api_key="+getApiKey(window.location.href), function(data) {
+	$.getJSON( "/get-algo?session_key="+getCookie("session_key"), function(data) {
 		var textArea = document.getElementById('json_algo');
 		if (textArea) {
 			textArea.value = data;
@@ -23,26 +19,14 @@ function exportAlgo() {
 	});
 }
 
-window.onload = function() {
-  var apiKey = getApiKey(window.location.href);
-  var hiddenInput1 = document.getElementById('metrics_api_key');
-  if (hiddenInput1) {
-  	hiddenInput1.value = apiKey;
+function getCookie(cname) {
+  console.log("getCookie: all cookies: "+document.cookie);
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1);
+    if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
   }
-  var hiddenInput2 = document.getElementById('import_export_api_key');
-  if (hiddenInput2) {
-  	hiddenInput2.value = apiKey;
-  }
-};
-
-function getApiKey(url) {
-	var apiKey = "";
-	var parts = window.location.href.split("&");
-	for (var i = 0 ; i < parts.length ; i++) {
-		var idx = parts[i].search("api_key=");
-		if (idx >= 0) {
-			var apiKey = parts[i].substring(idx + 8, parts[i].length);
-		}
-	}
-	return apiKey;
+  return "";
 }

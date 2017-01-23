@@ -57,7 +57,6 @@
             <input type="number" name="lower" id="inputLower" class="form-control" placeholder="Lower bound(optional)">
             <label for="inputUpper" class="sr-only">Upper bound (optional)</label>
             <input type="number" name="upper" id="inputUpper" class="form-control" placeholder="Upper bound (optional)">
-            <input type="hidden" name="api_key" value="" id="metrics_api_key">
             <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Add Rule</button>
           </form>
         </div>
@@ -101,11 +100,6 @@
         </table>
       </div>
 
-      <div class="row">
-        <div class="col-sm-2">
-          <p><a class="btn btn-primary" role="button" href="javascript:testAlgo()">Test Algorithm</a></p>
-        </div>
-      </div>
       <h2 class="sub-header">Edit lists</h2>
       <div class="row">
         <p><italic>Separate terms with spaces only</italic></p>
@@ -181,7 +175,6 @@
             <p><a class="btn btn-lg btn-primary btn-block" role="button" href="javascript:exportAlgo()">Export Current Algorithm</a></p>
             <label for="inputKey" class="sr-only"></label>
             <textarea name="json_algo" id="json_algo" cols="150" rows="10"></textarea>
-            <input type="hidden" name="api_key" value="" id="import_export_api_key">
             <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Import This Algorithm</button>
           </form>
         </div>

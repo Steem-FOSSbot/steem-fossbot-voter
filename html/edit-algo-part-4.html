@@ -6,9 +6,7 @@
   <div class="row">
     <form class="form-list" action="/edit-algo" method="post">
       <p><a class="btn btn-lg btn-primary btn-block" role="button" href="javascript:exportAlgo()">Export Current Algorithm</a></p>
-      <label for="inputKey" class="sr-only"></label>
       <textarea name="json_algo" id="json_algo" cols="150" rows="10"></textarea>
-      <input type="hidden" name="api_key" value="" id="import_export_api_key">
       <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Import This Algorithm</button>
     </form>
   </div>

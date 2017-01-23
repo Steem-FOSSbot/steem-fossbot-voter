@@ -22,6 +22,7 @@
   "homepage": "https://github.com/evm2p/steem-fossbot-voter",
   "dependencies": {
     "body-parser": "^1.13.3",
+    "cookie-parser": "^1.4.3",
     "express": "^4.13.3",
     "steem": "0.4.2",
     "sendgrid": "^4.2.0",

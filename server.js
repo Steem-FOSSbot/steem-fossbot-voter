@@ -5,6 +5,7 @@ const
   express = require("express"),
   path = require("path"),
   bodyParser = require("body-parser"),
+  cookieParser = require('cookie-parser'),
   fs = require('fs'),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
@@ -46,8 +47,7 @@ app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 // set up cookies and session
-app.use(express.cookieParser());
-app.use(express.session({secret: process.env.COOKIE_SECRET}));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Start server
 app.listen(app.get('port'), function() {

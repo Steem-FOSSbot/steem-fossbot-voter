@@ -58,7 +58,7 @@ The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is cen
 
 Several other Node NPM libraries are used as dependencies (thier source is not included in this repo). Thanks to their creators!
 
-- [express](https://www.npmjs.com/package/express) and [body-parser](https://www.npmjs.com/package/body-parser) by dougwilson, as basic glue used by nearly every Node.js app
+- [express](https://www.npmjs.com/package/express), [body-parser](https://www.npmjs.com/package/body-parser) and [cookie-parser](https://www.npmjs.com/package/cookie-parser) by dougwilson, as basic glue used by nearly every Node.js app
 - [sendgrid](https://www.npmjs.com/package/sendgrid) by thinkingserious, to send email notifications
 - [Q](https://www.npmjs.com/package/q) by kriskowal, to promise-ify and de-callback-hell-ify the long process of running a bot iteration
 - [redis](https://www.npmjs.com/package/redis) by bridgear, to access a redis simple database

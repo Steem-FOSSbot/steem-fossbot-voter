@@ -242,7 +242,7 @@ app.get("/stats", function(req, res) {
       return;
     } else {
       for (var i = 0 ; i < keys.length ; i++) {
-        html += "<li><a href=\"/stats?api_key="+process.env.BOT_API_KEY+"&pd_key="+keys[i].key+"\">"
+        html += "<li><a href=\"/stats?pd_key="+keys[i].key+"\">"
           +(new Date(keys[i].date))+"</a></li>"
       }
     }
@@ -695,14 +695,14 @@ function editAlgoExec(res, message) {
     for (var i = 0 ; i < algorithm.authorWhitelist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.authorWhitelist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author whitelist</button></form></div>";
     //author_blacklist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
     html_whiteblacklists += "<textarea name=\"author_blacklist\" cols=\"60\" rows=\"3\">";
     for (var i = 0 ; i < algorithm.authorBlacklist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.authorBlacklist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author blacklist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Author blacklist</button></form></div>";
     html_whiteblacklists += "</div><div class=\"row\">";
     //content_category_whitelist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
@@ -710,14 +710,14 @@ function editAlgoExec(res, message) {
     for (var i = 0 ; i < algorithm.contentCategoryWhitelist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentCategoryWhitelist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag whitelist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag whitelist</button></form></div>";
     //content_category_blacklist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
     html_whiteblacklists += "<textarea name=\"content_category_blacklist\" cols=\"60\" rows=\"3\">";
     for (var i = 0 ; i < algorithm.contentCategoryBlacklist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentCategoryBlacklist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag blacklist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Category and Tag blacklist</button></form></div>";
     html_whiteblacklists += "</div><div class=\"row\">";
     //content_word_whitelist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
@@ -725,14 +725,14 @@ function editAlgoExec(res, message) {
     for (var i = 0 ; i < algorithm.contentWordWhitelist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentWordWhitelist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Word whitelist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Word whitelist</button></form></div>";
     //content_word_blacklist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
     html_whiteblacklists += "<textarea name=\"content_word_blacklist\" cols=\"60\" rows=\"3\">";
     for (var i = 0 ; i < algorithm.contentWordBlacklist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.contentWordBlacklist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Word blacklist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Content Word blacklist</button></form></div>";
     html_whiteblacklists += "</div><div class=\"row\">";
     //domain_whitelist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
@@ -740,14 +740,14 @@ function editAlgoExec(res, message) {
     for (var i = 0 ; i < algorithm.domainWhitelist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.domainWhitelist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Domain whitelist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Domain whitelist</button></form></div>";
     //domain_blacklist
     html_whiteblacklists += "<div class=\"col-sm-4\"><form class=\"form-list\" action=\"/edit-algo\"><label for=\"inputKey\" class=\"sr-only\"></label>";
     html_whiteblacklists += "<textarea name=\"domain_blacklist\" cols=\"60\" rows=\"3\">";
     for (var i = 0 ; i < algorithm.domainBlacklist.length ; i++) {
       html_whiteblacklists += ((i > 0) ? " " : "") + algorithm.domainBlacklist[i];
     }
-    html_whiteblacklists += "</textarea><input type=\"hidden\" name=\"api_key\" value=\""+process.env.BOT_API_KEY+"\"><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Domain blacklist</button></form></div>";
+    html_whiteblacklists += "</textarea><button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"POST\">Update Domain blacklist</button></form></div>";
 
     console.log(" - algorithm: "+JSON.stringify(algorithm));
     var html_list = "";

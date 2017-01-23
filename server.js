@@ -235,8 +235,9 @@ app.get("/stats", function(req, res) {
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
+    console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey);
-    console.log("created session_key cookie for client: "+cookies.get("session_key"));
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
   } else if (!req.session.api_key  || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
     return;

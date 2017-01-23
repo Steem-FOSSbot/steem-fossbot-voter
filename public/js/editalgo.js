@@ -4,27 +4,26 @@ function deleteMetric(key) {
 
 function selectKey(key, weight, lower, upper) {
 	var input = document.getElementById('inputKey');
-	if (input) {
-		input.value = key;
-	}
+  var inputWeight = document.getElementById('inputWeight');
+  var inputLower = document.getElementById('inputLower');
+  var inputUpper = document.getElementById('inputUpper');
+  // set values
+  input.value = key; //required
 	if (weight) {
-    var inputWeight = document.getElementById('inputWeight');
-    if (inputWeight) {
-      inputWeight.value = weight;
-    }
-	}
+		inputWeight.value = weight;
+	} else {
+    inputWeight.value = 0;
+  }
   if (lower) {
-    var inputLower = document.getElementById('inputLower');
-    if (inputLower) {
-      inputLower.value = lower;
-    }
-  }
+		inputLower.value = lower;
+  } else {
+    inputLower.value = 0;
+	}
   if (upper) {
-    var inputUpper = document.getElementById('inputUpper');
-    if (inputUpper) {
-      inputWeight.value = upper;
-    }
-  }
+    inputUpper.value = upper;
+  } else {
+    inputUpper.value = 0;
+	}
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 

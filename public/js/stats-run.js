@@ -19,6 +19,7 @@ function loadChart() {
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
 		var numData_threshold = ['Threshold'];
+    var numData_min = ['Minimum'];
 		var numData_metrics = [];
 		var metricsNames = [];
 		// first, create metrics arrays
@@ -37,6 +38,7 @@ function loadChart() {
 			xTicks.push(data.postsMetadata[i].title);
 			numData_score_total.push(data.postsMetadata[i].score.toFixed(2));
 			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total.toFixed(2));
+      numData_min.push(data.postsMetadata[i].thresholdInfo.hasOwnProperty("min") ? data.postsMetadata[i].thresholdInfo.min.toFixed(2) : 0);
 			// metrics
 			metrics = data.postsMetadata[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metricsNames.length ; j++) {
@@ -68,7 +70,8 @@ function loadChart() {
 		    	columns: [
 		    		xTicks,
 		    		numData_score_total,
-		    		numData_threshold
+		    		numData_threshold,
+            numData_min
 		    	],
 		    	type: 'bar',
 		    	types: {
@@ -76,7 +79,8 @@ function loadChart() {
 		    	},
 		    	colors: {
 		    		'Total score': '#1f77b4',
-		    		Threshold: '#ff7f0e'
+		    		Threshold: '#ff7f0e',
+						Minimum: '#7f7f7f'
 		    	}
 		    },
 		    bar: {

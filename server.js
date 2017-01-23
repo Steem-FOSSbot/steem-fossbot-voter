@@ -781,7 +781,7 @@ function editAlgoExec(res, message) {
         html_list += "<tr><td><a href=\"javascript:selectKey(\'"+algorithm.weights[i].key+"\', "+algorithm.weights[i].value;
         if (algorithm.weights[i].hasOwnProperty("lower")) {
           html_list += ", "+algorithm.weights[i].lower;
-          if (algorithm.weights[i].hasOwnProperty("upper")) {
+          if (!algorithm.weights[i].hasOwnProperty("upper")) {
             html_list += ", 0";
           }
         }

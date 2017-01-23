@@ -334,9 +334,14 @@ app.get("/stats-data-json", function(req, res) {
   if (!req.query.api_key && !req.query.session_key) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401);
     return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0
-      && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key invalid", 401);
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
+    return;
+  } else {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: unknown error, api_key or session_key error", 401);
     return;
   }
   if (req.query.pd_key) {
@@ -436,9 +441,14 @@ app.get("/get-algo", function(req, res) {
   if (!req.query.api_key && !req.query.session_key) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401);
     return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0
-    && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key invalid", 401);
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
+    return;
+  } else {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: unknown error, api_key or session_key error", 401);
     return;
   }
   lib.getPersistentJson("algorithm", function(algorithm) {

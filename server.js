@@ -340,9 +340,6 @@ app.get("/stats-data-json", function(req, res) {
   } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
     return;
-  } else {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: unknown error, api_key or session_key error", 401);
-    return;
   }
   if (req.query.pd_key) {
     redisClient.get(req.query.pd_key, function(err, postsMetadata) {
@@ -446,9 +443,6 @@ app.get("/get-algo", function(req, res) {
     return;
   } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
-    return;
-  } else {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: unknown error, api_key or session_key error", 401);
     return;
   }
   lib.getPersistentJson("algorithm", function(algorithm) {

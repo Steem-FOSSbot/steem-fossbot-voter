@@ -70,6 +70,7 @@ Several other Node NPM libraries are used as dependencies (thier source is not i
 - [string](https://www.npmjs.com/package/string) by az7arul, for misc super powered string manipulation
 - [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
+- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written langauge of the content (latin script only) 
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
 
 ## Disclaimer

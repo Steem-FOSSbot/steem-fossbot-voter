@@ -819,7 +819,7 @@ function runBot(callback, options) {
             }
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
-            persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+scoreDetail.total);
+            persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);
           } else {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
@@ -875,6 +875,7 @@ function runBot(callback, options) {
         if (threshold < MIN_SCORE_THRESHOLD) {
           threshold = MIN_SCORE_THRESHOLD;
           // stats
+          thresholdInfo.min = MIN_SCORE_THRESHOLD;
           thresholdInfo.percentInc = 0;
           thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;

@@ -81,6 +81,10 @@ Also please note that development of this project was done piece-wise, and there
 
 ## Changelog
 
+- v0.1.2
+  - add first version of stats, with pretty charts
+  - upgrade session management to be more secure and have better user experience. now only enter key once and some 'service' endpoints use temporary key to get data
+  - misc bug fixes and updates to docs, etc.
 - v0.1.1
   - break out vote counting to up and down votes; if metric bounds calculation
   - add /stats-data-json and /get-algo endpoints to get last algo run stats and current algo, respectively

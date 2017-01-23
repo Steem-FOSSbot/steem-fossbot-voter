@@ -1,5 +1,5 @@
 function loadChart() {
-	$.getJSON( "/stats-data-json?api_key="+getCookie("api_key")+"&summary=true", function(data) {
+	$.getJSON( "/stats-data-json?session_key="+getCookie("session_key")+"&summary=true", function(data) {
 		var numPostsData = ['Num posts processed'];
 		var numVotesData = ['Num votes cast'];
 		var timeSeries = ['x'];

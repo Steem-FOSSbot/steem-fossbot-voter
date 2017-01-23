@@ -732,7 +732,7 @@ function editAlgoExec(res, message) {
           html_list += "<td>-</td>";
         }
         // TODO : add href url delete to button
-        html_list += "<th><p><a class=\"btn btn-default\" role=\"button\" href=\"javascript:deleteMetric("+algorithm.weights[i].key+")\">Delete</a></p></th>";
+        html_list += "<th><p><a class=\"btn btn-default\" role=\"button\" href=\"javascript:deleteMetric(\""+algorithm.weights[i].key+"\")\">Delete</a></p></th>";
         html_list += "</tr>";
       }
     } else {

@@ -3,6 +3,7 @@
 const
   lib = require("./lib.js"),
   express = require("express"),
+  expressSession = require('express-session'),
   path = require("path"),
   bodyParser = require("body-parser"),
   cookieParser = require('cookie-parser'),
@@ -47,7 +48,8 @@ app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 // set up cookies and session
-app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cookieParser());
+app.use(expressSession({secret: process.env.COOKIE_SECRET}));
 
 // Start server
 app.listen(app.get('port'), function() {

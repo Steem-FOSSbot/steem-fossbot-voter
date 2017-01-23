@@ -232,7 +232,6 @@ app.get("/stats", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -302,7 +301,6 @@ app.get("/last-log", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -465,7 +463,6 @@ app.get("/run-bot", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -532,7 +529,6 @@ app.get("/edit-algo", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -594,7 +590,6 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -794,7 +789,6 @@ app.get("/test-algo", function(req, res) {
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }
@@ -825,7 +819,6 @@ app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, r
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
-    Math.randomSeed((new Date()).getTime());
     if (cookieSessionKey.length < 1) {
       cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
     }

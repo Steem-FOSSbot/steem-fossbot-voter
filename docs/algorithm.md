@@ -71,17 +71,18 @@ _TODO_
  
 There are some settings (which are currently not editable) which effect the algorithm too. The number in brackets is the default value:
 
-1. **MAX_POST_TO_READ** (100): Max number of posts fetched. Any more than this will be discarded
-2. **CAPITAL_DOLPHIN_MIN** (25,000): Minimum Steem Power to qualify as a _dolphin_
-3. **CAPITAL_WHALE_MIN** (100,000): Minimum Steem Power to qualify as a _whale_
-4. **MIN_KEYWORD_LEN** (4): Minimum number of characters for a word to be considered a keyword
-5. **MIN_SCORE_THRESHOLD** (50): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
-6. **SCORE_THRESHOLD_INC_PC** (0.1 i.e. 10%): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
-7. **NUM_POSTS_FOR_AVG_WINDOW** (20): Maximum number of posts used for averaging window used to determine baseline threshold score
-8. **MAX_VOTES_IN_24_HOURS** (40): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
-9. **MIN_WORDS_FOR_ARTICLE** (100): Minimum number of words for a post to be considered as having article content.
-10. **DAYS_KEEP_LOGS** (5): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
-11. **MIN_POST_AGE_TO_CONSIDER** (30): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
+1. **MAX_POST_TO_READ** (```100```): Max number of posts fetched. Any more than this will be discarded
+2. **CAPITAL_DOLPHIN_MIN** (```25,000```): Minimum Steem Power to qualify as a _dolphin_
+3. **CAPITAL_WHALE_MIN** (```100,000```): Minimum Steem Power to qualify as a _whale_
+4. **MIN_KEYWORD_LEN** (```4```): Minimum number of characters for a word to be considered a keyword
+5. **MIN_SCORE_THRESHOLD** (```50```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
+6. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
+7. **NUM_POSTS_FOR_AVG_WINDOW** (```20```): Maximum number of posts used for averaging window used to determine baseline threshold score
+8. **MAX_VOTES_IN_24_HOURS** (```40```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
+9. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
+10. **DAYS_KEEP_LOGS** (```5```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
+11. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
+12. **MIN_LANGUAGE_USAGE_PC** (```0.35``` i.e. ```35%```): Minimum amount of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
 
 ## Metrics in detail
 
@@ -202,6 +203,10 @@ Using NLP, we can parse the text content and get the topic, keywords and _sentim
 4. ```post_any_tag_blacklisted```: Any tag on blacklist
 3. ```post_any_keyword_whitelisted```: Any keyword on whitelist
 4. ```post_any_keyword_blacklisted```: Any keyword on blacklist
+5. ```post_has_english_language_use```: Significant amount of English language use
+6. ```post_has_german_language_use```: Significant amount of German language use
+7. ```post_has_spanish_language_use```: Significant amount of Spanish language use
+8. ```post_has_french_language_use```: Significant amount of French language use
 
 ##### Proposed, not implemented, need to create topic trainer for natural js library
 

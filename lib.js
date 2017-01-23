@@ -68,7 +68,11 @@ const
       "post_very_short",
       "post_images_only",
       "post_videos_only",
-      "post_mixed_links_only"
+      "post_mixed_links_only",
+      "post_has_english_language_use",
+      "post_has_german_language_use",
+      "post_has_spanish_language_use",
+      "post_has_french_language_use"
       ];
 
 const
@@ -84,7 +88,9 @@ const
   retext = require('retext'),
   sentiment = require('retext-sentiment'),
   wait = require('wait.for'),
-  extra = require('./extra.js');
+  extra = require('./extra.js'),
+  LanguageDetect = require('languagedetect'),
+  langDetector = new LanguageDetect();
 
 const
   MILLIS_IN_DAY = 86400000;
@@ -100,7 +106,8 @@ var
   MAX_VOTES_IN_24_HOURS = 40,
   MIN_WORDS_FOR_ARTICLE = 100,
   DAYS_KEEP_LOGS = 5,
-  MIN_POST_AGE_TO_CONSIDER = 30;
+  MIN_POST_AGE_TO_CONSIDER = 30,
+  MIN_LANGUAGE_USAGE_PC = 0.35;
 
 /* Private variables */
 var fatalError = false;
@@ -606,7 +613,6 @@ function runBot(callback, options) {
         while((urlResult = urlRegex.exec(posts[i].body)) !== null) {
           nlp.urls.push(urlResult[0]);
         }
-        //persistentLog(" - - nlp.urls: "+JSON.stringify(nlp.urls));
         // sentiment
         retext()
           .use(sentiment)
@@ -768,6 +774,28 @@ function runBot(callback, options) {
         postsMetrics[i].post_any_link_domains_blacklisted = (postsMetrics[i].post_num_link_domains_blacklisted > 0) ? 1 : 0;
         // author metrics
         postsMetrics[i].author_repuation = steem.formatter.reputation(posts[i].author_reputation);
+        // get language usage
+        persistentLog("langDetector, available languages: "+JSON.parse(langDetector.getLanguages()));
+        postsMetrics[i].post_has_english_language_use = 0;
+        postsMetrics[i].post_has_german_language_use = 0;
+        postsMetrics[i].post_has_spanish_language_use = 0;
+        postsMetrics[i].post_has_french_language_use = 0;
+        var languages = langDetector.detect(nlp.content);
+        for (var j = 0 ; j < languages.length ; j++) {
+          if (languages[j][0].localeCompare('english') == 0
+              && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            postsMetrics[i].post_has_english_language_use = 1;
+          } else if (languages[j][0].localeCompare('german') == 0
+            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            postsMetrics[i].post_has_german_language_use = 1;
+          } else if (languages[j][0].localeCompare('spanish') == 0
+            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            postsMetrics[i].post_has_spanish_language_use = 1;
+          } else if (languages[j][0].localeCompare('french') == 0
+            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            postsMetrics[i].post_has_french_language_use = 1;
+          }
+        }
       }
       // finish
       persistentLog(" - finished gathering metrics");

@@ -230,8 +230,11 @@ app.get("/stats", function(req, res) {
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
@@ -291,6 +294,8 @@ app.get("/stats", function(req, res) {
 * /stats
 */
 app.get("/last-log", function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -300,8 +305,11 @@ app.get("/last-log", function(req, res) {
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   lib.getPersistentString("last_log_html", function(logs) {
@@ -458,6 +466,8 @@ app.get("/get-algo", function(req, res) {
  * optional json=true
  */
 app.get("/run-bot", function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -467,8 +477,11 @@ app.get("/run-bot", function(req, res) {
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   lib.runBot(function(obj) {
@@ -525,6 +538,8 @@ app.get("/run-bot", function(req, res) {
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -534,8 +549,11 @@ app.get("/edit-algo", function(req, res) {
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   if (req.query.delete) {
@@ -587,6 +605,8 @@ app.get("/edit-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -596,8 +616,11 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   console.log("/edit-algo POST request");
@@ -787,6 +810,8 @@ function editAlgoExec(res, message) {
 
 // GET /edit-algo
 app.get("/test-algo", function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -796,8 +821,11 @@ app.get("/test-algo", function(req, res) {
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   // check for options from query data
@@ -814,6 +842,8 @@ app.get("/test-algo", function(req, res) {
 
 // POST /edit-algo
 app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {
     req.session.api_key = req.query.api_key;
     var cookies = new Cookies(req, res);
@@ -823,8 +853,11 @@ app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, r
     console.log("created session_key cookie for client: "+cookieSessionKey);
     cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
     console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: no API key, please restart your session", 401);
+  } else if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
   console.log("/test-algo POST request: "+req);

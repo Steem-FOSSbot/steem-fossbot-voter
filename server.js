@@ -625,7 +625,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     query["upper"] = req.body.upper;
   }
   // update
-  lib.updateWeightMetric(query, req.body.api_key, function(result) {
+  lib.updateWeightMetric(query, process.env.BOT_API_KEY, function(result) {
     console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
     // show edit-algo as normal
     editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  

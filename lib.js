@@ -14,16 +14,26 @@ const
       "post_est_payout",
       "post_num_upvotes",
       "post_num_downvotes",
-      "post_voted_num_dolphin",
-      "post_voted_num_whale",
-      "post_voted_num_followed",
-      "post_voted_num_whitelisted",
-      "post_voted_num_blacklisted",
-      "post_voted_any_dolphin",
-      "post_voted_any_whale",
-      "post_voted_any_followed",
-      "post_voted_any_whitelisted",
-      "post_voted_any_blacklisted",
+      "post_up_voted_num_dolphin",
+      "post_up_voted_num_whale",
+      "post_up_voted_num_followed",
+      "post_up_voted_num_whitelisted",
+      "post_up_voted_num_blacklisted",
+      "post_down_voted_num_dolphin",
+      "post_down_voted_num_whale",
+      "post_down_voted_num_followed",
+      "post_down_voted_num_whitelisted",
+      "post_down_voted_num_blacklisted",
+      "post_up_voted_any_dolphin",
+      "post_up_voted_any_whale",
+      "post_up_voted_any_followed",
+      "post_up_voted_any_whitelisted",
+      "post_up_voted_any_blacklisted",
+      "post_down_voted_any_dolphin",
+      "post_down_voted_any_whale",
+      "post_down_voted_any_followed",
+      "post_down_voted_any_whitelisted",
+      "post_down_voted_any_blacklisted",
       "author_capital_val",
       "author_is_minnow",
       "author_is_dolphin",
@@ -75,11 +85,6 @@ const
   sentiment = require('retext-sentiment'),
   wait = require('wait.for'),
   extra = require('./extra.js');
-
-const
-  MINNOW = 0,
-  DOLPHIN = 1,
-  WHALE = 2;
 
 const
   MILLIS_IN_DAY = 86400000;
@@ -351,15 +356,17 @@ function runBot(callback, options) {
         persistentLog(" - - metrics.post.est_payout: "+metric.post_est_payout);
         //post_num_upvotes: Number of up votes (normal votes for a post)
         //post_num_downvotes: Number of flags / downvotes
-        metric.post_num_upvotes = 0;
-        metric.post_num_downvotes = 0;
+        posts[i].up_votes = [];
+        posts[i].down_votes = [];
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
           if (posts[i].active_votes[j].percent < 0) {
-            metric.post_num_downvotes++;
+            posts[i].down_votes.push(posts[i].active_votes[j]);
           } else {
-            metric.post_num_upvotes++;
+            posts[i].up_votes.push(posts[i].active_votes[j]);
           }
         }
+        metric.post_num_upvotes = posts[i].up_votes.length;
+        metric.post_num_downvotes = posts[i].down_votes.length;
         persistentLog(" - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
         persistentLog(" - - metrics.post.post_num_downvotes: "+metric.post_num_downvotes);
         // add author and voters to user fetch list
@@ -410,55 +417,94 @@ function runBot(callback, options) {
         // *** VOTES IN DETAIL
         // note, should do this last, has complex nesting that we need to use Q to sort out
         //persistentLog(" - - * VOTES IN DETAIL");
-        var numDolphins = 0;
-        var numWhales = 0;
-        var numFollowed = 0;
-        var numWhitelisted = 0;
-        var numBlacklisted = 0;
-        for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
+        // up votes
+        postsMetrics[i].post_up_voted_num_dolphin = 0;
+        postsMetrics[i].post_up_voted_num_whale = 0;
+        postsMetrics[i].post_up_voted_num_followed = 0;
+        postsMetrics[i].post_up_voted_num_whitelisted = 0;
+        postsMetrics[i].post_up_voted_num_blacklisted = 0;
+        for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
           //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
-          var voter = posts[i].active_votes[j].voter;
+          var voter = posts[i].up_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
             var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
             if (steemPower >= CAPITAL_WHALE_MIN) {
-              numWhales++;
+              postsMetrics[i].post_up_voted_num_whale++;
             } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
-              numDolphins++;
+              postsMetrics[i].post_up_voted_num_dolphin++;
             }
             // determine if followed, count
             for (var k = 0 ; k < following.length ; k++) {
               if (following[k] && following[k].localeCompare(voter) == 0) {
-                numFollowed++;
+                postsMetrics[i].post_up_voted_num_followed++;
               }
             }
             // determine if white / blacklisted, count
             for (var k = 0 ; k < algorithm.authorWhitelist.length ; k++) {
               if (algorithm.authorWhitelist[k] && algorithm.authorWhitelist[k].localeCompare(voter) == 0) {
-                numWhitelisted++;
+                postsMetrics[i].post_up_voted_num_whitelisted++;
               }
             }
             for (var k = 0 ; k < algorithm.authorBlacklist.length ; k++) {
               if (algorithm.authorBlacklist[k] && algorithm.authorBlacklist[k].localeCompare(voter) == 0) {
-                numBlacklisted++;
+                postsMetrics[i].post_up_voted_num_blacklisted++;
               }
             }
           }
         }
-        // numeric
-        postsMetrics[i].post_voted_num_dolphin = numDolphins;
-        postsMetrics[i].post_voted_num_whale = numWhales;
-        postsMetrics[i].post_voted_num_followed = numFollowed;
-        postsMetrics[i].post_voted_num_whitelisted = numWhitelisted;
-        postsMetrics[i].post_voted_num_blacklisted = numBlacklisted;
         // boolean
-        postsMetrics[i].post_voted_any_dolphin = (numDolphins > 0) ? 1 : 0;
-        postsMetrics[i].post_voted_any_whale = (numWhales > 0) ? 1 : 0;
-        postsMetrics[i].post_voted_any_followed = (numFollowed > 0) ? 1 : 0;
-        postsMetrics[i].post_voted_any_whitelisted = (numWhitelisted > 0) ? 1 : 0;
-        postsMetrics[i].post_voted_any_blacklisted = (numBlacklisted > 0) ? 1 : 0;
+        postsMetrics[i].post_up_voted_any_dolphin = (postsMetrics[i].post_up_voted_num_dolphin > 0) ? 1 : 0;
+        postsMetrics[i].post_up_voted_any_whale = (postsMetrics[i].post_up_voted_num_whale > 0) ? 1 : 0;
+        postsMetrics[i].post_up_voted_any_followed = (postsMetrics[i].post_up_voted_num_followed > 0) ? 1 : 0;
+        postsMetrics[i].post_up_voted_any_whitelisted = (postsMetrics[i].post_up_voted_num_whitelisted > 0) ? 1 : 0;
+        postsMetrics[i].post_up_voted_any_blacklisted = (postsMetrics[i].post_up_voted_num_blacklisted > 0) ? 1 : 0;
+        // down votes
+        postsMetrics[i].post_down_voted_num_dolphin = 0;
+        postsMetrics[i].post_down_voted_num_whale = 0;
+        postsMetrics[i].post_down_voted_num_followed = 0;
+        postsMetrics[i].post_down_voted_num_whitelisted = 0;
+        postsMetrics[i].post_down_voted_num_blacklisted = 0;
+        for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
+          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          var voter = posts[i].down_votes[j].voter;
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
+            && users[voter]) {
+            var voterAccount = users[voter];
+            // determine if dolphin or whale, count
+            var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
+            if (steemPower >= CAPITAL_WHALE_MIN) {
+              postsMetrics[i].post_down_voted_num_whale++;
+            } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
+              postsMetrics[i].post_down_voted_num_dolphin++;
+            }
+            // determine if followed, count
+            for (var k = 0 ; k < following.length ; k++) {
+              if (following[k] && following[k].localeCompare(voter) == 0) {
+                postsMetrics[i].post_down_voted_num_followed++;
+              }
+            }
+            // determine if white / blacklisted, count
+            for (var k = 0 ; k < algorithm.authorWhitelist.length ; k++) {
+              if (algorithm.authorWhitelist[k] && algorithm.authorWhitelist[k].localeCompare(voter) == 0) {
+                postsMetrics[i].post_down_voted_num_whitelisted++;
+              }
+            }
+            for (var k = 0 ; k < algorithm.authorBlacklist.length ; k++) {
+              if (algorithm.authorBlacklist[k] && algorithm.authorBlacklist[k].localeCompare(voter) == 0) {
+                postsMetrics[i].post_down_voted_num_blacklisted++;
+              }
+            }
+          }
+        }
+        // boolean
+        postsMetrics[i].post_down_voted_any_dolphin = (postsMetrics[i].post_down_voted_num_dolphin > 0) ? 1 : 0;
+        postsMetrics[i].post_down_voted_any_whale = (postsMetrics[i].post_down_voted_num_whale > 0) ? 1 : 0;
+        postsMetrics[i].post_down_voted_any_followed = (postsMetrics[i].post_down_voted_num_followed > 0) ? 1 : 0;
+        postsMetrics[i].post_down_voted_any_whitelisted = (postsMetrics[i].post_down_voted_num_whitelisted > 0) ? 1 : 0;
+        postsMetrics[i].post_down_voted_any_blacklisted = (postsMetrics[i].post_down_voted_num_blacklisted > 0) ? 1 : 0;
       }
       // finish
       deferred.resolve(true);

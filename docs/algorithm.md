@@ -109,19 +109,29 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Numeric
 
-1. ```post_voted_num_dolphin```: Number of voters with captial category _dolphin_ who voted on post
-2. ```post_voted_num_whale```: Number of voters with captial category _whale_ who voted on post
-3. ```post_voted_num_followed```: Number of followed voters who voted on post
-4. ```post_voted_num_whitelisted```: Number of whitelisted voters who voted on post
-5. ```post_voted_num_blacklisted```: Number of blacklisted voters who voted on post
+1. ```post_up_voted_num_dolphin```: Number of voters with captial category _dolphin_ who **up** voted on post
+2. ```post_up_voted_num_whale```: Number of voters with captial category _whale_ who **up** voted on post
+3. ```post_up_voted_num_followed```: Number of followed voters who **up** voted on post
+4. ```post_up_voted_num_whitelisted```: Number of whitelisted voters who **up** voted on post
+5. ```post_up_voted_num_blacklisted```: Number of blacklisted voters who **up** voted on post
+6. ```post_down_voted_num_dolphin```: Number of voters with captial category _dolphin_ who **down** voted on post
+7. ```post_down_voted_num_whale```: Number of voters with captial category _whale_ who **down** voted on post
+8. ```post_down_voted_num_followed```: Number of followed voters who **down** voted on post
+9. ```post_down_voted_num_whitelisted```: Number of whitelisted voters who **down** voted on post
+10. ```post_down_voted_num_blacklisted```: Number of blacklisted voters who **down** voted on post
 
 ##### Boolean
 
-1. ```post_voted_any_dolphin```: At least one voter with captial category _dolphin_ as voted on post
-2. ```post_voted_any_whale```: At least one voter with captial category _whale_ as voted on post
-3. ```post_voted_any_followed```: At least one followed voter voted on post
-4. ```post_voted_any_whitelisted```: At least one whitelist voter voted on post
-5. ```post_voted_any_blacklisted```: At least one blacklist voter voted on post
+1. ```post_up_voted_any_dolphin```: At least one voter with captial category _dolphin_ **up** voted on post
+2. ```post_up_voted_any_whale```: At least one voter with captial category _whale_ **up** voted on post
+3. ```post_up_voted_any_followed```: At least one followed voter **up** voted on post
+4. ```post_up_voted_any_whitelisted```: At least one whitelist voter **up** voted on post
+5. ```post_up_voted_any_blacklisted```: At least one blacklist voter **up** voted on post
+6. ```post_down_voted_any_dolphin```: At least one voter with captial category _dolphin_ **down** voted on post
+7. ```post_down_voted_any_whale```: At least one voter with captial category _whale_ **down** voted on post
+8. ```post_down_voted_any_followed```: At least one followed voter **down** voted on post
+9. ```post_down_voted_any_whitelisted```: At least one whitelist voter **down** voted on post
+10. ```post_down_voted_any_blacklisted```: At least one blacklist voter **down** voted on post
 
 #### Author of Post
 

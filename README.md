@@ -53,6 +53,7 @@ All original programming is under the CC0 license and so it completely open and 
 Included in this repo are the following libraries:
 
 - [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license, copyright to Twitter. The license document is in the root folder.
+- [jQuery](https://github.com/jquery/jquery) is used as a dependency of Bootstrap, and for grabbing stats and algorithm data on request from the browser. It is copyright JS Foundation and other contributors and used my permission of the license
 - MD5 Hashing algorithm ([modified from this source](http://www.queness.com/code-snippet/6523/generate-md5-hash-with-javascript) by Paul Johnston and Greg Holt is under copyright and licensed under the BSD license. Legal text [available here](http://pajhome.org.uk/site/legal.html)
 - C3js is used for charting stats data and is under [MIT license](/LICENSE-c3), copyright Masayuki Tanaka
 - D3js is a dependency for CSjs, and is under [3-part BSD license](/LICENSE-d3), copyright Michael Bostock

@@ -648,7 +648,7 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
       var deferred = Q.defer();
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        //persistentLog(" - postsMetrics ["+i+"]");
+        persistentLog(" - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
         // content - text
         postsMetrics[i].post_num_chars = nlp.content.length;
@@ -662,11 +662,11 @@ function runBot(callback, options) {
           try {
             var metadata = JSON.parse(posts[i].json_metadata);
             if (metadata && metadata.hasOwnProperty("tags")) {
-              //persistentLog(" - - checking tags");
+              //persistentLog(" - - checking tags: "+metadata.tags);
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
                 postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
-                postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
+                postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentCategoryBlacklist.indexOf(tag) > 0) ? 1 : 0;
               }
             } else {
               persistentLog(" - - no tags to check");

@@ -20,9 +20,17 @@ Be encouraged though that it is certainly possible to set up without any existin
 
 To get started, see the [installation instructions](/docs/installation.md).
 
+### And what is it NOT?
+
+This bot is not
+
+1. **A down vote / flagging bot**. You cannot down vote anyone, though it would be trivial to add it to the source, I have not provided this option.
+2. **A professional solution or customer ready app**. This is more of a "hobby" grade project in its current form. It operates as described and achieves a lot but it does not have a highly developed UI, code security review and the code needs some clean up and refactoring.
+3. **A comment spamming or auto-post bot**. It's just for (up) voting.
+
 ## How it works
 
-See my [original Steemit post here](https://steemit.com/curation/@personz/5qnnnx-free-open-source-steemit-bot-proposal-and-question) where this idea was proposed.
+See the [original Steemit post here](https://steemit.com/curation/@personz/5qnnnx-free-open-source-steemit-bot-proposal-and-question) where this idea was proposed.
 
 ### Definition of problem
 

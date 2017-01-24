@@ -83,6 +83,7 @@ Also please note that development of this project was done piece-wise, and there
 
 ## Changelog
 
+- v0.1.3, add language detection (some European languages only), remove jQuery CDN dependency, add minimum threshold to score chart, some bug fixes and docs updates
 - v0.1.2
   - add first version of stats, with pretty charts
   - upgrade session management to be more secure and have better user experience. now only enter key once and some 'service' endpoints use temporary key to get data

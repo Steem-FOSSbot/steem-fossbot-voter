@@ -107,7 +107,7 @@ var
   MIN_WORDS_FOR_ARTICLE = 100,
   DAYS_KEEP_LOGS = 5,
   MIN_POST_AGE_TO_CONSIDER = 30,
-  MIN_LANGUAGE_USAGE_PC = 0.3;
+  MIN_LANGUAGE_USAGE_PC = 0.1;
 
 /* Private variables */
 var fatalError = false;
@@ -779,21 +779,22 @@ function runBot(callback, options) {
         postsMetrics[i].post_has_german_language_use = 0;
         postsMetrics[i].post_has_spanish_language_use = 0;
         postsMetrics[i].post_has_french_language_use = 0;
-        var languages = langDetector.detect(nlp.content);
-        persistentLog(" - language detect for ["+posts[i].permlink+"] :"+languages);
-        for (var j = 0 ; j < languages.length ; j++) {
-          if (languages[j][0].localeCompare('english') == 0
-              && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+        var detectedLanguages = langDetector.detect(nlp.content);
+        persistentLog(" - language detect for ["+posts[i].permlink+"] :"+detectedLanguages);
+        if (detectedLanguages.length > 0 && detectedLanguages[0][1] > MIN_LANGUAGE_USAGE_PC) {
+          var language = detectedLanguages[0][0];
+          if (language.localeCompare('english') == 0) {
             postsMetrics[i].post_has_english_language_use = 1;
-          } else if (languages[j][0].localeCompare('german') == 0
-            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            persistentLog(" - - post is in English");
+          } else if (language.localeCompare('german') == 0) {
             postsMetrics[i].post_has_german_language_use = 1;
-          } else if (languages[j][0].localeCompare('spanish') == 0
-            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            persistentLog(" - - post is in German");
+          } else if (language.localeCompare('spanish') == 0) {
             postsMetrics[i].post_has_spanish_language_use = 1;
-          } else if (languages[j][0].localeCompare('french') == 0
-            && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {
+            persistentLog(" - - post is in Spanish");
+          } else if (language.localeCompare('french') == 0) {
             postsMetrics[i].post_has_french_language_use = 1;
+            persistentLog(" - - post is in French");
           }
         }
       }

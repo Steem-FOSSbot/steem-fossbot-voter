@@ -780,6 +780,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_has_spanish_language_use = 0;
         postsMetrics[i].post_has_french_language_use = 0;
         var languages = langDetector.detect(nlp.content);
+        persistentLog(" - language detect: "+languages);
         for (var j = 0 ; j < languages.length ; j++) {
           if (languages[j][0].localeCompare('english') == 0
               && languages[j][1] > MIN_LANGUAGE_USAGE_PC) {

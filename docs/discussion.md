@@ -18,7 +18,7 @@ We recognise that there is a investment of time and patience required to set thi
 
 Be encouraged though that it is certainly possible to set up without any existing technical knowledge, just a user's knowledge of Steem and patience to follow the tutorial.
 
-To get started, see the [insatllation instructions](/docs/installation.md).
+To get started, see the [installation instructions](/docs/installation.md).
 
 ## How it works
 
@@ -38,7 +38,7 @@ There are a lot of other peripheral influences for a cultural vote. Perhaps you 
 
 #### Strategic curation
 
-Strategic curation votes for posts that will yeild the best curration reward, and over time votes in a pattern which maximises reward in the long term. Any user of Steem will know that the "best" posts do not always get the highest rewards, and sometimes "undeserving" posts get very high rewards. The existence of betting, games, competitions, and the presence of whales, etc. complicates matter significantly.
+Strategic curation votes for posts that will yeild the best curration reward, and over time votes in a pattern which maximises reward in the long term. Any user of Steem will know that the "best" posts do not always get the highest rewards, and sometimes "undeserving" posts get very high rewards. The existence of betting, games, competitions, and the presence of whales, etc. complicates matters significantly.
 
 #### In conflict but also collaboration
 
@@ -50,9 +50,9 @@ A wholistic solution will include both aspects, cultural and strategy. They inte
 
 #### Reducing complexity
 
-_Note: voting is assumed to be at full 100% power here_
+_Note: voting power is always set to 100% at present in the app_
 
-When we visit at Steemit.com, we see new posts. If we visit periodically we will have a collection of new posts which we could potentially vote for. We'll call this set ```N```.
+When we visit at Steemit.com, we see new posts since our last visit. If we visit periodically we will have a collection of new posts which we could potentially vote for. We will only vote on posts that are at least 30 minutes old, since this is the period after which curation payout is at 100% (see [this article](https://steemit.com/steem/@abit/new-curation-reward-algorithm-huge-penalty-to-early-voters)), and it also gives us some data about what kind of attention the post has already attracted.
 
 We must reduce the complex question of whether or not to vote on a post to a simple yes or no for each post. To reduce it a little less, say we calculate a numeric score for each post, and choose the post to vote on based on some criteria. This scoring process will be multi-dimensional but we can make each dimension simple enough to calculate with a simple test, and then combine each individual score.
 
@@ -62,7 +62,7 @@ In the simpliest case, we would choose to vote on any post which had a score gre
 
 #### Constrained by vote frequency
 
-Let's say we have scored all the posts in ```N```. Since voting is **rate limited**, each time a vote is cast the next vote's power is reduced, and it is restored slowly in periods of voting inactivity.
+Let's say we have scored all the new posts we're interested in. Since voting is **rate limited** (by time), each time a vote is cast the next vote's power is reduced, and it is restored slowly in periods of voting inactivity.
 
 From the [Steem White Paper](https://steem.io/SteemWhitePaper.pdf), pg 18:
 

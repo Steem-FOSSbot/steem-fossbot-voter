@@ -75,7 +75,8 @@ function loadChart() {
 		    	],
 		    	type: 'bar',
 		    	types: {
-		    		Threshold: 'area'
+		    		Threshold: 'area',
+            Minimum: 'area'
 		    	},
 		    	colors: {
 		    		'Total score': '#1f77b4',

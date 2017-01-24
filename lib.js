@@ -882,7 +882,9 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       for (var i = 0 ; i < posts.length ; i++) {
-        var thresholdInfo = {};
+        var thresholdInfo = {
+          min: MIN_SCORE_THRESHOLD
+        };
         // add this score first, if meets minimum
         if (postsMetadata[i].score >= MIN_SCORE_THRESHOLD) {
         	avgWindowInfo.postScores.push(postsMetadata[i].score);
@@ -909,7 +911,6 @@ function runBot(callback, options) {
         if (threshold < MIN_SCORE_THRESHOLD) {
           threshold = MIN_SCORE_THRESHOLD;
           // stats
-          thresholdInfo.min = MIN_SCORE_THRESHOLD;
           thresholdInfo.percentInc = 0;
           thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;

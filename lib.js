@@ -779,7 +779,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_has_german_language_use = 0;
         postsMetrics[i].post_has_spanish_language_use = 0;
         postsMetrics[i].post_has_french_language_use = 0;
-        var detectedLanguages = langDetector.detect(nlp.content);
+        var detectedLanguages = langDetector.detect(posts[i].body);
         persistentLog(" - language detect for ["+posts[i].permlink+"] :"+detectedLanguages);
         if (detectedLanguages.length > 0 && detectedLanguages[0][1] > MIN_LANGUAGE_USAGE_PC) {
           var language = detectedLanguages[0][0];

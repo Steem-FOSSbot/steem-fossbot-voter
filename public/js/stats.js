@@ -3,10 +3,27 @@ function loadChart() {
 		var numPostsData = ['Num posts processed'];
 		var numVotesData = ['Num votes cast'];
 		var timeSeries = ['x'];
+		var dayRegions = [];
+		var lastDay = -1;
+		var regionOn = false;
+		var start = -1;
 		for (var i = 0 ; i < data.summary.length ; i++) {
 			numPostsData.push(data.summary[i].num_posts);
 			numVotesData.push(data.summary[i].num_votes);
-			timeSeries.push(data.summary[i].date);
+			timeSeries.push(data.summary[i].date_str);
+			if (data.summary[i].date_day != lastDay) {
+        lastDay = data.summary[i].date_day;
+        regionOn = !regionOn;
+        if (regionOn) {
+          start = i;
+				} else {
+          dayRegions.push({axis: 'x', start: start, end: i, class: 'regionX'});
+          start = -1;
+				}
+			}
+			if (start >= 0) {
+        dayRegions.push({axis: 'x', start: start, end: (data.summary.length -1), class: 'regionX'});
+			}
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',
@@ -18,18 +35,20 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-		    axis: {
-		    	x: {
-		    		type: 'timeseries',
-		    		localtime: true,
-		    		tick: {
-		    			format: '%Y-%m-%d %H:%M:%S'
-		    		}
-		    	}
-		    },
+				regions: dayRegions,
+				axis: {
+					x: {
+						type: 'category',
+						tick: {
+							rotate: 90,
+							multiline: false
+						},
+						height: 300
+					}
+				},
 		    bar: {
 		    	width: {
-		    		ratio: 0.2
+		    		ratio: 0.4
 		    	}
 		    },
     		color: {
@@ -46,18 +65,20 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-		    axis: {
-		    	x: {
-		    		type: 'timeseries',
-		    		localtime: true,
-		    		tick: {
-		    			format: '%Y-%m-%d %H:%M:%S'
-		    		}
-		    	}
-		    },
+      	regions: dayRegions,
+				axis: {
+					x: {
+						type: 'category',
+						tick: {
+							rotate: 90,
+							multiline: false
+						},
+						height: 300
+					}
+				},
 		    bar: {
 		    	width: {
-		    		ratio: 0.2
+		    		ratio: 0.4
 		    	}
 		    },
     		color: {

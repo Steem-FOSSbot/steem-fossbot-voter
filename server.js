@@ -255,9 +255,9 @@ app.get("/stats", function(req, res) {
         var dateTime = moment_tz.tz(keys[i].date, lib.TIME_ZONE);
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
-          html += dateTime.format("MM/DD/YYYY HH:mm");
+          html += dateTime.format("MMM Do YYYY HH:mm");
         } else {
-          html += " - " + dateTime.format("HH:mm");
+          html += " --- --- " + dateTime.format("HH:mm");
         }
         html += "</a></li>";
       }
@@ -284,7 +284,7 @@ app.get("/stats", function(req, res) {
           html_stats_run1 
           + html
           + html_stats_run2
-          + (new Date(lib.getEpochMillis(postsMetadata[0].time)))
+          + (moment_tz.tz(lib.getEpochMillis(postsMetadata[0].time), lib.TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);
@@ -411,9 +411,11 @@ app.get("/stats-data-json", function(req, res) {
                 numVotes++;
               }
             }
+            var dateTime = moment_tz.tz(keys[i].date, lib.TIME_ZONE);
             summary.push({
               date: keys[i].date,
-              date_str: ("" + new Date(keys[i].date)),
+              date_str: (dateTime.format("MM/DD//YY HH:mm")),
+              date_day: dateTime.date(),
               num_posts: postsMetadataList[i].postsMetadata.length,
               num_votes: numVotes
             });

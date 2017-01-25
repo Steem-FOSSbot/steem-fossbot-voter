@@ -894,7 +894,7 @@ function runBot(callback, options) {
         // recalculate avgerage based on window value
         persistentLog(" - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
         var avg = 0;
-        var maxScore = 0;
+        var maxScore = MIN_SCORE_THRESHOLD;
         var count = 0;
         for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
           if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
@@ -925,9 +925,18 @@ function runBot(callback, options) {
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
           thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow(owner.num_votes_today / MAX_VOTES_IN_24_HOURS, 2);
+          if (thresholdInfo.voteAdjustmentInc < 0) {
+            thresholdInfo.voteAdjustmentInc = 0;
+          }
+          if (thresholdInfo.voteAdjustmentInc > maxScore) {
+            thresholdInfo.voteAdjustmentInc = maxScore;
+          }
           threshold += thresholdInfo.voteAdjustmentInc;
           thresholdInfo.total = threshold;
-          avgWindowInfo.scoreThreshold = threshold;
+          if (thresholdInfo.total < MIN_SCORE_THRESHOLD) {
+            thresholdInfo.total = MIN_SCORE_THRESHOLD;
+          }
+          avgWindowInfo.scoreThreshold = thresholdInfo.total;
         }
         postsMetadata[i].thresholdInfo = thresholdInfo;
         avgWindowInfo.scoreThreshold = threshold;

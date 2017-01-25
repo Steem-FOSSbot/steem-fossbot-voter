@@ -818,10 +818,14 @@ function runBot(callback, options) {
           total: 0,
           metrics: []
         };
+        var numWeightsAboveMinThreshold = 0;
         for (var j = 0 ; j < algorithm.weights.length ; j++) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
             var value = metric[algorithm.weights[j].key];
             var weight = algorithm.weights[j].value;
+            if (weight >= MIN_SCORE_THRESHOLD) {
+              numWeightsAboveMinThreshold++;
+            }
             if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
               var lower = 0;
               var upper = Number.MAX_VALUE;
@@ -860,6 +864,7 @@ function runBot(callback, options) {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
+        scoreDetail.useAvgOnly = (numWeightsAboveMinThreshold <= 1);
         persistentLog(" - - FINAL SCORE: "+scoreDetail.total);
         postsMetadata.push(
           {
@@ -883,6 +888,7 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
+      var upVotesProcessed = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {
           min: MIN_SCORE_THRESHOLD
@@ -916,6 +922,14 @@ function runBot(callback, options) {
           thresholdInfo.percentInc = 0;
           thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;
+        } else if (postsMetadata[i].scoreDetail.useAvgOnly) {
+          thresholdInfo.percentInc = 0;
+          if ((owner.num_votes_today + upVotesProcessed) > MAX_VOTES_IN_24_HOURS) {
+            thresholdInfo.voteAdjustmentInc = (threshold * 0.5);
+          } else {
+            thresholdInfo.voteAdjustmentInc = 0;
+          }
+          thresholdInfo.total = threshold + thresholdInfo.voteAdjustmentInc;
         } else {
           // first apply percentage increase on threshold,
           //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
@@ -924,7 +938,7 @@ function runBot(callback, options) {
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow(owner.num_votes_today / MAX_VOTES_IN_24_HOURS, 2);
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ MAX_VOTES_IN_24_HOURS, 2);
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;
           }
@@ -949,8 +963,9 @@ function runBot(callback, options) {
 
         // check if post score is above threshold, set to vote if is
         var toVote = false;
-        if (postsMetadata[i].score > avgWindowInfo.scoreThreshold) {
+        if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
           toVote = true;
+          upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
         } else {
           persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");

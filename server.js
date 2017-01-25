@@ -364,11 +364,12 @@ app.get("/last-log", function(req, res) {
     return;
   }
   lib.getPersistentString("last_log_html", function(logs) {
-    var html_logs = createMsgPageHTML("Last log", "No logs yet, please run bot for first time!");
-    if (logs != null) {
-      html_logs = logs;
+    if (logs == null) {
+      var html_logs = createMsgPageHTML("Last log", "No logs yet, please run bot for first time!");
+      res.send(200, html_logs);
+      return;
     }
-    saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
+    saveStringToFile("public/tmp-stats.html", logs, function(err) {
       if (err) {
         handleError(res, "can't save temp file", "/last-log: can't save temp file", 500);
       } else {

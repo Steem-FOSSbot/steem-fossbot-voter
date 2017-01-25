@@ -256,7 +256,8 @@ app.get("/stats", function(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
-      handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
+      var html = createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.");
+      res.send(200, html);
       console.log("No keys for /stats");
       return;
     } else {

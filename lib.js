@@ -928,9 +928,6 @@ function runBot(callback, options) {
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;
           }
-          if (thresholdInfo.voteAdjustmentInc > maxScore) {
-            thresholdInfo.voteAdjustmentInc = maxScore;
-          }
           threshold += thresholdInfo.voteAdjustmentInc;
           thresholdInfo.total = threshold;
           if (thresholdInfo.total < MIN_SCORE_THRESHOLD) {

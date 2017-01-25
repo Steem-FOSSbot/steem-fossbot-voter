@@ -233,7 +233,7 @@ app.post("/", function(req, res) {
   cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
   console.log("check cookie for session_key: "+cookies.get("session_key"));
   dashboardExec(req, res);
-}
+});
 
 function dashboardExec(req, res) {
   var html = "";

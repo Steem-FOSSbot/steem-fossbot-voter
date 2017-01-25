@@ -13,6 +13,7 @@ const
   redisClient = require('redis').createClient(process.env.REDIS_URL),
   wait = require('wait.for'),
   extra = require('./extra.js'),
+  moment_tz = require('moment-timezone'),
   moment = require('moment');
 
 var cookieSessionKey = "";
@@ -251,7 +252,7 @@ app.get("/stats", function(req, res) {
       var lastDay = -1;
       for (var i = (keys.length - 1) ; i >= 0 ; i--) {
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"\">"
-        var dateTime = moment.tz(keys[i].date, lib.TIME_ZONE);
+        var dateTime = moment_tz.tz(keys[i].date, lib.TIME_ZONE);
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
           html += dateTime.format("MM/DD/YYYY HH:mm");

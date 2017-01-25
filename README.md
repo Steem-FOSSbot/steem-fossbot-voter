@@ -1,6 +1,6 @@
 # Voter
 
-A Steem FOSSbot
+A Steem FOSSbot, by [personz](https://steemit.com/@personz)
 
 Full documentation is [available here](/docs/index.md).
 

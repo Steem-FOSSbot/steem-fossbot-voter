@@ -10,7 +10,7 @@ Full documentation is [available here](/docs/index.md).
 
 _Voter_ is a bot for Steem which decides which posts to vote for and casts vote on behalf of a registered user. It is built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
 
-This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to other if you wish.
+This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to others if you wish.
 
 You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/evm2p/steem-fossbot-voter#usage) below for more details.
 
@@ -22,11 +22,11 @@ The bot works by scoring each new post using a collection of rules which are set
 
 Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for every minute since the post was created.
 
-These rules, called an algorithm, is editable through the server app Dashboard, and you can also view run statistics, logs and tests here.
+These rules, called an algorithm, are editable through the server app Dashboard, and you can also view run statistics, logs and tests here.
 
 The server is designed to be triggered periodically for a bot run iteration, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually on the dashboard provided, or even by a HTTP GET method to ```/run-bot?json=true&api_key=BOT_API_KEY``` endpoint, which is used internally and can be used externally by a seperate app.
 
-Please see the [discussion doc page](/docs/discussion.md) for in depth details on e curation algorithm and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md).
+Please see the [discussion doc page](/docs/discussion.md) for in depth details on the curation algorithm and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md).
 
 ## Usage
 
@@ -52,17 +52,17 @@ Make sure to read the instructions though! Heroku has a basic free plan but if n
 
 All original programming is under the CC0 license and so it completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
 
-Included in this repo are the following libraries:
+Included in this repo are the following libraries, and all licenses are in the root folder of the project, except where stated:
 
-- [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the MIT license, copyright to Twitter. The license document is in the root folder.
-- [jQuery](https://github.com/jquery/jquery) is used as a dependency of Bootstrap, and for grabbing stats and algorithm data on request from the browser. It is copyright JS Foundation and other contributors and used my permission of the license
-- MD5 Hashing algorithm ([modified from this source](http://www.queness.com/code-snippet/6523/generate-md5-hash-with-javascript) by Paul Johnston and Greg Holt is under copyright and licensed under the BSD license. Legal text [available here](http://pajhome.org.uk/site/legal.html)
-- C3js is used for charting stats data and is under [MIT license](/LICENSE-c3), copyright Masayuki Tanaka
-- D3js is a dependency for CSjs, and is under [3-part BSD license](/LICENSE-d3), copyright Michael Bostock
+- [Bootstrap](https://getbootstrap.com/) is used for web frontend, and so included in this repo, and is under the [MIT license](/LICENSE-Bootstrap), copyright to Twitter.
+- [jQuery](https://github.com/jquery/jquery) is used as a dependency of Bootstrap, and for grabbing stats and algorithm data on request from the browser. It is copyright JS Foundation and other contributors and used by permission of the [license](/LICENSE-jQuery.txt)
+- MD5 Hashing algorithm ([modified from this source](http://www.queness.com/code-snippet/6523/generate-md5-hash-with-javascript)) by Paul Johnston and Greg Holt is under copyright and licensed under the BSD license. Legal text [available here](http://pajhome.org.uk/site/legal.html) and [at source usage](/extra.js)).
+- [C3js](http://c3js.org/) is used for charting stats data and is under [MIT license](/LICENSE-c3), copyright Masayuki Tanaka
+- [D3js](https://d3js.org/) is a dependency for CSjs, and is under [3-part BSD license](/LICENSE-d3), copyright Michael Bostock
 
 The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is central to the app, a big thank you to the creators. Please [star it on GitHub](https://github.com/adcpm/steem) to support their development and check out their project [Busy](https://github.com/adcpm/busy).
 
-Several other Node NPM libraries are used as dependencies (thier source is not included in this repo). Thanks to their creators!
+Several other Node NPM libraries are used as dependencies. Their source is not included in this repo, but is downloaded when the server is built. Thanks to their creators!
 
 - [express](https://www.npmjs.com/package/express), [express-session](https://www.npmjs.com/package/express-session), [body-parser](https://www.npmjs.com/package/body-parser), [cookie](https://www.npmjs.com/package/cookie) and [cookie-parser](https://www.npmjs.com/package/cookie-parser) by dougwilson, as widely used glue, used by nearly many Node.js apps
 - [sendgrid](https://www.npmjs.com/package/sendgrid) by thinkingserious, to send email notifications
@@ -83,6 +83,8 @@ We are not required to supply terms because we are not running a service. Howeve
 Contributions via pull request are very welcome, as is issues logged via the GitHub issue tracker. You can also suggest features, such as metrics you'd like to see, UI upgrades, etc.
 
 Also please note that development of this project was done piece-wise, and there are many commits with very little added as a commit was required in order to test any code change.
+
+Finally, as mentioned in the [discussion](/docs/discussion.md), this project is not intended as a customer ready solution, it is a kind of "hobby grade" project. As such, **do not expect consumer level support**.
 
 ## Changelog
 

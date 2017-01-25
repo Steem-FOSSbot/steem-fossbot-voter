@@ -218,7 +218,7 @@ app.get("/", function(req, res) {
   dashboardExec(req, res);
 });
 
-app.post("/", function(req, res) {
+app.post("/", bodyParser.urlencoded({extended: false}), function(req, res) {
   if (!req.body.api_key) {
     handleError(res, "/stats Unauthorized", "stats: no api key supplied", 401);
     return;

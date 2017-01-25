@@ -27,6 +27,7 @@ var
   html_msgPage3 = "",
   html_dashboard1 = "",
   html_dashboard2 = "",
+  html_dashboard3 = "",
   html_editAlgo1 = "",
   html_editAlgo2 = "",
   html_editAlgo3 = "",
@@ -115,6 +116,10 @@ function loadFiles() {
   loadFileToString("/html/dashboard-part-2.html", function(str) {
     html_dashboard2 = str;
     console.log("got /html/dashboard-part-2.html from file");
+  });
+  loadFileToString("/html/dashboard-part-3.html", function(str) {
+    html_dashboard3 = str;
+    console.log("got /html/dashboard-part-3.html from file");
   });
   loadFileToString("/html/edit-algo-part-1.html", function(str) {
     html_editAlgo1 = str;
@@ -210,11 +215,17 @@ function saveStringToFile(filename, str, callback) {
 * / [root]
 */
 app.get("/", function(req, res) {
+  var html = "";
+  if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    html = "<div class=\"jumbotron\"><p>Enter BOT_API_KEY, to select a section button below.</p> <form class=\"form-add\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus></form></div>";
+  }
   var html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
   res.send(200, 
-      html_dashboard1 
+      html_dashboard1
+      + html
+      + html_dashboard2
       + html_usercontent
-      + html_dashboard2);
+      + html_dashboard3);
 });
 
 /*

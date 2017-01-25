@@ -72,6 +72,7 @@ Several other Node NPM libraries are used as dependencies (thier source is not i
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
 - [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written langauge of the content (latin script only) 
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
+- [moment](https://www.npmjs.com/package/moment) by ichernev and [moment-timezone](https://www.npmjs.com/package/moment-timezone) by maggiepint, for better date handling, formatting and time zone adjustment
 
 ## Disclaimer
 

@@ -107,7 +107,8 @@ var
   MIN_WORDS_FOR_ARTICLE = 100,
   DAYS_KEEP_LOGS = 5,
   MIN_POST_AGE_TO_CONSIDER = 30,
-  MIN_LANGUAGE_USAGE_PC = 0.1;
+  MIN_LANGUAGE_USAGE_PC = 0.1,
+  TIME_ZONE = "Etc/GMT+3";
 
 /* Private variables */
 var fatalError = false;
@@ -1682,3 +1683,4 @@ module.exports.deleteWeightMetric = deleteWeightMetric;
 module.exports.updateMetricList = updateMetricList;
 module.exports.getPostsMetadataKeys = getPostsMetadataKeys;
 module.exports.getEpochMillis = getEpochMillis;
+module.exports.TIME_ZONE = TIME_ZONE;

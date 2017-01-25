@@ -83,6 +83,7 @@ There are some settings (which are currently not editable) which effect the algo
 10. **DAYS_KEEP_LOGS** (```5```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
 11. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
 12. **MIN_LANGUAGE_USAGE_PC** (```0.3``` i.e. ```35%```): Minimum amount of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
+13. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
 
 ## Metrics in detail
 

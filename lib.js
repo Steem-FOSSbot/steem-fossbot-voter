@@ -936,7 +936,6 @@ function runBot(callback, options) {
         }
         avgWindowInfo.scoreThreshold = thresholdInfo.total;
         postsMetadata[i].thresholdInfo = thresholdInfo;
-        avgWindowInfo.scoreThreshold = threshold;
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size

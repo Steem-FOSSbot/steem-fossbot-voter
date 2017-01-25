@@ -14,7 +14,11 @@ footer {
 }
 
 .jumbotron_red {
-  background-color:#99DDFF
+  background-color: #d8e6ff
+}
+
+.button_form_spacing {
+  margin-left: 10px;
 }
 
 /*

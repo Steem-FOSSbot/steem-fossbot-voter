@@ -221,8 +221,10 @@ app.get("/", function(req, res) {
 app.post("/", function(req, res) {
   if (!req.body.api_key) {
     handleError(res, "/stats Unauthorized", "stats: no api key supplied", 401);
+    return;
   } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     handleError(res, "/stats Unauthorized", "stats: api key is incorrect", 401);
+    return;
   }
   req.session.api_key = req.body.api_key;
   var cookies = new Cookies(req, res);
@@ -240,7 +242,7 @@ function dashboardExec(req, res) {
   if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     html = "<div class=\"jumbotron jumbotron_red\"><p>Enter BOT_API_KEY here and section using the buttons below.</p>" +
       "<form class=\"form-add\" action=\"/\" method=\"post\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus>" +
-      "<button class=\"btn btn-primary\" type=\"submit\" value=\"POST\">Start Session</button>" +
+      "<button class=\"btn btn-primary button_form_spacing\" type=\"submit\" value=\"POST\">Start Session</button>" +
       "</form></div>";
   }
   var html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";

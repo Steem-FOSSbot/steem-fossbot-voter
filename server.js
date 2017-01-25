@@ -219,6 +219,7 @@ app.get("/", function(req, res) {
 * /stats
 */
 app.get("/stats", function(req, res) {
+  console.log("_startTime: "+req._startTime);
   console.log("req.query.api_key = "+req.query.api_key);
   console.log("req.session.api_key = "+req.session.api_key);
   if (req.query.api_key) {

@@ -25,12 +25,10 @@ function loadChart() {
         dayRegions.push({axis: 'x', start: start, end: (data.summary.length -1), class: 'regionX'});
 			}
 		}
+		console.log("dayRegions: "+JSON.stringify(dayRegions));
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',
-        size: {
-          height: 400
-        },
-		    data: {
+        data: {
 		    	x: 'x',
 		    	columns: [
 		    		timeSeries,
@@ -38,15 +36,14 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-				//regions: dayRegions,
+				regions: dayRegions,
 				axis: {
 					x: {
 						type: 'category',
 						tick: {
 							rotate: 90,
 							multiline: false
-						},
-						height: 300
+						}
 					}
 				},
 		    bar: {
@@ -60,10 +57,7 @@ function loadChart() {
 		});
 		var chart_votes = c3.generate({
 		    bindto: '#chart_votes',
-        size: {
-          height: 400
-        },
-		    data: {
+        data: {
 		    	x: 'x',
 		    	columns: [
 		    		timeSeries,
@@ -71,15 +65,14 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-      	//regions: dayRegions,
+      	regions: dayRegions,
 				axis: {
 					x: {
 						type: 'category',
 						tick: {
 							rotate: 90,
 							multiline: false
-						},
-						height: 300
+						}
 					}
 				},
 		    bar: {

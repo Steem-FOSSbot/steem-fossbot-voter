@@ -27,6 +27,9 @@ function loadChart() {
 		}
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',
+        size: {
+          height: 400
+        },
 		    data: {
 		    	x: 'x',
 		    	columns: [
@@ -57,6 +60,9 @@ function loadChart() {
 		});
 		var chart_votes = c3.generate({
 		    bindto: '#chart_votes',
+        size: {
+          height: 400
+        },
 		    data: {
 		    	x: 'x',
 		    	columns: [

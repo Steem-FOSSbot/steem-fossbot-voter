@@ -917,7 +917,7 @@ function runBot(callback, options) {
           thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;
         } else {
-          // first apply precentage increase on threshold,
+          // first apply percentage increase on threshold,
           //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
           thresholdInfo.percentInc = (threshold * SCORE_THRESHOLD_INC_PC);
           threshold += thresholdInfo.percentInc;
@@ -933,8 +933,8 @@ function runBot(callback, options) {
           if (thresholdInfo.total < MIN_SCORE_THRESHOLD) {
             thresholdInfo.total = MIN_SCORE_THRESHOLD;
           }
-          avgWindowInfo.scoreThreshold = thresholdInfo.total;
         }
+        avgWindowInfo.scoreThreshold = thresholdInfo.total;
         postsMetadata[i].thresholdInfo = thresholdInfo;
         avgWindowInfo.scoreThreshold = threshold;
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);

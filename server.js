@@ -238,16 +238,15 @@ app.post("/", bodyParser.urlencoded({extended: false}), function(req, res) {
 });
 
 function dashboardExec(req, res) {
-  var html = "<div class=\"jumbotron jumbotron_red\">";
+  var html = "";
   if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    html += "<p>Enter BOT_API_KEY here and section using the buttons below.</p>" +
+    html += "<div class=\"jumbotron jumbotron_col\"><p>Enter BOT_API_KEY here and section using the buttons below.</p>" +
       "<form class=\"form-add\" action=\"/\" method=\"post\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus>" +
       "<button class=\"btn btn-primary button_form_spacing\" type=\"submit\" value=\"POST\">Start Session</button>" +
-      "</form>";
+      "</form></div>";
   } else {
-    html += "<p>Session is valid, dashboard active</p>";
+    html += "<div class=\"jumbotron jumbotron_col jumbotron_smaller\"><p>Session is valid, dashboard active</p></div>";
   }
-  html += "</div>";
   var html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
   res.send(200,
     html_dashboard1

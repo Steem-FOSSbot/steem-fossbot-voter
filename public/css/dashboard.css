@@ -13,8 +13,13 @@ footer {
   padding: 30px 0;
 }
 
-.jumbotron_red {
+.jumbotron_col {
   background-color: #d8e6ff
+}
+
+.jumbotron_smaller {
+    padding-top: 24px;
+    padding-bottom: 24px;
 }
 
 .button_form_spacing {

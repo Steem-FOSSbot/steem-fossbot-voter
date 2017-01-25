@@ -284,7 +284,7 @@ app.get("/stats", function(req, res) {
           html_stats_run1 
           + html
           + html_stats_run2
-          + (moment_tz.tz(req.query.time, lib.TIME_ZONE).format("MMM Do YYYY HH:mm"))
+          + (moment_tz.tz(Number(req.query.time), lib.TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);

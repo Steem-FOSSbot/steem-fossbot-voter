@@ -17,14 +17,14 @@ function loadChart() {
         if (regionOn) {
           start = i;
 				} else {
-          dayRegions.push({axis: 'x', start: start, end: i, class: 'regionX'});
+          dayRegions.push({axis: 'x', start: start, end: (i - 1), class: 'regionX'});
           start = -1;
 				}
 			}
-			if (start >= 0) {
-        dayRegions.push({axis: 'x', start: start, end: (data.summary.length -1), class: 'regionX'});
-			}
 		}
+    if (start >= 0) {
+      dayRegions.push({axis: 'x', start: start, end: (data.summary.length - 1), class: 'regionX'});
+    }
 		console.log("dayRegions: "+JSON.stringify(dayRegions));
 		var chart_posts = c3.generate({
 		    bindto: '#chart_posts',

@@ -217,7 +217,7 @@ function saveStringToFile(filename, str, callback) {
 app.get("/", function(req, res) {
   var html = "";
   if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    html = "<div class=\"jumbotron\"><p>Enter BOT_API_KEY, to select a section button below.</p> <form class=\"form-add\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus></form></div>";
+    html = "<div class=\"jumbotron\"><p>Enter BOT_API_KEY here and section using the buttons below.</p> <form class=\"form-add\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus></form></div>";
   }
   var html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
   res.send(200, 

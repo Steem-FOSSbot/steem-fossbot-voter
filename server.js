@@ -256,7 +256,7 @@ app.get("/stats", function(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
-      //handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
+      handleError(res, "/stats Unauthorized", "stats: can't get key list, or list is empty", 500);
       console.log("No keys for /stats");
       return;
     } else {

@@ -38,7 +38,7 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-				regions: dayRegions,
+				//regions: dayRegions,
 				axis: {
 					x: {
 						type: 'category',
@@ -71,7 +71,7 @@ function loadChart() {
 		    	],
 		    	type: 'bar'
 		    },
-      	regions: dayRegions,
+      	//regions: dayRegions,
 				axis: {
 					x: {
 						type: 'category',

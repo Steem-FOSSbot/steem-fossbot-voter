@@ -296,25 +296,33 @@ app.get("/stats", function(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
-      var html = createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.");
+      html = createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.");
       res.send(200, html);
       console.log("No keys for /stats");
       return;
     } else {
       var lastDay = -1;
       for (var i = (keys.length - 1) ; i >= 0 ; i--) {
-        html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">"
         var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
-          html += dateTime.format("MMM Do YYYY HH:mm");
-        } else {
-          html += " --- --- " + dateTime.format("HH:mm");
+          // add day over list item first
+          html += "<li><a href=\"/stats?overview_date="+dateTime.format("MM-DD-YYYY")+"\">"+
+            dateTime.format("Votes for MMM Do YYYY") + "</a></li>";
         }
-        html += "</a></li>";
+        html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">" +
+            " --- --- " + dateTime.format("HH:mm") + "</a></li>";
       }
     }
-    if (req.query.pd_key) {
+    if (req.query.overview_date) {
+      // TODO
+      res.send(200,
+        html_stats1
+        + html
+        + html_stats2
+        + "<p>OVERVIEW PLACEHOLDER for date: "+req.query.overview_date+"</p>"
+        + html_stats3);
+    } else if (req.query.pd_key) {
       redisClient.get(req.query.pd_key, function(err, postsMetadataStr) {
         if (err || postsMetadataStr == null) {
           handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.pd_key+" could not be fetched", 500);
@@ -530,7 +538,39 @@ app.get("/get-algo", function(req, res) {
     if (algorithm != null) {
       res.json(JSON.stringify(algorithm));
     } else {
-      handleErrorJson(res, "/get-algo Unauthorized", "get-algo: no data in store", 500);
+      handleErrorJson(res, "/get-algo Server error", "get-algo: no data in store", 500);
+    }
+  });
+});
+
+app.get("/get-daily-liked-posts", function(req, res) {
+  if (!req.query.api_key && !req.query.session_key) {
+    handleError(res, "/get-daily-liked-posts Unauthorized", "get-daily-liked-posts: api_key or session_key not supplied", 401);
+    return;
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/get-daily-liked-posts Unauthorized", "get-daily-liked-posts: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/get-daily-liked-posts Unauthorized", "get-daily-liked-posts: session_key invalid", 401);
+    return;
+  }
+  lib.getPersistentJson("daily_liked_posts", function(dailyLikedPostsResults) {
+    if (dailyLikedPostsResults == null) {
+      handleErrorJson(res, "/get-daily-liked-posts Server error", "get-daily-liked-posts: no data in store", 500);
+      return;
+    }
+    console.log("got daily_liked_posts");
+    if (req.query.date_str) {
+      var dailyLikedPosts = dailyLikedPostsResults.data;
+      for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+        if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str)) {
+          res.json(JSON.stringify(dailyLikedPosts[i]));
+          return;
+        }
+      }
+      handleErrorJson(res, "/get-daily-liked-posts Server error", "get-daily-liked-posts: can't find daily liked posts with date string "+req.query.date_str, 500);
+    } else {
+      res.json(JSON.stringify(dailyLikedPostsResults));
     }
   });
 });

@@ -71,19 +71,28 @@ _TODO_
  
 There are some settings (which are currently not editable) which effect the algorithm too. The number in brackets is the default value:
 
+#### Standard
+
+Most people will want to edit these
+
+1. **MAX_VOTES_IN_24_HOURS** (```50```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
+2. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
+3. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
+
+#### Advanced
+
+Edit with caution, setting these incorrectly can really break the bot
+
 1. **MAX_POST_TO_READ** (```100```): Max number of posts fetched. Any more than this will be discarded
-2. **CAPITAL_DOLPHIN_MIN** (```25,000```): Minimum Steem Power to qualify as a _dolphin_
-3. **CAPITAL_WHALE_MIN** (```100,000```): Minimum Steem Power to qualify as a _whale_
-4. **MIN_KEYWORD_LEN** (```4```): Minimum number of characters for a word to be considered a keyword
-5. **MIN_SCORE_THRESHOLD** (```50```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
-6. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
-7. **NUM_POSTS_FOR_AVG_WINDOW** (```15```): Maximum number of posts used for averaging window used to determine baseline threshold score
-8. **MAX_VOTES_IN_24_HOURS** (```50```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
-9. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
-10. **DAYS_KEEP_LOGS** (```5```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
-11. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
-12. **MIN_LANGUAGE_USAGE_PC** (```0.3``` i.e. ```35%```): Minimum amount of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
-13. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
+2. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
+3. **NUM_POSTS_FOR_AVG_WINDOW** (```10```): Maximum number of posts used for averaging window used to determine baseline threshold score
+4. **MIN_SCORE_THRESHOLD** (```50```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
+5. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
+6. **CAPITAL_DOLPHIN_MIN** (```25000```): Minimum Steem Power to qualify as a _dolphin_
+7. **CAPITAL_WHALE_MIN** (```100000```): Minimum Steem Power to qualify as a _whale_
+8. **MIN_KEYWORD_LEN** (```4```): Minimum number of characters for a word to be considered a keyword
+9. **DAYS_KEEP_LOGS** (```5```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
+10. **MIN_LANGUAGE_USAGE_PC** (```0.3``` i.e. ```35%```): Minimum amount (expressed as a ratio, between 0.0 and 1.0) of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
 
 ## Metrics in detail
 

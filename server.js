@@ -42,7 +42,9 @@ var
   html_stats_run1 = "",
   html_stats_run2 = "",
   html_stats_run3 = "",
-  html_stats_run4 = "";
+  html_stats_run4 = "",
+  html_edit_config1 = "",
+  html_edit_config2 = "";
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.<br/><br/>You might need to supply your API key again in at the <a href=\"/\">Dashboard</a>",
@@ -181,6 +183,15 @@ function loadFiles() {
     html_stats_run4 = str;
     console.log("got /html/stats-run-4.html from file");
   });
+  //html_edit_config1
+  loadFileToString("/html/edit-config-1.html", function(str) {
+    html_edit_config1 = str;
+    console.log("got /html/edit-config-1.html from file");
+  });
+  loadFileToString("/html/edit-config-2.html", function(str) {
+    html_edit_config2 = str;
+    console.log("got /html/edit-config-2.html from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -292,7 +303,7 @@ app.get("/stats", function(req, res) {
       var lastDay = -1;
       for (var i = (keys.length - 1) ; i >= 0 ; i--) {
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">"
-        var dateTime = moment_tz.tz(keys[i].date, lib.TIME_ZONE);
+        var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
           html += dateTime.format("MMM Do YYYY HH:mm");
@@ -324,7 +335,7 @@ app.get("/stats", function(req, res) {
           html_stats_run1 
           + html
           + html_stats_run2
-          + (moment_tz.tz(Number(req.query.time), lib.TIME_ZONE).format("MMM Do YYYY HH:mm"))
+          + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);
@@ -452,7 +463,7 @@ app.get("/stats-data-json", function(req, res) {
                 numVotes++;
               }
             }
-            var dateTime = moment_tz.tz(keys[i].date, lib.TIME_ZONE);
+            var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
             summary.push({
               date: keys[i].date,
               date_str: (dateTime.format("MM/DD//YY HH:mm")),
@@ -469,6 +480,20 @@ app.get("/stats-data-json", function(req, res) {
       }
     }, []);
   });
+});
+
+app.get("/get-config-vars", function(req, res) {
+  if (!req.query.api_key && !req.query.session_key) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401);
+    return;
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
+    return;
+  }
+  res.json(lib.getConfigVars());
 });
 
 function recursiveGetPostsMetadata(keys, index, callback, list) {
@@ -959,3 +984,71 @@ function testAlgoExec(res, options) {
       );
   }, options);
 }
+
+app.get("/edit-config", function(req, res) {
+  var configVars = lib.getConfigVars();
+  var change = false;
+  var html_title = "<h3 class=\"sub-header\">";
+  if (req.query.MAX_VOTES_IN_24_HOURS) {
+    configVars.MAX_VOTES_IN_24_HOURS = Number(atob(req.query.MAX_VOTES_IN_24_HOURS));
+    change = true;
+    html_title += "Updated MAX_VOTES_IN_24_HOURS";
+  } else if (req.query.MIN_POST_AGE_TO_CONSIDER) {
+    configVars.MIN_POST_AGE_TO_CONSIDER = Number(atob(req.query.MIN_POST_AGE_TO_CONSIDER));
+    change = true;
+    html_title += "Updated MIN_POST_AGE_TO_CONSIDER";
+  } else if (req.query.MAX_POST_TO_READ) {
+    configVars.MAX_POST_TO_READ = Number(atob(req.query.MAX_POST_TO_READ));
+    change = true;
+    html_title += "Updated MAX_POST_TO_READ";
+  } else if (req.query.MIN_WORDS_FOR_ARTICLE) {
+    configVars.MIN_WORDS_FOR_ARTICLE = Number(atob(req.query.MIN_WORDS_FOR_ARTICLE));
+    change = true;
+    html_title += "Updated MIN_WORDS_FOR_ARTICLE";
+  } else if (req.query.NUM_POSTS_FOR_AVG_WINDOW) {
+    configVars.NUM_POSTS_FOR_AVG_WINDOW = Number(atob(req.query.NUM_POSTS_FOR_AVG_WINDOW));
+    change = true;
+    html_title += "Updated NUM_POSTS_FOR_AVG_WINDOW";
+  } else if (req.query.MIN_SCORE_THRESHOLD) {
+    configVars.MIN_SCORE_THRESHOLD = Number(atob(req.query.MIN_SCORE_THRESHOLD));
+    change = true;
+    html_title += "Updated MIN_SCORE_THRESHOLD";
+  } else if (req.query.SCORE_THRESHOLD_INC_PC) {
+    configVars.SCORE_THRESHOLD_INC_PC = Number(atob(req.query.SCORE_THRESHOLD_INC_PC));
+    change = true;
+    html_title += "Updated SCORE_THRESHOLD_INC_PC";
+  } else if (req.query.CAPITAL_DOLPHIN_MIN) {
+    configVars.CAPITAL_DOLPHIN_MIN = Number(atob(req.query.CAPITAL_DOLPHIN_MIN));
+    change = true;
+    html_title += "Updated CAPITAL_DOLPHIN_MIN";
+  } else if (req.query.CAPITAL_WHALE_MIN) {
+    configVars.CAPITAL_WHALE_MIN = Number(atob(req.query.CAPITAL_WHALE_MIN));
+    change = true;
+    html_title += "Updated CAPITAL_WHALE_MIN";
+  } else if (req.query.MIN_KEYWORD_LEN) {
+    configVars.MIN_KEYWORD_LEN = Number(atob(req.query.MIN_KEYWORD_LEN));
+    change = true;
+    html_title += "Updated MIN_KEYWORD_LEN";
+  } else if (req.query.DAYS_KEEP_LOGS) {
+    configVars.DAYS_KEEP_LOGS = Number(atob(req.query.DAYS_KEEP_LOGS));
+    change = true;
+    html_title += "Updated DAYS_KEEP_LOGS";
+  } else if (req.query.MIN_LANGUAGE_USAGE_PC) {
+    configVars.MIN_LANGUAGE_USAGE_PC = Number(atob(req.query.MIN_LANGUAGE_USAGE_PC));
+    change = true;
+    html_title += "Updated MIN_LANGUAGE_USAGE_PC";
+  } else if (req.query.TIME_ZONE) {
+    configVars.TIME_ZONE = atob(req.query.TIME_ZONE);
+    change = true;
+    html_title += "Updated TIME_ZONE";
+  }
+  html_title += "</h3>"
+  if (change) {
+    lib.updateConfigVars(configVars);
+  }
+  res.send(200,
+    html_edit_config1
+    + html_title
+    + html_edit_config2
+  );
+});

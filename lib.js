@@ -95,20 +95,21 @@ const
 const
   MILLIS_IN_DAY = 86400000;
 
-var
-  MAX_POST_TO_READ = 100,
-  CAPITAL_DOLPHIN_MIN = 25000,
-  CAPITAL_WHALE_MIN = 100000,
-  MIN_KEYWORD_LEN = 4,
-  MIN_SCORE_THRESHOLD = 50,
-  SCORE_THRESHOLD_INC_PC = 0.1,
-  NUM_POSTS_FOR_AVG_WINDOW = 10,
-  MAX_VOTES_IN_24_HOURS = 50,
-  MIN_WORDS_FOR_ARTICLE = 100,
-  DAYS_KEEP_LOGS = 5,
-  MIN_POST_AGE_TO_CONSIDER = 30,
-  MIN_LANGUAGE_USAGE_PC = 0.1,
-  TIME_ZONE = "Etc/GMT+3";
+var configVars = {
+  MAX_POST_TO_READ: 100,
+  CAPITAL_DOLPHIN_MIN: 25000,
+  CAPITAL_WHALE_MIN: 100000,
+  MIN_KEYWORD_LEN: 4,
+  MIN_SCORE_THRESHOLD: 50,
+  SCORE_THRESHOLD_INC_PC: 0.1,
+  NUM_POSTS_FOR_AVG_WINDOW: 10,
+  MAX_VOTES_IN_24_HOURS: 50,
+  MIN_WORDS_FOR_ARTICLE: 100,
+  DAYS_KEEP_LOGS: 5,
+  MIN_POST_AGE_TO_CONSIDER: 30,
+  MIN_LANGUAGE_USAGE_PC: 0.1,
+  TIME_ZONE: "Etc/GMT+3"
+}
 
 /* Private variables */
 var fatalError = false;
@@ -146,7 +147,7 @@ var postsMetadata = [];
 var avgWindowInfo = {
   scoreThreshold: 0,
   postScores: [],
-  windowSize: NUM_POSTS_FOR_AVG_WINDOW
+  windowSize: configVars.NUM_POSTS_FOR_AVG_WINDOW
 };
 
 // logging and notification
@@ -250,7 +251,7 @@ function runBot(callback, options) {
           deferred.resolve(true);
         });
       } else {
-        steem.api.getDiscussionsByCreated({limit: MAX_POST_TO_READ}, function(err, result) {
+        steem.api.getDiscussionsByCreated({limit: configVars.MAX_POST_TO_READ}, function(err, result) {
           if (err) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
@@ -290,7 +291,7 @@ function runBot(callback, options) {
           posts = cleanedPosts;
         }
         // only keep posts older than limit
-        if (MIN_POST_AGE_TO_CONSIDER > 0) {
+        if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
           var cleanedPosts = [];
           for (var i = 0 ; i < posts.length ; i++) {
@@ -298,7 +299,7 @@ function runBot(callback, options) {
             if (timeDiff > 0) {
               timeDiff /= (60 * 1000);
             }
-            if (timeDiff >= MIN_POST_AGE_TO_CONSIDER) {
+            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER) {
               cleanedPosts.push(posts[i]);
             }
           }
@@ -307,7 +308,7 @@ function runBot(callback, options) {
       }
       // throw nice error if no posts left
       if (posts.length < 1) {
-        throw {message: "No new posts since last post and within minimum time of "+MIN_POST_AGE_TO_CONSIDER+" minutes"};
+        throw {message: "No new posts since last post and within minimum time of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes"};
       }
       // update last fetched post
       lastPost = posts[0];
@@ -439,9 +440,9 @@ function runBot(callback, options) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
             var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
-            if (steemPower >= CAPITAL_WHALE_MIN) {
+            if (steemPower >= configVars.CAPITAL_WHALE_MIN) {
               postsMetrics[i].post_up_voted_num_whale++;
-            } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
+            } else if (steemPower >= configVars.CAPITAL_DOLPHIN_MIN) {
               postsMetrics[i].post_up_voted_num_dolphin++;
             }
             // determine if followed, count
@@ -483,9 +484,9 @@ function runBot(callback, options) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
             var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
-            if (steemPower >= CAPITAL_WHALE_MIN) {
+            if (steemPower >= configVars.CAPITAL_WHALE_MIN) {
               postsMetrics[i].post_down_voted_num_whale++;
-            } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
+            } else if (steemPower >= configVars.CAPITAL_DOLPHIN_MIN) {
               postsMetrics[i].post_down_voted_num_dolphin++;
             }
             // determine if followed, count
@@ -530,11 +531,11 @@ function runBot(callback, options) {
           var steemPower = getSteemPowerFromVest(users[posts[i].author].vesting_shares);
           //metrics.author.capital_val: Capital (Steem Power) by value 
           postsMetrics[i].author_capital_val = steemPower; 
-          if (steemPower >= CAPITAL_WHALE_MIN) {
+          if (steemPower >= configVars.CAPITAL_WHALE_MIN) {
             postsMetrics[i].author_is_minnow = 0;
             postsMetrics[i].author_is_dolphin = 0;
             postsMetrics[i].author_is_whale = 1;
-          } else if (steemPower >= CAPITAL_DOLPHIN_MIN) {
+          } else if (steemPower >= configVars.CAPITAL_DOLPHIN_MIN) {
             postsMetrics[i].author_is_minnow = 0;
             postsMetrics[i].author_is_dolphin = 1;
             postsMetrics[i].author_is_whale = 0;
@@ -600,7 +601,7 @@ function runBot(callback, options) {
         nlp.keywords = [];
         var removedCount = 0;
         for (var j = 0 ; j < keywords.length ; j++) {
-          if (keywords[j].length >= MIN_KEYWORD_LEN) {
+          if (keywords[j].length >= configVars.MIN_KEYWORD_LEN) {
             nlp.keywords.push(keywords[j]);
           } else {
             removedCount++;
@@ -756,7 +757,7 @@ function runBot(callback, options) {
           postsMetrics[i].post_images_only = 0;
           postsMetrics[i].post_videos_only = 0;
           postsMetrics[i].post_mixed_links_only = 0;
-          if (postsMetrics[i].post_num_words < MIN_WORDS_FOR_ARTICLE) {
+          if (postsMetrics[i].post_num_words < configVars.MIN_WORDS_FOR_ARTICLE) {
             postsMetrics[i].post_very_short = 1;
             if (postsMetrics[i].post_num_links_image > 0
                 && postsMetrics[i].post_num_links_image > postsMetrics[i].post_num_links_video
@@ -782,7 +783,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_has_french_language_use = 0;
         var detectedLanguages = langDetector.detect(posts[i].body);
         persistentLog(" - language detect for ["+posts[i].permlink+"] :"+detectedLanguages);
-        if (detectedLanguages.length > 0 && detectedLanguages[0][1] > MIN_LANGUAGE_USAGE_PC) {
+        if (detectedLanguages.length > 0 && detectedLanguages[0][1] > configVars.MIN_LANGUAGE_USAGE_PC) {
           var language = detectedLanguages[0][0];
           if (language.localeCompare('english') == 0) {
             postsMetrics[i].post_has_english_language_use = 1;
@@ -823,7 +824,7 @@ function runBot(callback, options) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
             var value = metric[algorithm.weights[j].key];
             var weight = algorithm.weights[j].value;
-            if (weight >= MIN_SCORE_THRESHOLD) {
+            if (weight >= configVars.MIN_SCORE_THRESHOLD) {
               numWeightsAboveMinThreshold++;
             }
             if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
@@ -891,19 +892,19 @@ function runBot(callback, options) {
       var upVotesProcessed = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {
-          min: MIN_SCORE_THRESHOLD
+          min: configVars.MIN_SCORE_THRESHOLD
         };
         // add this score first, if meets minimum
-        if (postsMetadata[i].score >= MIN_SCORE_THRESHOLD) {
+        if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
         	avgWindowInfo.postScores.push(postsMetadata[i].score);
         }
         // recalculate avgerage based on window value
         persistentLog(" - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
         var avg = 0;
-        var maxScore = MIN_SCORE_THRESHOLD;
+        var maxScore = configVars.MIN_SCORE_THRESHOLD;
         var count = 0;
         for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
-          if (avgWindowInfo.postScores[j] > MIN_SCORE_THRESHOLD) {
+          if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
             avg += avgWindowInfo.postScores[j];
             count++;
             if (avgWindowInfo.postScores[j] > maxScore) {
@@ -916,15 +917,15 @@ function runBot(callback, options) {
           threshold = avg / count;
         }
         thresholdInfo.average = threshold;
-        if (threshold < MIN_SCORE_THRESHOLD) {
-          threshold = MIN_SCORE_THRESHOLD;
+        if (threshold < configVars.MIN_SCORE_THRESHOLD) {
+          threshold = configVars.MIN_SCORE_THRESHOLD;
           // stats
           thresholdInfo.percentInc = 0;
           thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;
         } else if (postsMetadata[i].scoreDetail.useAvgOnly) {
           thresholdInfo.percentInc = 0;
-          if ((owner.num_votes_today + upVotesProcessed) > MAX_VOTES_IN_24_HOURS) {
+          if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
             thresholdInfo.voteAdjustmentInc = (threshold * 0.5);
           } else {
             thresholdInfo.voteAdjustmentInc = 0;
@@ -933,19 +934,19 @@ function runBot(callback, options) {
         } else {
           // first apply percentage increase on threshold,
           //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
-          thresholdInfo.percentInc = (threshold * SCORE_THRESHOLD_INC_PC);
+          thresholdInfo.percentInc = (threshold * configVars.SCORE_THRESHOLD_INC_PC);
           threshold += thresholdInfo.percentInc;
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ MAX_VOTES_IN_24_HOURS, 2);
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS, 2);
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;
           }
           threshold += thresholdInfo.voteAdjustmentInc;
           thresholdInfo.total = threshold;
-          if (thresholdInfo.total < MIN_SCORE_THRESHOLD) {
-            thresholdInfo.total = MIN_SCORE_THRESHOLD;
+          if (thresholdInfo.total < configVars.MIN_SCORE_THRESHOLD) {
+            thresholdInfo.total = configVars.MIN_SCORE_THRESHOLD;
           }
         }
         avgWindowInfo.scoreThreshold = thresholdInfo.total;
@@ -953,9 +954,9 @@ function runBot(callback, options) {
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
-        if ((avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
+        if ((avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
           var newScoresWindow = [];
-          for (var j = avgWindowInfo.postScores.length - NUM_POSTS_FOR_AVG_WINDOW ; j < avgWindowInfo.postScores.length ; j++) {
+          for (var j = avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW ; j < avgWindowInfo.postScores.length ; j++) {
             newScoresWindow.push(avgWindowInfo.postScores[j]);
           }
           avgWindowInfo.postScores = newScoresWindow;
@@ -1151,16 +1152,16 @@ function runBot(callback, options) {
       email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
       email += "<h3>Averaging window</h3>";
       // TODO : update this
-      email += "<p>Averaging window size (in posts): "+NUM_POSTS_FOR_AVG_WINDOW+"</p>";
+      email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
       email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
-      email += "<p>Percentage add to threshold: "+(SCORE_THRESHOLD_INC_PC*100)+"%</p>";
+      email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
       email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
       //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
       email += "<h3>Misc constant settings</h3>";
-      email += "<p>Max posts to get: "+MAX_POST_TO_READ+"</p>";
-      email += "<p>Dolpin min SP: "+CAPITAL_DOLPHIN_MIN+"</p>";
-      email += "<p>Whale min SP: "+CAPITAL_WHALE_MIN+"</p>";
-      email += "<p>Key detector, min keyword length: "+MIN_KEYWORD_LEN+"</p>";
+      email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
+      email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
+      email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
+      email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
       //email += "<h2>Raw results metadata:</h2>";
       //var metadataHtml = JSON.stringify(postsMetadata, null, 4);
       //email += "<p>"+metadataHtml+"</p>";
@@ -1222,6 +1223,11 @@ function initSteem() {
     } else {
       console.log("no last post, probably this is first run for server");
     }
+  });
+  getPersistentJson("config_vars", function(configVarsResult) {
+    if (configVarsResult != null) {
+      configVars = configVarsResult;
+    } // else use default, already set
   });
 }
 
@@ -1475,7 +1481,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
       // mark old keys for deletion, to clear space before saving
       var toDelete = [];
       for (var i = 0 ; i < keysObj.keys.length ; i++) {
-        if (((new Date()).getTime() - keysObj.keys[i].date) > (DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+        if (((new Date()).getTime() - keysObj.keys[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
           toDelete.push(keysObj.keys[i].key);
         } else {
           toKeep.push(keysObj.keys[i]);
@@ -1565,6 +1571,17 @@ function getEpochMillis(dateStr) {
   return (m) ? Date.UTC(m[1], m[2]-1, m[3], m[4], m[5], m[6]) : undefined;
 };
 
+function getConfigVars() {
+  return configVars;
+}
+
+function updateConfigVars(newConfigVars) {
+  configVars = newConfigVars;
+  console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
+  persistJson("config_vars", newConfigVars, function(err) {
+    console.log("Error updating config vars: "+err.message);
+  })
+}
 
 /*
 * Manage internal state
@@ -1703,4 +1720,5 @@ module.exports.deleteWeightMetric = deleteWeightMetric;
 module.exports.updateMetricList = updateMetricList;
 module.exports.getPostsMetadataKeys = getPostsMetadataKeys;
 module.exports.getEpochMillis = getEpochMillis;
-module.exports.TIME_ZONE = TIME_ZONE;
+module.exports.getConfigVars = getConfigVars;
+module.exports.updateConfigVars = updateConfigVars;

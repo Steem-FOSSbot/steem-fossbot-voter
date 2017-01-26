@@ -15,7 +15,7 @@ const
   extra = require('./extra.js'),
   moment_tz = require('moment-timezone'),
   moment = require('moment'),
-  atob = reqire('atob');
+  atob = require('atob');
 
 var cookieSessionKey = "";
 

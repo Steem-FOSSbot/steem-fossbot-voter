@@ -8,7 +8,7 @@ function getKey() {
 	for (var i = 0 ; i < parts.length ; i++) {
 		var idx = parts[i].search("date_str=");
 		if (idx >= 0) {
-			key = parts[i].substring(idx + 8, parts[i].length);
+			key = parts[i].substring(idx + 9, parts[i].length);
 		}
 	}
 	return key;
@@ -16,7 +16,7 @@ function getKey() {
 
 function loadChart() {
 	$.getJSON( "/get-daily-liked-posts?session_key="+getCookie("session_key")+"&date_str="+getKey(), function(data) {
-		console.log("got data: "+JSON.stringify(data));
+		//console.log("got data: "+JSON.stringify(data));
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
 		var numData_threshold = ['Threshold'];

@@ -306,22 +306,52 @@ app.get("/stats", function(req, res) {
         var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
-          // add day over list item first
-          html += "<li><a href=\"/stats?overview_date="+dateTime.format("MM-DD-YYYY")+"\">"+
-            dateTime.format("Votes for MMM Do YYYY") + "</a></li>";
+          // add spacer and then day over list item first
+          html += "<li></li><li><a href=\"/stats?overview_date="+dateTime.format("MM-DD-YYYY")+"\">"+
+            "Votes for " + dateTime.format("MMM Do YYYY") + "</a></li>";
         }
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">" +
             " --- --- " + dateTime.format("HH:mm") + "</a></li>";
       }
     }
     if (req.query.overview_date) {
-      // TODO
-      res.send(200,
-        html_stats1
-        + html
-        + html_stats2
-        + "<p>OVERVIEW PLACEHOLDER for date: "+req.query.overview_date+"</p>"
-        + html_stats3);
+      lib.getPersistentJson("daily_liked_posts", function(dailyLikedPostsResult) {
+        var dailyLikedPosts = dailyLikedPostsResult.data;
+        if (dailyLikedPostsResult == null) {
+          res.send(200,
+            createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 1)"));
+          return;
+        }
+        var dailyLikedPostObj = null;
+        for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+          if (dailyLikedPosts[i].date_str.localeCompare(req.query.overview_date) == 0) {
+            dailyLikedPostObj = dailyLikedPosts[i];
+          }
+        }
+        if (dailyLikedPostObj == null) {
+          res.send(200,
+            createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)"));
+          return;
+        }
+        var postsMetadata = dailyLikedPostObj.posts;
+        var html_list = "";
+        if (postsMetadata.length > 0) {
+          for (var i = 0 ; i < postsMetadata.length ; i++) {
+            html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
+              + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+          }
+        } else {
+          html_list = html_test_emptyList;
+        }
+        res.send(200,
+          html_stats_run1
+          + html
+          + html_stats_run2
+          + "Daily likes overview for " + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY"))
+          + html_stats_run3
+          + html_list
+          + html_stats_run4);
+      });
     } else if (req.query.pd_key) {
       redisClient.get(req.query.pd_key, function(err, postsMetadataStr) {
         if (err || postsMetadataStr == null) {
@@ -344,7 +374,7 @@ app.get("/stats", function(req, res) {
           html_stats_run1 
           + html
           + html_stats_run2
-          + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
+          + "Bot run details for run at " + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);

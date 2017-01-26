@@ -6,16 +6,16 @@ function getKey() {
 	var key = "";
 	var parts = window.location.href.split("&");
 	for (var i = 0 ; i < parts.length ; i++) {
-		var idx = parts[i].search("pd_key=");
+		var idx = parts[i].search("date_str=");
 		if (idx >= 0) {
-			key = parts[i].substring(idx + 7, parts[i].length);
+			key = parts[i].substring(idx + 8, parts[i].length);
 		}
 	}
 	return key;
 }
 
 function loadChart() {
-	$.getJSON( "/stats-data-json?session_key="+getCookie("session_key")+"&pd_key="+getKey(), function(data) {
+	$.getJSON( "/get-daily-liked-posts?session_key="+getCookie("session_key")+"&date_str="+getKey(), function(data) {
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
 		var numData_threshold = ['Threshold'];
@@ -24,23 +24,23 @@ function loadChart() {
 		var metricsNames = [];
 		// first, create metrics arrays
 		// metrics
-		var metrics = data.postsMetadata[0].scoreDetail.metrics;
-		for (var i = 1 ; i < data.postsMetadata.length ; i++) {
-			if (data.postsMetadata[i].scoreDetail.metrics.length > metrics.length) {
-				metrics = data.postsMetadata[i].scoreDetail.metrics;
+		var metrics = data.posts[0].scoreDetail.metrics;
+		for (var i = 1 ; i < data.posts.length ; i++) {
+			if (data.posts[i].scoreDetail.metrics.length > metrics.length) {
+				metrics = data.posts[i].scoreDetail.metrics;
 			}
 		}
 		for (var j = 0 ; j < metrics.length ; j++) {
 			numData_metrics.push([metrics[j].key]);
 			metricsNames.push(metrics[j].key);
 		}
-		for (var i = 0 ; i < data.postsMetadata.length ; i++) {
-			xTicks.push(data.postsMetadata[i].title);
-			numData_score_total.push(data.postsMetadata[i].score.toFixed(2));
-			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total.toFixed(2));
-      numData_min.push(data.postsMetadata[i].thresholdInfo.hasOwnProperty("min") ? data.postsMetadata[i].thresholdInfo.min.toFixed(2) : 0);
+		for (var i = 0 ; i < data.posts.length ; i++) {
+			xTicks.push(data.posts[i].title);
+			numData_score_total.push(data.posts[i].score.toFixed(2));
+			numData_threshold.push(data.posts[i].thresholdInfo.total.toFixed(2));
+      numData_min.push(data.posts[i].thresholdInfo.hasOwnProperty("min") ? data.posts[i].thresholdInfo.min.toFixed(2) : 0);
 			// metrics
-			metrics = data.postsMetadata[i].scoreDetail.metrics;
+			metrics = data.posts[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metricsNames.length ; j++) {
 				var match = false;
 				for (var k = 0 ; k < metrics.length ; k++) {

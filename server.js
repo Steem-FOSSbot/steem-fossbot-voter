@@ -44,6 +44,7 @@ var
   html_stats_run2 = "",
   html_stats_run3 = "",
   html_stats_run4 = "",
+  html_stats_daily_likes_4 = "",
   html_edit_config1 = "",
   html_edit_config2 = "";
 
@@ -184,7 +185,10 @@ function loadFiles() {
     html_stats_run4 = str;
     console.log("got /html/stats-run-4.html from file");
   });
-  //html_edit_config1
+  loadFileToString("/html/stats-daily-likes-4.html", function(str) {
+    html_stats_daily_likes_4 = str;
+    console.log("got /html/stats-daily-likes-4.html from file");
+  });
   loadFileToString("/html/edit-config-1.html", function(str) {
     html_edit_config1 = str;
     console.log("got /html/edit-config-1.html from file");
@@ -314,7 +318,7 @@ app.get("/stats", function(req, res) {
             " --- --- " + dateTime.format("HH:mm") + "</a></li>";
       }
     }
-    if (req.query.overview_date) {
+    if (req.query.date_str) {
       lib.getPersistentJson("daily_liked_posts", function(dailyLikedPostsResult) {
         var dailyLikedPosts = dailyLikedPostsResult.data;
         if (dailyLikedPostsResult == null) {
@@ -324,7 +328,7 @@ app.get("/stats", function(req, res) {
         }
         var dailyLikedPostObj = null;
         for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-          if (dailyLikedPosts[i].date_str.localeCompare(req.query.overview_date) == 0) {
+          if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {
             dailyLikedPostObj = dailyLikedPosts[i];
           }
         }
@@ -343,14 +347,15 @@ app.get("/stats", function(req, res) {
         } else {
           html_list = html_test_emptyList;
         }
+        var thisDate = moment(req.query.date_str);
         res.send(200,
           html_stats_run1
           + html
           + html_stats_run2
-          + "Daily likes overview for " + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY"))
+          + "Daily likes overview for " + (thisDate.format("MMM Do YYYY"))
           + html_stats_run3
           + html_list
-          + html_stats_run4);
+          + html_stats_daily_likes_4);
       });
     } else if (req.query.pd_key) {
       redisClient.get(req.query.pd_key, function(err, postsMetadataStr) {

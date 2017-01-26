@@ -69,7 +69,7 @@
                 <td>Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_0" id="input_field_0" placeholder="50">
+                        <input type="number" name="input_field_0" id="input_field_0" placeholder="50">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(0)" role="button">Update</a></p></th>
@@ -79,7 +79,7 @@
                 <td>Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_1" id="input_field_1" placeholder="30">
+                        <input type="number" name="input_field_1" id="input_field_1" placeholder="30">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(1)" role="button">Update</a></p></th>
@@ -89,7 +89,7 @@
                 <td>Time zone for date display, in tz format (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">see here</a> for a list of formats). Used in UI, logging, emails, etc.</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_2" id="input_field_2" placeholder="Etc/GMT+3">
+                        <input type="text" name="input_field_2" id="input_field_2" placeholder="Etc/GMT+3">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(2)" role="button">Update</a></p></th>
@@ -105,8 +105,8 @@
                 <td>Max number of posts fetched. Any more than this will be discarded</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_3" id="input_field_3" placeholder="100">
                     </form>
+                        <input type="number" name="input_field_3" id="input_field_3" placeholder="100">
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(3)" role="button">Update</a></p></th>
             </tr>
@@ -115,7 +115,7 @@
                 <td>Minimum number of words for a post to be considered as having article content</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_4" id="input_field_4" placeholder="100">
+                        <input type="number" name="input_field_4" id="input_field_4" placeholder="100">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(4)" role="button">Update</a></p></th>
@@ -125,7 +125,7 @@
                 <td>Maximum number of posts used for averaging window used to determine baseline threshold score</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_5" id="input_field_5" placeholder="10">
+                        <input type="number" name="input_field_5" id="input_field_5" placeholder="10">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(5)" role="button">Update</a></p></th>
@@ -135,7 +135,7 @@
                 <td>Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_6" id="input_field_6" placeholder="10">
+                        <input type="number" step="0.01" name="input_field_6" id="input_field_6" placeholder="10">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(6)" role="button">Update</a></p></th>
@@ -145,7 +145,7 @@
                 <td>Ratio increase on average when caluclating threshold. See Threshold Calculation above. Multiply by 100 to get percentage but this value should be between 0.0 and 1.0</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_7" id="input_field_7" placeholder="0.1">
+                        <input type="number" step="0.01" name="input_field_7" id="input_field_7" placeholder="0.1">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(7)" role="button">Update</a></p></th>
@@ -155,7 +155,7 @@
                 <td>Minimum Steem Power to qualify as a dolphin</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_8" id="input_field_8" placeholder="25000">
+                        <input type="number" name="input_field_8" id="input_field_8" placeholder="25000">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(8)" role="button">Update</a></p></th>
@@ -165,7 +165,7 @@
                 <td>Minimum Steem Power to qualify as a whale</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_9" id="input_field_9" placeholder="100000">
+                        <input type="number" name="input_field_9" id="input_field_9" placeholder="100000">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(9)" role="button">Update</a></p></th>
@@ -175,7 +175,7 @@
                 <td>Minimum number of characters for a word to be considered a keyword</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_10" id="input_field_10" placeholder="4">
+                        <input type="number" name="input_field_10" id="input_field_10" placeholder="4">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(10)" role="button">Update</a></p></th>
@@ -185,7 +185,7 @@
                 <td>Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_11" id="input_field_11" placeholder="5">
+                        <input type="number" name="input_field_11" id="input_field_11" placeholder="5">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(11)" role="button">Update</a></p></th>
@@ -195,7 +195,7 @@
                 <td>Minimum amount (expressed as a ratio, between 0.0 and 1.0) of document required to contain a language before it will be considered having a signification amount of that language as content</td>
                 <td>
                     <form class="form-add">
-                        <input type="password" name="input_field_12" id="input_field_12" placeholder="0.1">
+                        <input type="number" step="0.01" name="input_field_12" id="input_field_12" placeholder="0.1">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(12)" role="button">Update</a></p></th>

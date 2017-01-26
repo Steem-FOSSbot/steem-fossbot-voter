@@ -28,7 +28,7 @@ function setupConfigVars() {
   $.getJSON( "/get-config-vars?session_key="+getCookie("session_key"), function(data) {
     var textArea = document.getElementById('config_vars');
     if (textArea) {
-      textArea.value = data;
+      textArea.value = JSON.stringify(data);
     }
     for (var i = 0 ; i < fieldNames.length ; i++) {
       if (data.hasOwnProperty(fieldNames[i])) {

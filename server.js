@@ -598,7 +598,7 @@ app.get("/get-daily-liked-posts", function(req, res) {
     if (req.query.date_str) {
       var dailyLikedPosts = dailyLikedPostsResults.data;
       for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-        if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str)) {
+        if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {
           res.json(JSON.stringify(dailyLikedPosts[i]));
           return;
         }

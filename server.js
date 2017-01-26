@@ -599,13 +599,13 @@ app.get("/get-daily-liked-posts", function(req, res) {
       var dailyLikedPosts = dailyLikedPostsResults.data;
       for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
         if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {
-          res.json(JSON.stringify(dailyLikedPosts[i]));
+          res.json(dailyLikedPosts[i]);
           return;
         }
       }
       handleErrorJson(res, "/get-daily-liked-posts Server error", "get-daily-liked-posts: can't find daily liked posts with date string "+req.query.date_str, 500);
     } else {
-      res.json(JSON.stringify(dailyLikedPostsResults));
+      res.json(dailyLikedPostsResults);
     }
   });
 });

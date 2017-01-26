@@ -1215,7 +1215,7 @@ function countWordsFromRetext(obj) {
 
 function addDailyLikedPost(postsMetadataObj) {
   console.log("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
-  var articleTimeLocal = moment_tz.tz(postsMetadataObj.time, lib.getConfigVars().TIME_ZONE);
+  var articleTimeLocal = moment_tz.tz(postsMetadataObj.time, configVars.TIME_ZONE);
   var dateStr = articleTimeLocal.format("MM-DD-YYYY");
   var createNew = true;
   if (dailyLikedPosts.length > 0) {

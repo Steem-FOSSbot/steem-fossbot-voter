@@ -16,7 +16,7 @@ function getKey() {
 
 function loadChart() {
 	$.getJSON( "/get-daily-liked-posts?session_key="+getCookie("session_key")+"&date_str="+getKey(), function(data) {
-		//console.log("got data: "+JSON.stringify(data));
+		console.log("got data: "+JSON.stringify(data));
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
 		var numData_threshold = ['Threshold'];

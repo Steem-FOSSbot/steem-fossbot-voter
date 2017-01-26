@@ -311,7 +311,7 @@ app.get("/stats", function(req, res) {
         if (dateTime.date() != lastDay) {
           lastDay = dateTime.date();
           // add spacer and then day over list item first
-          html += "<li></li><li><a href=\"/stats?overview_date="+dateTime.format("MM-DD-YYYY")+"\">"+
+          html += "<li></li><li><a href=\"/stats?date_str="+dateTime.format("MM-DD-YYYY")+"\">"+
             "Votes for " + dateTime.format("MMM Do YYYY") + "</a></li>";
         }
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">" +

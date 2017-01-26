@@ -90,7 +90,9 @@ const
   wait = require('wait.for'),
   extra = require('./extra.js'),
   LanguageDetect = require('languagedetect'),
-  langDetector = new LanguageDetect();
+  langDetector = new LanguageDetect(),
+  moment_tz = require('moment-timezone'),
+  moment = require('moment');
 
 const
   MILLIS_IN_DAY = 86400000;

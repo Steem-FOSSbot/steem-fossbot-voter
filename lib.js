@@ -1189,8 +1189,7 @@ function runBot(callback, options) {
         callback(
           {
             status: 500, 
-            message: "Error processing run bot: "+err.message,
-            posts: postsMetadata
+            message: "Error processing run bot: "+err.message
           });
       }
     sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");

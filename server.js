@@ -14,7 +14,8 @@ const
   wait = require('wait.for'),
   extra = require('./extra.js'),
   moment_tz = require('moment-timezone'),
-  moment = require('moment');
+  moment = require('moment'),
+  atob = reqire('atob');
 
 var cookieSessionKey = "";
 

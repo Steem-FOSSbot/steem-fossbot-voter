@@ -80,7 +80,7 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary")({minFreq: 3, collapse: true, blacklist: glossaryBlacklist}),
+  glossary = require("glossary"),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -109,7 +109,7 @@ var configVars = {
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3"
-}
+};
 
 /* Private variables */
 var fatalError = false;
@@ -142,6 +142,7 @@ var owner = {};
 var postsMetrics = [];
 // resulting
 var postsMetadata = [];
+var dailyLikedPosts = [];
 
 // other
 var avgWindowInfo = {
@@ -229,7 +230,13 @@ function runBot(callback, options) {
               domainBlacklist: []
             };
           }
-          deferred.resolve(true);
+          getPersistentJson("daily_liked_posts", function(dailyLikedPostsResults) {
+            if (dailyLikedPostsResults != null) {
+              dailyLikedPosts = dailyLikedPostsResults.data;
+            }
+            deferred.resolve(true);
+          });
+
         });
       })
       return deferred.promise;
@@ -968,6 +975,7 @@ function runBot(callback, options) {
           toVote = true;
           upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
+          addDailyLikedPost(postsMetadata[i]);
         } else {
           persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
@@ -1202,6 +1210,38 @@ function countWordsFromRetext(obj) {
     }
   }
   return 0;
+}
+
+function addDailyLikedPost(postsMetadataObj) {
+  console.log("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
+  var articleTimeLocal = moment_tz.tz(postsMetadataObj.time, lib.getConfigVars().TIME_ZONE);
+  var dateStr = articleTimeLocal.format("MM-DD-YYYY");
+  var createNew = true;
+  if (dailyLikedPosts.length > 0) {
+    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+      if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
+        dailyLikedPosts[i].posts.push(postsMetadataObj);
+        console.log(" - match on existing date: "+dateStr+", adding to that");
+        createNew = false;
+        break;
+      }
+    }
+  }
+  if (createNew) {
+    // add new date object with this post
+    dailyLikedPosts.push({
+      date_str: dateStr,
+      posts: [
+        postsMetadataObj
+      ]
+    });
+    console.log(" - creating new date: "+dateStr);
+  }
+  // save
+  console.log(" - saving updated dailyLikedPosts object");
+  persistJson("daily_liked_posts", {data: dailyLikedPosts}, function() {
+    console.log("ERROR, addDailyLikedPost failed to be saved");
+  })
 }
 
 /*

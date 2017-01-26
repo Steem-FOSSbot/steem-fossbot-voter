@@ -110,7 +110,8 @@ var configVars = {
   DAYS_KEEP_LOGS: 5,
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
-  TIME_ZONE: "Etc/GMT+3"
+  TIME_ZONE: "Etc/GMT+3",
+  EMAIL_DIGEST: 0
 };
 
 /* Private variables */
@@ -885,6 +886,7 @@ function runBot(callback, options) {
             cur_est_payout: postsMetrics[i].post_est_payout,
             upvotes: postsMetrics[i].post_num_upvotes,
             downvotes: postsMetrics[i].post_num_downvotes,
+            alive_time: postsMetrics[i].post_alive_time,
             score: scoreDetail.total,
             scoreDetail: scoreDetail,
             permlink: posts[i].permlink,
@@ -1096,93 +1098,8 @@ function runBot(callback, options) {
     if (response) {
       persistentLog("runBot finished successfully");
       console.log("runBot finished successfully");
-      var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
-      email += "<h3>at "+((new Date()).toUTCString())+"</h3>";
-      //algorithmSet
-      if (!algorithmSet) {
-        email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
-      }
-      if (options && options.test) {
-        email += "<h3>TEST RUN - no votes will be cast</h3>";
-      }
-      email += "<h2>User stats</h2>";
-      email += "<p>User: "+process.env.STEEM_USER+"</p>";
-      var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
-      email += "<p>Voting power: "+votingPower+"</p>";
-      email += "<h2>Posts and scores:</h2>";
-      if (postsMetadata.length > 0) {
-        // first sort postsMetadata
-        var maxScore = Number.MAX_VALUE;
-        var sortedPostsMetadata = postsMetadata.sort(function(a, b) {
-          return b.score - a.score;
-        });
-        // add to email
-        for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
-          email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">"
-            +"Score <strong>"+sortedPostsMetadata[i].score.toFixed(2)+"</strong> "
-            +"| <a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a> "
-            +"| author: "+sortedPostsMetadata[i].author + " "
-            +"| cur est $"+sortedPostsMetadata[i].cur_est_payout.toFixed(3)+" "
-            +"| upvotes: "+postsMetrics[i].post_num_upvotes+" "
-            +"| downvotes: "+postsMetrics[i].post_num_downvotes+" "
-            +"| age: "+postsMetrics[i].post_alive_time.toFixed(2)+" mins "
-            +"</span></p>";
-        }
-      } else {
-        email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
-      }
-      email += "</hr>"
-      email += "<h2>User weights and config:</h2>";
-      email += "<h3>Weights</h3>";
-      if (algorithm.weights.length > 0) {
-        for (var i = 0 ; i < algorithm.weights.length ; i++) {
-          email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
-              +algorithm.weights[i].value+"</strong>";
-          if (algorithm.weights[i].hasOwnProperty("lower")) {
-            email += ", lower bound: "+algorithm.weights[i].lower;
-          }
-          if (algorithm.weights[i].hasOwnProperty("upper")) {
-            email += ", upper bound: "+algorithm.weights[i].upper;
-          }
-          email += "</p>";
-        }
-      } else {
-        email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
-      }
-      //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
-      //email += "<p>"+weightsHtml+"</p>";
-      email += "<h3>White and black lists</h3>";
-      email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
-      email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
-      email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
-      email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
-      email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
-      email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
-      email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
-      email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
-      email += "<h3>Averaging window</h3>";
-      // TODO : update this
-      email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
-      email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
-      email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
-      email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
-      //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
-      email += "<h3>Misc constant settings</h3>";
-      email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
-      email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
-      email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
-      email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
-      //email += "<h2>Raw results metadata:</h2>";
-      //var metadataHtml = JSON.stringify(postsMetadata, null, 4);
-      //email += "<p>"+metadataHtml+"</p>";
-      email += "<h3>Process logs:</h3>";
-      email += "<p>"+logHtml+"</p>";
-      email += "</body></html>";
-      sendEmail("Voter bot", email, true);
-      persistString("last_log_html", email, function(err) {
-        console.log("couldn't save last log html as persistent string");
-      });
-      return;
+
+      sendRunEmail();
     }
   })
   .catch(function (err) {
@@ -1243,6 +1160,213 @@ function addDailyLikedPost(postsMetadataObj) {
   persistJson("daily_liked_posts", {data: dailyLikedPosts}, function() {
     console.log("ERROR, addDailyLikedPost failed to be saved");
   })
+}
+
+function sendRunEmail() {
+  console.log("sendRunEmail");
+  if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
+    sendRunEmailNow();
+  } else {
+    if (dailyLikedPosts.length < 1) {
+      // do nothing, nothing saved
+      console.log(" - can't send digest email, nothing saved");
+      return
+    }
+    // check if first post of new day is made, the send digest of previous day
+    var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
+    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+      var date = moment_tz.tz(dailyLikedPosts[i].date_str, configVars.TIME_ZONE);
+      if (nowDate.getDate() == date.getDate()) {
+        if (dailyLikedPosts[i].posts.length <= 1) {
+          //send digest of previous date
+          nowDate.subtract(1, 'day');
+          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"));
+          return;
+        }
+      }
+    }
+  }
+}
+
+function sendRunEmailNow() {
+  console.log("sendRunEmailNow");
+  var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
+  email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
+  //algorithmSet
+  if (!algorithmSet) {
+    email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
+  }
+  if (options && options.test) {
+    email += "<h3>TEST RUN - no votes will be cast</h3>";
+  }
+  email += "<h2>User stats</h2>";
+  email += "<p>User: "+process.env.STEEM_USER+"</p>";
+  var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
+  email += "<p>Voting power: "+votingPower+"</p>";
+  email += "<h2>Posts and scores:</h2>";
+  if (postsMetadata.length > 0) {
+    // first sort postsMetadata
+    var maxScore = Number.MAX_VALUE;
+    var sortedPostsMetadata = postsMetadata.sort(function(a, b) {
+      return b.score - a.score;
+    });
+    // add to email
+    for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
+      email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">"
+        +"Score <strong>"+sortedPostsMetadata[i].score.toFixed(2)+"</strong> "
+        +"| <a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a> "
+        +"| author: "+sortedPostsMetadata[i].author + " "
+        +"| cur est $"+sortedPostsMetadata[i].cur_est_payout.toFixed(3)+" "
+        +"| upvotes: "+sortedPostsMetadata[i].upvotes+" "
+        +"| downvotes: "+sortedPostsMetadata[i].downvotes+" "
+        +"| age when scored: "+sortedPostsMetadata[i].alive_time.toFixed(2)+" mins "
+        +"</span></p>";
+    }
+  } else {
+    email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
+  }
+  email += "</hr>"
+  email += "<h2>User weights and config:</h2>";
+  email += "<h3>Weights</h3>";
+  if (algorithm.weights.length > 0) {
+    for (var i = 0 ; i < algorithm.weights.length ; i++) {
+      email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
+        +algorithm.weights[i].value+"</strong>";
+      if (algorithm.weights[i].hasOwnProperty("lower")) {
+        email += ", lower bound: "+algorithm.weights[i].lower;
+      }
+      if (algorithm.weights[i].hasOwnProperty("upper")) {
+        email += ", upper bound: "+algorithm.weights[i].upper;
+      }
+      email += "</p>";
+    }
+  } else {
+    email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
+  }
+  //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
+  //email += "<p>"+weightsHtml+"</p>";
+  email += "<h3>White and black lists</h3>";
+  email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
+  email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
+  email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
+  email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
+  email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
+  email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
+  email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
+  email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
+  email += "<h3>Averaging window</h3>";
+  email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
+  email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
+  email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
+  email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
+  //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
+  email += "<h3>Misc constant settings</h3>";
+  email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
+  email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
+  email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
+  email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
+  //email += "<h2>Raw results metadata:</h2>";
+  //var metadataHtml = JSON.stringify(postsMetadata, null, 4);
+  //email += "<p>"+metadataHtml+"</p>";
+  email += "<h3>Process logs:</h3>";
+  email += "<p>"+logHtml+"</p>";
+  email += "</body></html>";
+  sendEmail("Voter bot", email, true);
+  persistString("last_log_html", email, function(err) {
+    console.log("couldn't save last log html as persistent string");
+  });
+}
+
+function sendRunEmailDigest(dateStr) {
+  console.log("sendRunEmailDigest for "+dateStr);
+  var posts = null;
+  for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+    if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
+      posts = dailyLikedPosts[i];
+      break;
+    }
+  }
+  if (posts == null) {
+    console.log(" - can't send digest, can't find date in list: "+dateStr);
+    return;
+  }
+  var email = "<html><body><h1>Daily digest for Voter bot</h1>";
+  email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
+  //algorithmSet
+  if (!algorithmSet) {
+    email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
+  }
+  if (options && options.test) {
+    email += "<h3>TEST RUN - no votes will be cast</h3>";
+  }
+  email += "<h2>User stats</h2>";
+  email += "<p>User: "+process.env.STEEM_USER+"</p>";
+  var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
+  email += "<p>Voting power: "+votingPower+"</p>";
+  email += "<h2>Posts and scores:</h2>";
+  if (posts.length > 0) {
+    // first sort postsMetadata
+    var maxScore = Number.MAX_VALUE;
+    // add to email
+    for (var i = 0 ; i < posts.length ; i++) {
+      email += "<p><span style=\"color: "+(posts[i].vote ? "green" : "red")+";\">"
+        +"Score <strong>"+posts[i].score.toFixed(2)+"</strong> "
+        +"| <a href=\""+posts[i].url+"\"><strong>"+posts[i].title+"</strong></a> "
+        +"| author: "+posts[i].author + " "
+        +"| cur est $"+posts[i].cur_est_payout.toFixed(3)+" "
+        +"| upvotes: "+posts[i].upvotes+" "
+        +"| downvotes: "+posts[i].downvotes+" "
+        +"| age when scored: "+posts[i].alive_time.toFixed(2)+" mins "
+        +"</span></p>";
+    }
+  } else {
+    email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
+  }
+  email += "</hr>"
+  email += "<h2>User weights and config:</h2>";
+  email += "<h3>Weights</h3>";
+  if (algorithm.weights.length > 0) {
+    for (var i = 0 ; i < algorithm.weights.length ; i++) {
+      email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
+        +algorithm.weights[i].value+"</strong>";
+      if (algorithm.weights[i].hasOwnProperty("lower")) {
+        email += ", lower bound: "+algorithm.weights[i].lower;
+      }
+      if (algorithm.weights[i].hasOwnProperty("upper")) {
+        email += ", upper bound: "+algorithm.weights[i].upper;
+      }
+      email += "</p>";
+    }
+  } else {
+    email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
+  }
+  //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
+  //email += "<p>"+weightsHtml+"</p>";
+  email += "<h3>White and black lists</h3>";
+  email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
+  email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
+  email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
+  email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
+  email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
+  email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
+  email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
+  email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
+  email += "<h3>Averaging window</h3>";
+  email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
+  email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
+  email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
+  email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
+  //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
+  email += "<h3>Misc constant settings</h3>";
+  email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
+  email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
+  email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
+  email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
+  email += "</body></html>";
+  sendEmail("Voter bot", email, true);
+  persistString("last_log_html", email, function(err) {
+    console.log("couldn't save last log html as persistent string");
+  });
 }
 
 /*

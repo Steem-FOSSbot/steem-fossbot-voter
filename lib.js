@@ -1139,6 +1139,7 @@ function addDailyLikedPost(postsMetadataObj) {
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
         dailyLikedPosts[i].posts.push(postsMetadataObj);
+        dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
         console.log(" - match on existing date: "+dateStr+", adding to that");
         createNew = false;
         break;
@@ -1151,7 +1152,8 @@ function addDailyLikedPost(postsMetadataObj) {
       date_str: dateStr,
       posts: [
         postsMetadataObj
-      ]
+      ],
+      runs: 1
     });
     console.log(" - creating new date: "+dateStr);
   }
@@ -1174,12 +1176,17 @@ function sendRunEmail(options) {
     }
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
+    console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
+    console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       var date = moment_tz.tz(moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY"), configVars.TIME_ZONE);
+      console.log(" - - checking day of month: "+nowDate.date());
       if (nowDate.date() == date.date()) {
-        if (dailyLikedPosts[i].posts.length <= 1) {
+        console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
+        if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date
           nowDate.subtract(1, 'day');
+          console.log(" - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
           sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options);
           return;
         }

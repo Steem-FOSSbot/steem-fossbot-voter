@@ -1098,8 +1098,8 @@ function runBot(callback, options) {
     if (response) {
       persistentLog("runBot finished successfully");
       console.log("runBot finished successfully");
-
-      sendRunEmail();
+      // send email
+      sendRunEmail(options);
     }
   })
   .catch(function (err) {
@@ -1162,10 +1162,10 @@ function addDailyLikedPost(postsMetadataObj) {
   })
 }
 
-function sendRunEmail() {
+function sendRunEmail(options) {
   console.log("sendRunEmail");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
-    sendRunEmailNow();
+    sendRunEmailNow(options);
   } else {
     if (dailyLikedPosts.length < 1) {
       // do nothing, nothing saved
@@ -1180,7 +1180,7 @@ function sendRunEmail() {
         if (dailyLikedPosts[i].posts.length <= 1) {
           //send digest of previous date
           nowDate.subtract(1, 'day');
-          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"));
+          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options);
           return;
         }
       }
@@ -1188,7 +1188,7 @@ function sendRunEmail() {
   }
 }
 
-function sendRunEmailNow() {
+function sendRunEmailNow(options) {
   console.log("sendRunEmailNow");
   var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
   email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
@@ -1277,7 +1277,7 @@ function sendRunEmailNow() {
   });
 }
 
-function sendRunEmailDigest(dateStr) {
+function sendRunEmailDigest(dateStr, options) {
   console.log("sendRunEmailDigest for "+dateStr);
   var posts = null;
   for (var i = 0 ; i < dailyLikedPosts.length ; i++) {

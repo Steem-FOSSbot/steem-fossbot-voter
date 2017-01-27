@@ -974,16 +974,16 @@ function runBot(callback, options) {
         }
 
         // check if post score is above threshold, set to vote if is
-        var toVote = false;
         if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
-          toVote = true;
+          postsMetadata[i].vote = true;
           upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
           addDailyLikedPost(postsMetadata[i]);
         } else {
+          postsMetadata[i].vote = false;
           persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
-        postsMetadata[i].vote = toVote;
+
       }
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
@@ -1027,7 +1027,6 @@ function runBot(callback, options) {
       if (postsMetadata.length > 0) {
         wait.launchFiber(function() {
           var numToVoteOn = 0;
-          numVoteOn = numToVoteOn;
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             var doVote = true;
             if (options && options.test) {
@@ -1039,6 +1038,7 @@ function runBot(callback, options) {
               }
             }
           }
+          numVoteOn = numToVoteOn;
           var numVotedOn = 0;
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "

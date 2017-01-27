@@ -1176,7 +1176,7 @@ function sendRunEmail(options) {
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       var date = moment_tz.tz(dailyLikedPosts[i].date_str, configVars.TIME_ZONE);
-      if (nowDate.getDate() == date.getDate()) {
+      if (nowDate.date() == date.date()) {
         if (dailyLikedPosts[i].posts.length <= 1) {
           //send digest of previous date
           nowDate.subtract(1, 'day');

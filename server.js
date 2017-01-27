@@ -1077,6 +1077,10 @@ app.get("/edit-config", function(req, res) {
     configVars.MAX_POST_TO_READ = Number(atob(req.query.MAX_POST_TO_READ));
     change = true;
     html_title += "Updated MAX_POST_TO_READ";
+  } else if (req.query.EMAIL_DIGEST) {
+    configVars.EMAIL_DIGEST = Number(atob(req.query.EMAIL_DIGEST));
+    change = true;
+    html_title += "Updated MAX_POST_TO_READ";
   } else if (req.query.MIN_WORDS_FOR_ARTICLE) {
     configVars.MIN_WORDS_FOR_ARTICLE = Number(atob(req.query.MIN_WORDS_FOR_ARTICLE));
     change = true;

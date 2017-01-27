@@ -44,6 +44,7 @@ var
   html_stats_run2 = "",
   html_stats_run3 = "",
   html_stats_run4 = "",
+  html_stats_daily_likes_3 = "",
   html_stats_daily_likes_4 = "",
   html_edit_config1 = "",
   html_edit_config2 = "";
@@ -184,6 +185,10 @@ function loadFiles() {
   loadFileToString("/html/stats-run-4.html", function(str) {
     html_stats_run4 = str;
     console.log("got /html/stats-run-4.html from file");
+  });
+  loadFileToString("/html/stats-daily-likes-3.html", function(str) {
+    html_stats_daily_likes_3 = str;
+    console.log("got /html/stats-daily-likes-3.html from file");
   });
   loadFileToString("/html/stats-daily-likes-4.html", function(str) {
     html_stats_daily_likes_4 = str;
@@ -353,7 +358,7 @@ app.get("/stats", function(req, res) {
           + html
           + html_stats_run2
           + "Daily likes overview for " + (thisDate.format("MMM Do YYYY"))
-          + html_stats_run3
+          + html_stats_daily_likes_3
           + html_list
           + html_stats_daily_likes_4);
       });

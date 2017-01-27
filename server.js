@@ -260,7 +260,7 @@ app.post("/", bodyParser.urlencoded({extended: false}), function(req, res) {
 
 function dashboardExec(req, res) {
   var html = "";
-  var html_usercontent;
+  var html_usercontent = "";
   if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     html += "<div class=\"jumbotron jumbotron_col\"><p>Enter BOT_API_KEY here and section using the buttons below.</p>" +
       "<form class=\"form-add\" action=\"/\" method=\"post\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus>" +

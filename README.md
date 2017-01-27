@@ -88,6 +88,13 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.1.4
+  - improve start session to use POST on dashboard, improve UI feedback for session state
+  - add edit configuration page and backend support
+  - add daily email digest option instead of for each bot run
+  - move times into configurable timezone
+  - add support for single metric algo usage
+  - fix misc bugs
 - v0.1.3, add language detection (some European languages only), remove jQuery CDN dependency, add minimum threshold to score chart, some bug fixes and docs updates
 - v0.1.2
   - add first version of stats, with pretty charts

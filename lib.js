@@ -1180,7 +1180,7 @@ function sendRunEmail(options) {
     console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       var date = moment_tz.tz(moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY"), configVars.TIME_ZONE);
-      console.log(" - - checking day of month: "+nowDate.date());
+      console.log(" - - checking day of month: "+date.date());
       if (nowDate.date() == date.date()) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
@@ -1190,8 +1190,12 @@ function sendRunEmail(options) {
           sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options);
           return;
         }
+        // else
+        console.log(" - more than one run today, wait until tomorrow to publish digest for today");
+        return;
       }
     }
+    console.log(" - didn't find match for today, this signifies an ERROR");
   }
 }
 

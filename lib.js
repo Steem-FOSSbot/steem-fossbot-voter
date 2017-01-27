@@ -1132,8 +1132,8 @@ function countWordsFromRetext(obj) {
 
 function addDailyLikedPost(postsMetadataObj) {
   console.log("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
-  var articleTimeLocal = moment_tz.tz(postsMetadataObj.time, configVars.TIME_ZONE);
-  var dateStr = articleTimeLocal.format("MM-DD-YYYY");
+  var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
+  var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
   if (dailyLikedPosts.length > 0) {
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
@@ -1179,8 +1179,8 @@ function sendRunEmail(options) {
     console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
     console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment_tz.tz(moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY"), configVars.TIME_ZONE);
-      console.log(" - - checking day of month: "+date.date());
+      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
+      console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
       if (nowDate.date() == date.date()) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {

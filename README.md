@@ -41,13 +41,15 @@ The operations you can perform are:
 
 For a discussion of usage and more screen shots, see the [usage guide doc](/docs/usage-guide.md)
 
-![](/img/dashboard-active-session-1.png)
-
 _Dashboard with active session_
 
-![](/img/daily-likes-overview-2.png)
+![](/img/dashboard-active-session-1.png)
+
+---
 
 _Stats for daily likes, metric breakdown_
+
+![](/img/daily-likes-overview-2.png)
 
 ## Installation
 

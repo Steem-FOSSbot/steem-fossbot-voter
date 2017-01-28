@@ -4,8 +4,6 @@ A Steem FOSSbot, by [personz](https://steemit.com/@personz)
 
 Full documentation is [available here](/docs/index.md).
 
-**Please be aware that this software is not yet at first release! Serious bugs may exist.**
-
 ## What is this?
 
 _Voter_ is a bot for Steem which decides which posts to vote for and casts vote on behalf of a registered user. It is built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
@@ -37,8 +35,19 @@ The operations you can perform are:
 - Run bot now (WILL VOTE)
 - Check bot stats (this is pretty cool)
 - Edit curation algorithm weights and white / black lists
+- Edit configuration and settings of bot
 - Run algorithm test (does not actually vote)
 - View last log (same as email log)
+
+For a discussion of usage and more screen shots, see the [usage guide doc](/docs/usage-guide.md)
+
+![](/img/dashboard-active-session-1.png)
+
+_Dashboard with active session_
+
+![](/img/daily-likes-overview-2.png)
+
+_Stats for daily likes, metric breakdown_
 
 ## Installation
 

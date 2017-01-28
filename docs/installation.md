@@ -93,7 +93,7 @@ This is the preferred option, but you'll need a GitHub account to do it (unless 
 
 Follow these steps
 
-##### Set up Github to Heroku deployments
+##### Set up GitHub to Heroku deployments
 
 1. Create a GitHub account, if you don't already have one
 2. Fork this project (if you don't know how, see [this guide](https://help.github.com/articles/fork-a-repo/)).
@@ -107,7 +107,7 @@ Every time there is an release update (or sooner on the develop branch) you shou
 
 This brings your fork up to date with the main project.
 
-You can either do this with the command line, but I would recommend you use the [GitHub Desktop Client]()
+You can either do this with the command line, but I would recommend you use the [GitHub Desktop Client](https://desktop.github.com/)
 
 Just choose the Sync option in the Repository menu. 
 
@@ -117,7 +117,7 @@ Just choose the Sync option in the Repository menu.
 
 If you set your GitHub project access in Heroku to automatically deploy from master branch, the deployment process will happen automatically. You can check this in the _Activity_ tab of your Heroku dashboard, but be aware deployment can take several minutes.
 
-If you did not, you'll need to go back to your _Deploy_ tab on the Heroku dasbboard and manually deploy. This option is at the bottom of the webpage.
+If you did not, you'll need to go back to your _Deploy_ tab on the Heroku dashboard and manually deploy. This option is at the bottom of the webpage.
 
 #### 2. Reinstall the bot
 

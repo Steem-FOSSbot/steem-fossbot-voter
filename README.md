@@ -49,7 +49,7 @@ _Dashboard with active session_
 
 _Stats for daily likes, metric breakdown_
 
-![](/img/daily-likes-overview-2.png)
+![](/img/bot-run-overview-2.png)
 
 ## Installation
 
@@ -58,6 +58,10 @@ See the [installation guide](/docs/installation.md), but if you want to jump rig
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
 
 Make sure to read the instructions though! Heroku has a basic free plan but if not familiar with their service you will want to read their terms, privacy policy, etc.
+
+## Update
+
+Please see also the [installation guide](/docs/installation.md) for instructions on how to keep your server up to date with further releases of Voter.
 
 ## License and acknowledgements
 

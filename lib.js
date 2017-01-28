@@ -1293,7 +1293,7 @@ function sendRunEmailDigest(dateStr, options) {
   var posts = null;
   for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
     if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
-      posts = dailyLikedPosts[i];
+      posts = dailyLikedPosts[i].posts;
       break;
     }
   }
@@ -1316,8 +1316,6 @@ function sendRunEmailDigest(dateStr, options) {
   email += "<p>Voting power: "+votingPower+"</p>";
   email += "<h2>Posts and scores:</h2>";
   if (posts.length > 0) {
-    // first sort postsMetadata
-    var maxScore = Number.MAX_VALUE;
     // add to email
     for (var i = 0 ; i < posts.length ; i++) {
       email += "<p><span style=\"color: "+(posts[i].vote ? "green" : "red")+";\">"

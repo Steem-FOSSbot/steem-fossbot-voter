@@ -4,7 +4,7 @@ Once your server is set up, your bot dashboard will be live at your Heroku app a
 
 From the dashboard you control nearly everything. The notable exceptions are
 
-1. Heroku app variable (AKA environment variables), where you set very private data, such as your Steem posting key, username, email address, etc.
+1. Heroku app variables (AKA environment variables), where you set very private data, such as your Steem posting key, username, email address, etc.
 2. Automatic running of the bot. To run an iteration of your bot every ```X``` minutes, you need to use a scheduler. This is discussed in more detail in the [installation guide](/docs/installation.md).
 
 ## The Dashboard
@@ -52,11 +52,9 @@ For details of how this process works, please see the [discussion doc](/docs/dis
 
 ### 2. Bot Stats
 
-The most sexy and useful area! You can see in an easy to understand and visual way how your bot is operating.
+This is an invaluable tool to see whether or not your algorithm is working as you intend it. You can then make corrections to it and refine your process, based on real data.
 
-This is an invaluable tool to see whether or not your algorithm
-
-Please note that stats are only kept for a limited number of days by default due to the storage limitation of the Heroku free accounts for which this set up is intended. If you have a paid plan or are using this bot locally, you can set the configuration variable _DAYS_KEEP_LOGS_ to a larger number of days. It is set to 5 by default.
+Please note that stats are only kept for a limited number of days by default due to the storage limitation of the Heroku free accounts for which this set up is intended. If you have a paid plan or are using this bot locally, you can set the configuration variable ```DAYS_KEEP_LOGS``` to a larger number of days. It is set to 5 by default.
 
 #### Stats available
 
@@ -74,7 +72,7 @@ _General overview page_
 
 ![](/img/stats-overview-1.png)
 
-Two charts are shown on the general overview page, which is the landing page for stats: the number of posts processed oer bot run, and the number of posts liked per bot run.
+Two charts are shown on the general overview page, which is the landing page for stats: the number of posts processed per bot run, and the number of posts liked per bot run.
 
 Days divisions are shown by block background colour.
  
@@ -86,7 +84,7 @@ It is important to understand how posts are scored in relation to each other, in
 
 The first graph shows the score of each post as a blue bar. It also shows the ```MIN_SCORE_THRESHOLD``` in gray and the current score threshold when that post was scored.
 
-As is explained in the [algorithm doc](/docs/algorithm.md), any post score equal to or above ```MIN_SCORE_THRESHOLD``` is included in the score threshold window, which uses an adjusted averaging formula. Thus if there are a lot of posts scored low at around ```MIN_SCORE_THRESHOLD```, the score threshold will drop, lowing the "standard" of post quality to that a moderately highly scored post is more likey to be voted on. Conversely, if the standard is very high, it is less likely a post will be voted on.
+As is explained in the [algorithm doc](/docs/algorithm.md), any post score equal to or above ```MIN_SCORE_THRESHOLD``` is included in the score threshold window, which uses an adjusted averaging formula. Thus if there are a lot of posts scored low at around ```MIN_SCORE_THRESHOLD```, the score threshold will drop, lowering the "standard" of post quality so that a moderately highly scored post is more likey to be voted on. Conversely, if the standard is very high, it is less likely a post will be voted on.
 
 This is intended to keep voting within the desired amount per day, specified as ```MAX_VOTES_IN_24_HOURS```. Additionally, the closer the number of posts today are to this number, the higher the score threshold, as this is added to it.
   
@@ -96,7 +94,7 @@ If you think too many posts are being picked, adjust you algorithm, and you can 
 
 ![](/img/bot-run-overview-1.png)
 
-While the overall score is what counts, it is made up a sum of individual scores based on metrics. See the [algorithm doc](/docs/algorithm.md) for more details, but each metric is multiplied by a weight which is set by you. We call the set of these weights (and the white / black-lists) the _algorithm_ of the bot.
+While the overall score is what counts, it is made up a sum of individual scores based on metrics. See the [algorithm doc](/docs/algorithm.md) for more details, but each metric is multiplied by a weight which is set by you. We call the set of these weights (and the white / black-lists) the _algorithm_ of the bot, and is set in the Edit Algo section, accessed from the dashboard.
 
 You can see the breakdown of each individual metric score. Note that each individual score already has the algorithm applied, i.e. is ```metric * weight```.
 

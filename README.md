@@ -47,7 +47,7 @@ _Dashboard with active session_
 
 ---
 
-_Stats for daily likes, metric breakdown_
+_Stats for post metrics breakdown_
 
 ![](/img/bot-run-overview-2.png)
 

@@ -4,7 +4,7 @@ This node server is designed to be flexible enough to run on a cloud service or 
 
 ## Locally (Desktop)
 
-Guide not available yet (will require some supporting changes) but you are free to try yourself!_
+_Guide not available yet (will require some supporting changes) but you are free to try yourself!_
 
 ## On Heroku
 
@@ -36,13 +36,13 @@ After the app finishes deploying as a server, you can view the dashboard by clic
 
 ##### Please note
 
-You can always go to the _Resources_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
+You can always go to the _Settings_ tab in your Heroku Dashboard and change these variables any time. Each time you set a Config variable it restarts the server, so the change can take effect.
 
 Please see the usage information above this section for more information about the dashboard.
 
 ### IMPORTANT! Configure bot to run periodically
 
-A free Heroku app (called a "dyno") will idle after a certain amount of time, and so we cannot run a continuous code loop on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
+Heroku apps use server components called "dynos" will idle after a certain amount of time, and so we cannot run a continuous code loop on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
 
 The **Heroku Scheduler** add-on was created with the app (if you had a verified account), so we'll add a scheduled task there with these steps:
 
@@ -50,12 +50,12 @@ The **Heroku Scheduler** add-on was created with the app (if you had a verified 
 2. A new browser tab or window will open with the add-on settings.
 3. Click the **Add new job** button
 4. Type in ```node bot.js``` in to the text box
-5. Set the frequency from _Daily_ to _Every 10 minutes_
+5. Set the frequency from _Daily_ to _Every Hour_
 6. Click the **Save** button
 
 The task has now been created.
 
-If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after 10 minutes to confirm the script was run, as it shows the last time the scheduler was activated here.
+If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after an hour to confirm the script was run, as it shows the last time the scheduler was activated here.
 
 ### (Optional) Set up email notifications
 
@@ -83,7 +83,7 @@ And while the [Privacy Policy](https://sendgrid.com/policies/privacy/) does admi
 
 We recommend you do not supply personal information to SendGrid (or any other service) and use email aliases, anonymous remailers or dead drops where possible. You should assume that any personally identifiable information supplied to Heroku is also shared with SendGrid.
 
-### Note on updates and version migration
+## Updates and version migration
 
 When there are bugfixes and other updates to this software, you can redeploy to Heroku in one of two ways
 
@@ -94,6 +94,8 @@ This is the preferred option, but you'll need a GitHub account to do it (unless 
 Follow these steps
 
 ##### Set up GitHub to Heroku deployments
+
+_Note, you only need to do this once_
 
 1. Create a GitHub account, if you don't already have one
 2. Fork this project (if you don't know how, see [this guide](https://help.github.com/articles/fork-a-repo/)).
@@ -109,7 +111,9 @@ This brings your fork up to date with the main project.
 
 You can either do this with the command line, but I would recommend you use the [GitHub Desktop Client](https://desktop.github.com/)
 
-Just choose the Sync option in the Repository menu. 
+Just choose the Sync option in the Repository menu.
+ 
+_Please ignore the files in the screenshot, it's just a random repo!_
 
 ![](/img/github-desktop-sync.png)
 

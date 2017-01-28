@@ -29,6 +29,7 @@ var
   html_dashboard1 = "",
   html_dashboard2 = "",
   html_dashboard3 = "",
+  html_dashboard4 = "",
   html_editAlgo1 = "",
   html_editAlgo2 = "",
   html_editAlgo3 = "",
@@ -48,6 +49,9 @@ var
   html_stats_daily_likes_4 = "",
   html_edit_config1 = "",
   html_edit_config2 = "";
+
+var
+  json_package = "";
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.<br/><br/>You might need to supply your API key again in at the <a href=\"/\">Dashboard</a>",
@@ -126,6 +130,10 @@ function loadFiles() {
     html_dashboard3 = str;
     console.log("got /html/dashboard-part-3.html from file");
   });
+  loadFileToString("/html/dashboard-part-4.html", function(str) {
+    html_dashboard4 = str;
+    console.log("got /html/dashboard-part-4.html from file");
+  });
   loadFileToString("/html/edit-algo-part-1.html", function(str) {
     html_editAlgo1 = str;
     console.log("got /html/edit-algo-part-1.html from file");
@@ -202,6 +210,15 @@ function loadFiles() {
     html_edit_config2 = str;
     console.log("got /html/edit-config-2.html from file");
   });
+  // JSON
+  loadFileToString("/package.json", function(str) {
+    try {
+      json_package = JSON.parse(str);
+    } catch(err) {
+      json_package = {version: "unknown"};
+    }
+    console.log("got /package.json from file");
+  });
 }
 
 function loadFileToString(filename, callback) {
@@ -261,6 +278,7 @@ app.post("/", bodyParser.urlencoded({extended: false}), function(req, res) {
 function dashboardExec(req, res) {
   var html = "";
   var html_usercontent = "";
+  var html_version = "<h3>version "+json_package.version+"</h3>";
   if (!req.session.api_key || req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
     html += "<div class=\"jumbotron jumbotron_col\"><p>Enter BOT_API_KEY here and section using the buttons below.</p>" +
       "<form class=\"form-add\" action=\"/\" method=\"post\"><input type=\"password\" name=\"api_key\" id=\"input_api_key\" placeholder=\"Key\" required autofocus>" +
@@ -274,10 +292,12 @@ function dashboardExec(req, res) {
   }
   res.send(200,
     html_dashboard1
-    + html
+    + html_version
     + html_dashboard2
+    + html
+    + html_dashboard3
     + html_usercontent
-    + html_dashboard3);
+    + html_dashboard4);
 }
 
 /*

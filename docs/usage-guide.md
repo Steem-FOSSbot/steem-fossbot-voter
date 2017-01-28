@@ -122,9 +122,43 @@ The charts used are the same as the ones for Bot Run, they are just applied to t
 
 ### 3. Edit Algorithm
 
+In order for the bot to function _at all_, you must set your algorithm for it. To be clear, the bot server contains a lot of code already, but you need to tell it how you want to score posts. We call this the **algorithm**.
+
+For a more detailed explanation, see the [algorithm doc](/docs/algorithm.md).
+
+To summarise, there are two parts to the algorithm:
+
+- A collection of weights
+- Some white / blacklists
+
+#### Weights
+
+When the bot runs (performs an iteration on the newest posts), it scores them. The if the resulting score meets the threshold requirement, the post is voted on. The threshold is automatically adjusted for each post, more details above in the stats section, and also of course in the [algorithm doc](/docs/algorithm.md).
+
+This score is calculated by adding up each metric you have chosen to use. Before adding them together, the metrics are scaled (and optionally confined to a range of values) using what we term **weights**.
+
+You can think of a weight as the relative importance of that particular metric, with regards to its own range of values.
+
+Some metrics are _numeric_ and can have any number value which is sensible, and some metrics are _boolean_, and are 0 if false or 1 if true.
+
+#### White / blacklists
+
+By themselves these lists do nothing but they are used for certain metrics. There are four white / blacklists:
+
+- **Author**: used for when looking the poster of the article and also the voters on an article, such as ```author_is_blacklisted```.
+  - Note that it is also possible to use your followed users (e.g. ```author_is_followed```), you don't have to add them to this list. Muted users however or inaccessible.
+- **Content category and tag**: used when looking at post tags, including the first tag which is also referred to as the category, such as ```post_num_tags_whitelisted```
+- **Content word**: used in NLP (natural language processing) metric involving keywords, such as ```post_num_keywords_whitelisted```
+- **Domain**: used for website links, such as ```post_any_link_domains_blacklisted```
+
 ![](/img/edit-algo-1.png)
 
-TODO
+#### Features
+
+- Clicking a metric name in the reference list at the bottom of the page will add that metric to the top metric update form, for ease of use
+- Clicking an existing metric name in your algorithm will add the values already set to the top metric update form, so you can update them easily
+- You can delete a metric from your algorithm with the _delete_ button on the right side
+- You can export or import the entire algorithm as JSON. This is useful for sharing algorithms, or backing up.
 
 ### 4. Edit Config
 
@@ -136,6 +170,10 @@ There are two categories
 - Advanced: edit with caution, setting these incorrectly can really break the bot
 
 ![](/img/edit-config-1.png)
+
+Note, you can only edit one config variable at a time, and after each update you must press the corresponding _update_ button.
+
+You can also export or import the entire set of config variables for sharing or back up.
 
 ### 5. Test Algorithm
 

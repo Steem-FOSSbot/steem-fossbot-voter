@@ -982,7 +982,9 @@ function runBot(callback, options) {
           postsMetadata[i].vote = true;
           upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
-          addDailyLikedPost(postsMetadata[i]);
+          if (!options.hasOwnProperty("test") || !options.test ) {
+            addDailyLikedPost(postsMetadata[i]);
+          }
         } else {
           postsMetadata[i].vote = false;
           persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
@@ -1013,12 +1015,18 @@ function runBot(callback, options) {
           });
       }
       // and save postsMetadata to persistent
-      persistentLog(" - saving posts_metadata");
-      savePostsMetadata({postsMetadata: postsMetadata}, function(res) {
-        persistentLog(" - - SAVING posts_metadata: "+res.message);
+      if (!options.hasOwnProperty("test") || !options.test ) {
+        persistentLog(" - saving posts_metadata");
+        savePostsMetadata({postsMetadata: postsMetadata}, function (res) {
+          persistentLog(" - - SAVING posts_metadata: " + res.message);
+          // finish
+          deferred.resolve(true);
+        });
+      } else {
+        persistentLog(" - - NOT saving postsmetadata, this is a test run");
         // finish
         deferred.resolve(true);
-      })
+      }
       return deferred.promise;
     },
     // cast votes to steem

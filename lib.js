@@ -321,8 +321,12 @@ function runBot(callback, options) {
         throw {message: "No new posts since last post and within minimum time of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes"};
       }
       // update last fetched post
-      lastPost = posts[0];
-      persistJson("lastpost", lastPost);
+      if (!options.hasOwnProperty("test") || !options.test ) {
+        lastPost = posts[0];
+        persistJson("lastpost", lastPost);
+      } else {
+        persistentLog("didn't set lastpost, this is a test run");
+      }
       // finish
       persistentLog(" - num new posts: "+posts.length);
       deferred.resolve(true);

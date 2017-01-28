@@ -1,16 +1,16 @@
 # Installation
 
-This node server is designed to be flexible enough to run on a cloud service or locally on any machine. You also have the option of how to trigger bot updates (when the bot will run to process posts), either together on the cloud or by GET requesting a URI.
+This node server is designed to be flexible enough to run on a cloud service or locally on any machine. You also have the option of how to trigger bot updates (when the bot will run to process posts), either together on the cloud or by GET requesting a URI. 
 
-### Locally (Desktop)
+## Locally (Desktop)
 
 Guide not available yet (will require some supporting changes) but you are free to try yourself!_
 
-### On Heroku
+## On Heroku
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
 
-#### Create server
+### Create server
 
 _Please be advised to read the Heroku [Terms of Service](https://www.heroku.com/policy/tos) and [Privacy Statement](https://www.heroku.com/policy/privacy) very carefully before creating an account._
 
@@ -40,7 +40,7 @@ You can always go to the _Resources_ tab in your Heroku Dashboard and change the
 
 Please see the usage information above this section for more information about the dashboard.
 
-#### IMPORTANT! Configure bot to run periodically
+### IMPORTANT! Configure bot to run periodically
 
 A free Heroku app (called a "dyno") will idle after a certain amount of time, and so we cannot run a continuous code loop on this server. However in order to run our curation bot **we need to set a scheduled task which will run the bot periodally**.
 
@@ -57,11 +57,11 @@ The task has now been created.
 
 If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after 10 minutes to confirm the script was run, as it shows the last time the scheduler was activated here.
 
-#### (Optional) Set up email notifications
+### (Optional) Set up email notifications
 
 You can optionally use SendMail to send email notifications and summaries of your server and bot's activity. SendMail was chosen because it has a good add-on integration with Heroku, and seems respect data protection.
 
-##### Email set up
+#### Email set up
 
 If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER if you want to also, you can set up email notifications. There are few more steps to get notifications fully set up.
 
@@ -82,3 +82,45 @@ And while the [Privacy Policy](https://sendgrid.com/policies/privacy/) does admi
 > If you register for the Site or Services through a third-party, the personally identifiable information you have provided in connection with your registration may be imported into your account on for the Services. The personally identifiable information we may collect from you will also include any information imported from any such third-party.
 
 We recommend you do not supply personal information to SendGrid (or any other service) and use email aliases, anonymous remailers or dead drops where possible. You should assume that any personally identifiable information supplied to Heroku is also shared with SendGrid.
+
+### Note on updates and version migration
+
+When there are bugfixes and other updates to this software, you can redeploy to Heroku in one of two ways
+
+#### 1. Fork your own version
+
+This is the preferred option, but you'll need a GitHub account to do it (unless you want to manually set up a different repo with the Heroku CLI, but if you know this much you already know how to do it).
+
+Follow these steps
+
+##### Set up Github to Heroku deployments
+
+1. Create a GitHub account, if you don't already have one
+2. Fork this project (if you don't know how, see [this guide](https://help.github.com/articles/fork-a-repo/)).
+3. On Heroku, go to the _Deploy_ tab for you project, and follow the instructions to link you GitHub account to your Heroku project for this bot.
+4. Search for ```steem-fossbot-voter``` and add access to it to your deployment
+5. You should set it up for automatic deployment on master branch, just click the clearly labelled button
+
+##### Sync your fork with the main project
+  
+Every time there is an release update (or sooner on the develop branch) you should sync your fork with the main project repository.
+
+This brings your fork up to date with the main project.
+
+You can either do this with the command line, but I would recommend you use the [GitHub Desktop Client]()
+
+Just choose the Sync option in the Repository menu. 
+
+![](/img/github-desktop-sync.png)
+
+##### Deploy your fork
+
+If you set your GitHub project access in Heroku to automatically deploy from master branch, the deployment process will happen automatically. You can check this in the _Activity_ tab of your Heroku dashboard, but be aware deployment can take several minutes.
+
+If you did not, you'll need to go back to your _Deploy_ tab on the Heroku dasbboard and manually deploy. This option is at the bottom of the webpage.
+
+#### 2. Reinstall the bot
+
+Less desirable, but much simpler, is to just delete the server and re-deploy it. Just delete it and follow the installation instructions again.
+
+Don't forget to export both your configuration (accessed in Edit Config) and your algorithm (accessed in Edit Algorithm section).

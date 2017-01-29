@@ -321,7 +321,7 @@ function runBot(callback, options) {
         throw {message: "No new posts since last post and within minimum time of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes"};
       }
       // update last fetched post
-      if (!options.hasOwnProperty("test") || !options.test ) {
+      if (options == null || !options.hasOwnProperty("test") || !options.test ) {
         lastPost = posts[0];
         persistJson("lastpost", lastPost);
       } else {
@@ -982,7 +982,7 @@ function runBot(callback, options) {
           postsMetadata[i].vote = true;
           upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
-          if (!options.hasOwnProperty("test") || !options.test ) {
+          if (options == null || !options.hasOwnProperty("test") || !options.test ) {
             addDailyLikedPost(postsMetadata[i]);
           }
         } else {
@@ -1015,7 +1015,7 @@ function runBot(callback, options) {
           });
       }
       // and save postsMetadata to persistent
-      if (!options.hasOwnProperty("test") || !options.test ) {
+      if (options == null || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(" - saving posts_metadata");
         savePostsMetadata({postsMetadata: postsMetadata}, function (res) {
           persistentLog(" - - SAVING posts_metadata: " + res.message);

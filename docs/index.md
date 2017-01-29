@@ -1,5 +1,9 @@
 # Voter documentation
 
+_Share the love_
+
+![](/img/voter-banner-300.png)
+
 ## Contents
 
 **[Usage Guide](/docs/usage-guide.md)**

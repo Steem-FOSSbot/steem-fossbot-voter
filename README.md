@@ -1,5 +1,7 @@
 # Voter
 
+<img src="/img/voter-banner-150.png" alt="Voter logo" style="width: 150px; height: 150px"/>
+
 A Steem FOSSbot, by [personz](https://steemit.com/@personz)
 
 Full documentation is [available here](/docs/index.md).

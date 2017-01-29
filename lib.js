@@ -905,6 +905,7 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: choose posts to vote on based on scores");
       var deferred = Q.defer();
       var upVotesProcessed = 0;
+      var isFirst = true;
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {
           min: configVars.MIN_SCORE_THRESHOLD
@@ -983,7 +984,8 @@ function runBot(callback, options) {
           upVotesProcessed++;
           persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
           if (options == null || !options.hasOwnProperty("test") || !options.test ) {
-            addDailyLikedPost(postsMetadata[i]);
+            addDailyLikedPost(postsMetadata[i], isFirst);
+            isFirst = false;
           }
         } else {
           postsMetadata[i].vote = false;
@@ -1142,7 +1144,7 @@ function countWordsFromRetext(obj) {
   return 0;
 }
 
-function addDailyLikedPost(postsMetadataObj) {
+function addDailyLikedPost(postsMetadataObj, isFirst) {
   console.log("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
   var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
   var dateStr = nowDate.format("MM-DD-YYYY");
@@ -1151,7 +1153,9 @@ function addDailyLikedPost(postsMetadataObj) {
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
         dailyLikedPosts[i].posts.push(postsMetadataObj);
-        dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
+        if (isFirst) {
+          dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
+        }
         console.log(" - match on existing date: "+dateStr+", adding to that");
         createNew = false;
         break;

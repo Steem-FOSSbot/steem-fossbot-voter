@@ -8,6 +8,10 @@ _Share the love_
 
 **[Usage Guide](/docs/usage-guide.md)**
 
+Explains how to design your algorithm and get the most out of the bot
+
+**[Dashboard Overview](/docs/dashboard-overview.md)**
+
 A full overview of using the bot through the web app dashboard.
 
 **[Installation](/docs/installation.md)**
@@ -29,3 +33,9 @@ Outlines our ethos regarding data protection, privacy, and looks at how some oth
 **[Steem FOSSbot ecosystem](/docs/ecosystem.md)**
 
 Information on the larger ecosystem, how _Voter_ fits into it and what our plans are.
+
+## Extra
+
+**[FAQ](/docs/faq.md)**
+
+Frequently asked questions, probably

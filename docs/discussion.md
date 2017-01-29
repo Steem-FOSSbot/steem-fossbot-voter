@@ -14,7 +14,7 @@ Where the general tools exist to add automatic curation, they come at a cost, wh
 
 The goal of this project is to bring a high quality and fully customisable bot to anyone who is willing to put in the time to set up a simple server and make their own customisations.
 
-We recognise that there is a investment of time and patience required to set this up and ever effort has been made to make this as easy as possible. In the future it would be ideal to have a super simple, consumer grade interface but at present there is some overhead.
+We recognise that there is a investment of time and patience required to set this up and ever effort has been made to make this as easy as possible. In the future it would be ideal to have a super simple, consumer grade interface but we're not there yet.
 
 Be encouraged though that it is certainly possible to set up without any existing technical knowledge, just a user's knowledge of Steem and patience to follow the tutorial.
 
@@ -52,7 +52,7 @@ Strategic curation votes for posts that will yeild the best curration reward, an
 
 If we do not want to disregard cultural curation completely, we must have some element of strategy. And it makes sense to maximise the Steem Power of your account, not just for personal gain, but also so that your cultural curation have more weight, thus making your votes stronger and ultimately promoting the kind of content you wish to see, or in other words, contributing towards creating a culture on Steem which you are part of.
 
-A wholistic solution will include both aspects, cultural and strategy. They interact with each other. Cultural aspects effect payout indirectly, by attracting voters based on content, so they will always be worth considering even if one is concerned purely with curation rewards.
+A holistic solution will include both aspects, cultural and strategy. They interact with each other. Cultural aspects effect payout indirectly, by attracting voters based on content, so they will always be worth considering even if one is concerned purely with curation rewards.
 
 ### Solution to the problem
 
@@ -64,9 +64,9 @@ When we visit at Steemit.com, we see new posts since our last visit. If we visit
 
 We must reduce the complex question of whether or not to vote on a post to a simple yes or no for each post. To reduce it a little less, say we calculate a numeric score for each post, and choose the post to vote on based on some criteria. This scoring process will be multi-dimensional but we can make each dimension simple enough to calculate with a simple test, and then combine each individual score.
 
-These individual scores will be based on **metrics**, such as word count, number of votes already cast, whether the author is followed, etc. Metrics are combined into a single score using an algorithm of values, weights and conditions, which we'll just call an algorithm. The metrics are facts of the Steem posts and environment, whereas the algorithm is a customizable process which each user can tweak to make their own bot curate as they would like it to curation. See the [algorithm doc page](/docs/algorithm.md) for a detailed, technical look at this.
+These individual scores will be based on **metrics**, such as word count, number of votes already cast, whether the author is followed, etc. These are _deterministic_. Metrics are combined into a single score using an algorithm of values, weights and conditions, which we'll just call an algorithm. The metrics are facts of the Steem posts and environment, whereas the algorithm is a customizable process which each user can tweak to make their own bot curate as they would like it to curation. See the [algorithm doc page](/docs/algorithm.md) for a detailed, technical look at this.
 
-In the simpliest case, we would choose to vote on any post which had a score greater than a certain value. This value is called a threshold. But it is a bit more complex than that, as we'll see.
+In the simplest case, we would choose to vote on any post which had a score greater than a certain value. This value is called a threshold. But it is a bit more complex than that, as we'll see.
 
 #### Constrained by vote frequency
 
@@ -76,14 +76,16 @@ From the [Steem White Paper](https://steem.io/SteemWhitePaper.pdf), pg 18:
 
 > Through rate limiting, stakeholders who vote more frequently have each vote count for less than stakeholders who vote less frequently. [...] a user’s voting power decreases every time they vote and then regenerates as time passes without voting. [...] Note that voting power rapidly drops off during periods of continuous voting, and then slowly recovers.
 
-From a strategy point of view, it makes sense to restrict the number of votes cast. Too few and you cannot have an cultural impact nor get enough curation rewards; too many and you dilute your impact. This is clearly an optimisation problem (potentially solved by AI). But Steem posters have variously reported annecdotally that the sweet-spot is somehwere between 25 and 50 per day. So we can make sure to try to vote at least 25 times and no more than 50 per day.
+From a strategy point of view, it makes sense to restrict the number of votes cast. Too few and you cannot have an cultural impact nor get enough curation rewards; too many and you dilute your impact. This is clearly an optimisation problem (potentially solved by AI). But Steem posters have variously reported annecdotally that the sweet-spot is somewhere between 25 and 50 per day. So we can make sure to try to vote at least 25 times and no more than 50 per day.
 
 Another strategy factor is that the earlier you vote for a post which _will be_ successful, the larger your curation reward. So clearly it is prudent to check for new posts often.
 
-Though on average you should vote every 30 to 60 minutes, the best posts will most likely not be made so regularly. A potential solution to this dilemma is to use a **time windowed score average as a threshold** to determine if a post has a high enough score to vote on, and to sample N (i.e. see if there are new posts) very often, say every 10 minutes. The window length will be an important factor which will require manual tweaking or optimisation, but we could use a window period of 12 hours as a starting point.
+Though on average you should vote every 30 to 60 minutes, the best posts will most likely not be made so regularly. A potential solution to this dilemma is to use a **sliding window score average as a threshold** to determine if a post has a high enough score to vote on, and to sample N (i.e. see if there are new posts) often. This means that the likelihood of voting on a new post is related to the scores of the previous posts.
 
-If there are a few good posts in one hour they will all get voted on and will raise the windowed average so that within that window the posts need to be better to be voted on. Similarly, if posts score very low for several hours in a row, the next post which is a bit better will get voted on. This solves the problem if finding an fixed, absolute threshold.
+The threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour they will all get voted on and will raise the windowed average so that within that window the posts need to be better to be voted on. Similarly, if posts score very low for several hours in a row, the next post which is a bit better will get voted on. This solves the problem if finding an fixed, absolute threshold, and allows changes in the community, for example, to be automatically taken into account.
 
-It also implies that the scoring system is relative and that, for example, a score of 40 does not mean anything except in relation to another score, say 20. 40 is twice as "suitable" as 20, but beyond that we don't need to know anything, nor do we need to.
+The result (we have verified this works) is a steady flow of votes of relative quality to the most recent previous posts. Note that the window only includes posts which score above the minimum threshold, so really low scored posts are irrelevant to the threshold, i.e. there is some minimum standard of quality required. 
+
+It also shows that the scoring system is relative and that, for example, a score of 40 does not mean anything except in relation to another score, say 20. 40 is twice as "suitable" as 20, but beyond that we don't need to know anything, nor do we need to. This needs to be kept in mind when designing your bot algorithm, when setting the weights, and tested against real data.
 
 Finally, since the window size is hard to find, we can allow it to grow or shrink depending on how many suitable posts were found. If too few posts were found, e.g. less than 25, then we neeed to decrease the window size to allow it to respond faster to changes. If too many posts were found, e.g. more than 50, we should increase the window size to stop the threshold from sinking or rising too quickly.

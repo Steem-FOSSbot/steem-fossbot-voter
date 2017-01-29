@@ -136,19 +136,19 @@ function loadChart() {
 		        position: 'right'
 		    },
 		    color: {
-		        pattern: ['#9e33ff',
+		        pattern: [
+		        	'#9e33ff',
               '#f900ff',
               '#ff006b',
-              '#ff1d00',
               '#ff5f00',
               '#ffd400',
-              '#96ff00',
-              '#00ff09',
+              '#65b200',
+              '#009404',
               '#00ff9d',
               '#00b8ff',
               '#5259ff',
               '#8b8579',
-              '#000000'
+              '#2e2e2e'
 						]
 		    }
 		});

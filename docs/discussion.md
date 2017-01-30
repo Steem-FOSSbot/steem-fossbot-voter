@@ -34,19 +34,19 @@ See the [original Steemit post here](https://steemit.com/curation/@personz/5qnnn
 
 ### Definition of problem
 
-To state the problem directly; **to automatically vote for posts that I would post for anyway while also maximising my curation rewards.**
+To state the problem directly; **to automatically vote for posts that I would vote for anyway while also maximising my curation rewards.**
 
 To break this down, we can separate two distinct curation goals which are in conflict with each other: cultural curation and strategic curation.
 
 #### Cultural curation
 
-Cultural curation votes for posts based on the content of the post and other related cultural, and thus social aspects. When you curate culturally, you vote for a post because you liked the content, or even if you didn't like it, you thought it was well writen. In other words, it contributes to the culture of Steem in a positive way, however you wish to define it.
+Cultural curation votes for posts based on the content of the post and other related cultural, and thus social aspects. When you curate culturally, you vote for a post because you liked the content, or even if you didn't like it, you thought it was well written. In other words, it contributes to the culture of Steem in a positive way, however you wish to define it.
 
 There are a lot of other peripheral influences for a cultural vote. Perhaps you didn't read a post, or didn't much like it, but want to support the author for a different reason, such as you know and like them, or they are new, or any number of possibilities. A broad definition of cultural curation would include them all.
 
 #### Strategic curation
 
-Strategic curation votes for posts that will yeild the best curration reward, and over time votes in a pattern which maximises reward in the long term. Any user of Steem will know that the "best" posts do not always get the highest rewards, and sometimes "undeserving" posts get very high rewards. The existence of betting, games, competitions, and the presence of whales, etc. complicates matters significantly.
+Strategic curation votes for posts that will yield the best curation reward, and over time votes in a pattern which maximises reward in the long term. Any user of Steem will know that the "best" posts do not always get the highest rewards, and sometimes "undeserving" posts get very high rewards. The existence of betting, games, competitions, and the presence of whales, etc. complicates matters significantly.
 
 #### In conflict but also collaboration
 
@@ -82,10 +82,8 @@ Another strategy factor is that the earlier you vote for a post which _will be_ 
 
 Though on average you should vote every 30 to 60 minutes, the best posts will most likely not be made so regularly. A potential solution to this dilemma is to use a **sliding window score average as a threshold** to determine if a post has a high enough score to vote on, and to sample N (i.e. see if there are new posts) often. This means that the likelihood of voting on a new post is related to the scores of the previous posts.
 
-The threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour they will all get voted on and will raise the windowed average so that within that window the posts need to be better to be voted on. Similarly, if posts score very low for several hours in a row, the next post which is a bit better will get voted on. This solves the problem if finding an fixed, absolute threshold, and allows changes in the community, for example, to be automatically taken into account.
+This is the method implemented in this bot. From the [algorithm doc](/docs/algorithm.md):
 
-The result (we have verified this works) is a steady flow of votes of relative quality to the most recent previous posts. Note that the window only includes posts which score above the minimum threshold, so really low scored posts are irrelevant to the threshold, i.e. there is some minimum standard of quality required. 
+> In general, the threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour, it will get progressively less likely the are all voted on, as the threshold will get raised for each good post scored and processed. Similarly, if a lot of posts score very low, the next good post is much more likely to be voted on.
 
-It also shows that the scoring system is relative and that, for example, a score of 40 does not mean anything except in relation to another score, say 20. 40 is twice as "suitable" as 20, but beyond that we don't need to know anything, nor do we need to. This needs to be kept in mind when designing your bot algorithm, when setting the weights, and tested against real data.
-
-Finally, since the window size is hard to find, we can allow it to grow or shrink depending on how many suitable posts were found. If too few posts were found, e.g. less than 25, then we neeed to decrease the window size to allow it to respond faster to changes. If too many posts were found, e.g. more than 50, we should increase the window size to stop the threshold from sinking or rising too quickly.
+See that doc for more details on how votes are kept in check.

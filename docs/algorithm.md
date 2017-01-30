@@ -65,7 +65,49 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 ## Threshold calculation
 
-_TODO_
+The threshold is automatically calculated so that you don't have to worry about pulling a good value out of the air. It is already difficult enough to decide what weights to use in your algorithm.
+
+The threshold is calculated in three steps:
+
+1. Get average of post scores in the sliding window, i.e. up to the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts
+2. Increase this average by ```SCORE_THRESHOLD_INC_PC```
+3. Increase this average in proportion to how many votes were cast in the last 24 hours, relative to the maximum (target) post votes of ```MAX_VOTES_IN_24_HOURS```
+
+#### 1. Calculate average score
+
+The threshold uses a _sliding window_ to first calculate average post score, ending at the current post, and this is updated when scoring each post. So the window will consist of the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts which scored equal to or above ```MIN_SCORE_THRESHOLD```. You can think of the ```MIN_SCORE_THRESHOLD``` as the minimum absolute post score. This should be positive and above zero to keep the threshold at least a little above zero. 
+
+#### 2. Increase by percentage
+
+By default, we increase the average by a ratio of 0.1, i.e. by 10%. This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
+
+Values of up to 0.6 or 60% can also work.
+
+#### 3. Increase in proportion to today's votes
+
+In order to maintain voting power, we must limit the amount we vote (see [the discussion doc](/docs/discussion.md) for more information on the rate-limited voting of Steem).
+
+The most usual way is to set a voting limit per 24 hour period. As this voter bot seeks to maximise curation reward, we should vote as often as possible, within these limits. Therefore the voting limit is also a voting _target_. So if you wish to leave room for yourself to vote manually without considering the bot, you should set ```MAX_VOTES_IN_24_HOURS``` lower than your actual target for the day. But also note that even if you go over this limit, the algorithm will respond to your manual voting so perhaps that's not necessary.
+ 
+The amount to increase by uses this formula of proportionality, scaled to match the current highest post in the window:
+
+```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS) ^ 2)```
+
+Note also that the effect is not linear, it follows the square curve of values between 0.0 and 1.0, so the increase will have less of an effect until the number of posts approaches the limit for the day.
+
+_Thanks to GraphSketch.com for this image_
+
+![](/img/graph-squared.png)
+
+#### Summary of threshold calculation
+
+In general, the threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour, it will get progressively less likely the are all voted on, as the threshold will get raised for each good post scored and processed. Similarly, if a lot of posts score very low, the next good post is much more likely to be voted on.
+
+The result (we have verified this works) is a steady flow of votes of relative quality to the most recent previous posts. Note that the window only includes posts which score above the minimum threshold, so really low scored posts are irrelevant to the threshold, i.e. there is some minimum standard of quality required.
+
+This shows that the scoring system is relative and that, for example, a score of 40 does not mean anything except in relation to another score, say 20. 40 is twice as "suitable" as 20, but beyond that we don't need to know anything, nor do we need to. This needs to be kept in mind when designing your bot algorithm, when setting the weights, and tested against real data.
+
+Finally, be warned against changing the post window size to be too small or too large. Too small and, perhaps counter-intuitively, it will be much less likely for posts to be voted on because the lower scores are not keeping the average low. Too large a window means that the algorithm cannot respond to changes quickly and you risk the bot voting on a lot of low quality posts because the threshold could not raise quick enough, or missing a lot of good quality posts because a few very very good quality posts skewed the average too high for too long.
 
 ### Settings and constants
  
@@ -87,7 +129,7 @@ Edit with caution, setting these incorrectly can really break the bot
 1. **MAX_POST_TO_READ** (```100```): Max number of posts fetched. Any more than this will be discarded
 2. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
 3. **NUM_POSTS_FOR_AVG_WINDOW** (```10```): Maximum number of posts used for averaging window used to determine baseline threshold score
-4. **MIN_SCORE_THRESHOLD** (```50```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
+4. **MIN_SCORE_THRESHOLD** (```10```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
 5. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
 6. **CAPITAL_DOLPHIN_MIN** (```25000```): Minimum Steem Power to qualify as a _dolphin_
 7. **CAPITAL_WHALE_MIN** (```100000```): Minimum Steem Power to qualify as a _whale_

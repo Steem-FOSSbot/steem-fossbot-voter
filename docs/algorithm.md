@@ -65,7 +65,7 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 ## Threshold calculation
 
-The threshold is automatically calculated so that you don't have to worry about pulling a good value out of the air. It is already difficult enough to decide what weights to use in your algorithm.
+The threshold is automatically calculated so that you don't have to worry about pulling a good value out of the air.
 
 The threshold is calculated in three steps:
 
@@ -95,13 +95,15 @@ The amount to increase by uses this formula of proportionality, scaled to match 
 
 Note also that the effect is not linear, it follows the square curve of values between 0.0 and 1.0, so the increase will have less of an effect until the number of posts approaches the limit for the day.
 
-_Thanks to GraphSketch.com for this image_
+_made on GraphSketch.com_
 
 ![](/img/graph-squared.png)
 
+The orange line is a straight linear effect, and the blue line shows the squared effect. At low values (close to the bottom) the effect is small, but then shoots up for higher values. 
+
 #### Summary of threshold calculation
 
-In general, the threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour, it will get progressively less likely the are all voted on, as the threshold will get raised for each good post scored and processed. Similarly, if a lot of posts score very low, the next good post is much more likely to be voted on.
+In general, the threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour, it will get progressively less likely they are all voted on, as the threshold will get raised for each good post scored and processed. Similarly, if a lot of posts score very low, the next good post is much more likely to be voted on.
 
 The result (we have verified this works) is a steady flow of votes of relative quality to the most recent previous posts. Note that the window only includes posts which score above the minimum threshold, so really low scored posts are irrelevant to the threshold, i.e. there is some minimum standard of quality required.
 
@@ -111,7 +113,9 @@ Finally, be warned against changing the post window size to be too small or too 
 
 ### Settings and constants
  
-There are some settings (which are currently not editable) which effect the algorithm too. The number in brackets is the default value:
+Most settings which effect the algorithm are editable. I have set sensible defaults, but these will not be appropriate for every situation.
+
+The number in brackets is the default value:
 
 #### Standard
 
@@ -120,7 +124,9 @@ Most people will want to edit these
 1. **MAX_VOTES_IN_24_HOURS** (```50```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
 2. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
 3. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
-4. **EMAIL_DIGEST** (```0```): Sets email digest on or off. 0 = off, 1 = on. Digest email of the day is sent on the first run of the next day. If unset, email is sent for every bot run.
+4. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
+    - for ```0```, email is sent for every bot run
+    - for ```1```, digest email of the day is sent on the first run of the next day, so a little after midnight
 
 #### Advanced
 
@@ -152,6 +158,8 @@ Capital category (minnow, dolphin, whale) is defined as
 - _Minnow_ has capital < 25,000 Steem Power
 - _Dolphin_ has capital >= 25,000 and < 100,000 Steem Power
 - _Whale_ has as capital >= 100,000 Steem Power
+
+This these settings are editable (see above)
 
 ##### Note on white / blacklists
 

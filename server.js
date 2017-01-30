@@ -668,57 +668,41 @@ app.get("/run-bot", function(req, res) {
     handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
-  lib.runBot(function(obj) {
-    console.log("lib.runBot returned: " + JSON.stringify(obj));
-    if (obj) {
-      if (req.query.json) {
-        // return json directly
-        res.status(obj.status).json(obj);
-      } else {
-        // default to show in logs (same as /stats endpoint)
-        lib.getPersistentString("last_log_html", function(logs) {
-          var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
-          if (logs != null) {
-            html_logs = logs;
-          }
-          saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
-            if (err) {
-              handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
-            } else {
-              res.status(200).send(
-                createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+  lib.getPersistentJson("algorithm", function(algo) {
+    if (algo == null) {
+      res.send(200,
+        createMsgPageHTML("Run Bot", "Algorithm is not yet set!<br/>Go to <strong>Edit Algo</strong> from the dashboard to create it."));
+      return;
+    }
+    lib.runBot(function(obj) {
+      console.log("lib.runBot returned: " + JSON.stringify(obj));
+      if (obj) {
+        if (req.query.json) {
+          // return json directly
+          res.status(obj.status).json(obj);
+        } else {
+          // default to show in logs (same as /stats endpoint)
+          lib.getPersistentString("last_log_html", function(logs) {
+            var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
+            if (logs != null) {
+              html_logs = logs;
             }
+            saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
+              if (err) {
+                handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
+              } else {
+                res.status(200).send(
+                  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+              }
+            });
           });
-        });
+        }
+      } else {
+        handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
       }
-    } else {
-      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
-    }
+    });
   });
 });
-
-/*
- * TO DELETE
- */
-/*
-app.get("/run-bot", function(req, res) {
-  if (!req.query.api_key) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: api_key not supplied", 401);
-    return;
-  } else if (req.query.api_key.localeCompare(process.env.BOT_API_KEY)) {
-    handleError(res, "/run-bot Unauthorized", "Run bot: api_key invalid", 401);
-    return;
-  }
-  lib.runBot(function(obj) {
-    console.log("lib.runBot returned: " + JSON.stringify(obj));
-    if (obj) {
-      res.status(obj.status).json(obj);
-    } else {
-      handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
-    }
-  });
-});
-*/
 
 // GET /edit-algo
 app.get("/edit-algo", function(req, res) {

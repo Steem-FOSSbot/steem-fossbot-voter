@@ -111,6 +111,11 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.1.5
+  - Update docs for release, fill in missing parts and check for completeness
+  - Add logo to dashboard and docs
+  - Fix daily digest email
+  - Fix many small bugs holding up release
 - v0.1.4
   - improve start session to use POST on dashboard, improve UI feedback for session state
   - add edit configuration page and backend support

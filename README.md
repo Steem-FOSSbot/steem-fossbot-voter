@@ -18,7 +18,7 @@ _Voter_ is a bot for Steem which decides which posts to vote for and casts vote 
 
 This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to others if you wish.
 
-You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/evm2p/steem-fossbot-voter#usage) below for more details.
+You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/Steem-FOSSbot/steem-fossbot-voter#usage) below for more details.
 
 More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/ecosystem.md) and [our ethos](/docs/ethos.md).
 
@@ -63,7 +63,7 @@ _Stats for post metrics breakdown_
 
 See the [installation guide](/docs/installation.md), but if you want to jump right in then you can deploy this server to Heroku with one click.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/evm2p/steem-fossbot-voter)
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/Steem-FOSSbot/steem-fossbot-voter)
 
 Make sure to read the instructions though! Heroku has a basic free plan but if not familiar with their service you will want to read their terms, privacy policy, etc.
 

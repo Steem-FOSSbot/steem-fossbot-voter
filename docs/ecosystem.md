@@ -12,13 +12,9 @@ If you don't know what Steem is, please check out the [Steem White Paper](https:
 
 ### Implemented
 
-None
+- [_Voter_](https://github.com/Steem-FOSSbot/steem-fossbot-voter). A curation bot built as Node.js server, decides which posts to vote for and casts vote on behalf of a registered user.
 
-### In progress
-
-- [_Voter_](https://github.com/evm2p/steem-fossbot-voter). A curation bot built as Node.js server, decides which posts to vote for and casts vote on behalf of a registered user.
-
-## Planned 
+### Planned 
 
 - _Evolver_. Takes control of _Voter_ to evolve better cultural accuracy and high curation rewards over time with strategy optimisation.
 - _Interviewer_. Asks a user questions about what posts they like, which authors, and their Steem curation reward goals to create a custom curation algorithm for use in _Voter_.

@@ -30,7 +30,7 @@ Discounting your own costs, if any, the bot apps are free to run. Unlike many ot
 
 Except what we need to host the server (i.e. Heroku), you do not need to create any account. (Soon you will be able to run this locally on your desktop or Raspberry PI).
 
-All access to the apps and bots is authenticated using an API keys which you set. Your private keys are kept private and controlled by you. EVM2P, the creator of this software, does not store you keys on their server. Instead, they are stored on your own server which you create, giving you complete control and knowledge of their usage.
+All access to the apps and bots is authenticated using an API keys which you set. Your private keys are kept private and controlled by you. The creator of this software, does not store you keys on their server. Instead, they are stored on your own server which you create, giving you complete control and knowledge of their usage.
 
 #### 5. No tracking or data retention of any kind
 

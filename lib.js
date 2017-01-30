@@ -906,6 +906,7 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       var upVotesProcessed = 0;
       var isFirst = true;
+      var avgWindowInfo_copy = clone(avgWindowInfo);
       // perform check, if this is the first time the bot is run, make the threshold window out of the first
       //    NUM_POSTS_FOR_AVG_WINDOW number of posts, or less if not that many are equal to or above MIN_SCORE_THRESHOLD
       if (avgWindowInfo.postScores.length == 0) {
@@ -1007,6 +1008,10 @@ function runBot(callback, options) {
           persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
 
+      }
+      // restore avgWindowInfo
+      if (options != null && options.test) {
+        avgWindowInfo = avgWindowInfo_copy;
       }
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
@@ -1872,6 +1877,39 @@ function sendEmail(subject, message, isHtml) {
 	});
 }
 
+function clone(obj) {
+  var copy;
+
+  // Handle the 3 simple types, and null or undefined
+  if (null == obj || "object" != typeof obj) return obj;
+
+  // Handle Date
+  if (obj instanceof Date) {
+    copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  }
+
+  // Handle Array
+  if (obj instanceof Array) {
+    copy = [];
+    for (var i = 0, len = obj.length; i < len; i++) {
+      copy[i] = clone(obj[i]);
+    }
+    return copy;
+  }
+
+  // Handle Object
+  if (obj instanceof Object) {
+    copy = {};
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    }
+    return copy;
+  }
+
+  throw new Error("Unable to copy obj! Its type isn't supported.");
+}
 
 /*
 * Test functions

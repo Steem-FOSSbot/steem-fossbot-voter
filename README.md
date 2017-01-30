@@ -111,6 +111,7 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.2.0 - **First public release!** No appreciable change from v0.1.5, release versioning up only
 - v0.1.5
   - Update docs for release, fill in missing parts and check for completeness
   - Add logo to dashboard and docs

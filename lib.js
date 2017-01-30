@@ -906,6 +906,21 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       var upVotesProcessed = 0;
       var isFirst = true;
+      // perform check, if this is the first time the bot is run, make the threshold window out of the first
+      //    NUM_POSTS_FOR_AVG_WINDOW number of posts, or less if not that many are equal to or above MIN_SCORE_THRESHOLD
+      if (avgWindowInfo.postScores.length == 0) {
+        persistentLog(" - first bot run, looking ahead to create scores window");
+        var count = 0;
+        for (var i = 0 ; i < posts.length ; i++) {
+          if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
+            avgWindowInfo.postScores.push(postsMetadata[i].score);
+          }
+          if (count++ >= configVars.NUM_POSTS_FOR_AVG_WINDOW) {
+            break;
+          }
+        }
+        persistentLog(" - created window from "+count+" scores");
+      }
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {
           min: configVars.MIN_SCORE_THRESHOLD

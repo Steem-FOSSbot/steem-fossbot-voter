@@ -349,12 +349,12 @@ app.get("/stats", function(req, res) {
     }
     if (req.query.date_str) {
       lib.getPersistentJson("daily_liked_posts", function(dailyLikedPostsResult) {
-        var dailyLikedPosts = dailyLikedPostsResult.data;
         if (dailyLikedPostsResult == null) {
           res.send(200,
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 1)"));
           return;
         }
+        var dailyLikedPosts = dailyLikedPostsResult.data;
         var dailyLikedPostObj = null;
         for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
           if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {

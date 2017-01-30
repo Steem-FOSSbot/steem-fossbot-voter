@@ -915,9 +915,9 @@ function runBot(callback, options) {
         for (var i = 0 ; i < posts.length ; i++) {
           if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
             avgWindowInfo.postScores.push(postsMetadata[i].score);
-          }
-          if (count++ >= configVars.NUM_POSTS_FOR_AVG_WINDOW) {
-            break;
+            if (count++ >= configVars.NUM_POSTS_FOR_AVG_WINDOW) {
+              break;
+            }
           }
         }
         persistentLog(" - created window from "+count+" scores");

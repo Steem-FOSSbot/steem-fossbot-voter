@@ -311,3 +311,11 @@ _Note: negligible text content is defined as less than ```MIN_WORDS_FOR_ARTICLE`
 
 1. ```author_num_posts_today```: Number of posts today
 2. ```author_last_post_time```: Time since last post in minutes
+
+### Other
+
+These do not fit into either category
+
+#### Numberic
+
+1. ```random_normal```: Random number between ```0.0``` and ```1.0```

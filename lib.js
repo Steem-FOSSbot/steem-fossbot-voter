@@ -72,7 +72,8 @@ const
       "post_has_english_language_use",
       "post_has_german_language_use",
       "post_has_spanish_language_use",
-      "post_has_french_language_use"
+      "post_has_french_language_use",
+      "random_normal"
       ];
 
 const
@@ -813,6 +814,9 @@ function runBot(callback, options) {
             persistentLog(" - - post is in French");
           }
         }
+        // -- Other
+        // random
+        postsMetrics[i].random_normal = Math.random();
       }
       // finish
       persistentLog(" - finished gathering metrics");

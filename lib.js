@@ -345,6 +345,9 @@ function runBot(callback, options) {
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
+              persistentLog(" - - authorperm: "+votes[i].authorperm);
+              persistentLog(" - - - weight: "+votes[i].weight);
+              persistentLog(" - - - percent: "+(votes[i].percent > 0 ? votes[i].percent / 100 : 0));
               num_votes_today++;
             }
           }

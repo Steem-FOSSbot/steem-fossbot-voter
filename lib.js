@@ -1426,6 +1426,8 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem() {
+  // #50, fix Websocket address, server has migrated to new URL
+  steem.api.setWebSocket('wss://steemd.steemit.com');
   testEnvVars();
   getUserAccount();
   // get last post

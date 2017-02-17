@@ -1427,8 +1427,7 @@ initSteem():
 */
 function initSteem() {
   testEnvVars();
-  // TODO : for debug purposes only!
-  //getUserAccount();
+  getUserAccount();
   // get last post
   getPersistentJson("lastpost", function(post) {
     if (post != null) {
@@ -1459,6 +1458,8 @@ function getUserAccount() {
         if (err || result.length < 1) {
           setError("init_error", true, "Could not fetch STEEM_USER" + (err ? ": " + err.message : ""));
         } else {
+          console.log("getAccount success: "+JSON.stringify(result));
+          /*
           // check if user can vote, if not this app is useless
           if (!result[0].can_vote) {
             setError("init_error", true, "User " + process.env.STEEM_USER + "cannot vote!");
@@ -1491,6 +1492,7 @@ function getUserAccount() {
             // log owner object
             console.log("owner: " + JSON.stringify(owner));
           });
+          */
         }
       });
     } catch (err) {

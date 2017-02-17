@@ -1427,7 +1427,8 @@ initSteem():
 */
 function initSteem() {
   testEnvVars();
-  getUserAccount();
+  // TODO : for debug purposes only!
+  //getUserAccount();
   // get last post
   getPersistentJson("lastpost", function(post) {
     if (post != null) {

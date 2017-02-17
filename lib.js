@@ -1452,45 +1452,49 @@ function getUserAccount() {
     return;
   }
   if (process.env.STEEM_USER) {
-    steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-      console.log(err, result);
-      if (err || result.length < 1) {
-        setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
-      } else {
-        // check if user can vote, if not this app is useless
-        if (!result[0].can_vote) {
-          setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");
-          return;
-        }
-        // save some values about this user in owner object
-        owner.voting_power = result[0].voting_power;
-        owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
-        steem.api.getDynamicGlobalProperties(function(err, properties) {
-          //console.log(err, properties);
-          if (err) {
-            setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
-          } else {
-            steemGlobalProperties = properties;
-            owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
+    try {
+      steem.api.getAccounts([process.env.STEEM_USER], function (err, result) {
+        console.log(err, result);
+        if (err || result.length < 1) {
+          setError("init_error", true, "Could not fetch STEEM_USER" + (err ? ": " + err.message : ""));
+        } else {
+          // check if user can vote, if not this app is useless
+          if (!result[0].can_vote) {
+            setError("init_error", true, "User " + process.env.STEEM_USER + "cannot vote!");
+            return;
           }
-          // get followers
-          steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function(err, followersResult) {
-            console.log("getFollowing");
-            following = [];
+          // save some values about this user in owner object
+          owner.voting_power = result[0].voting_power;
+          owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
+          steem.api.getDynamicGlobalProperties(function (err, properties) {
+            //console.log(err, properties);
             if (err) {
-              setError("init_error", false, "Can't get following accounts");
+              setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             } else {
-              for (var i = 0 ; i < followersResult.length ; i++) {
-                following.push(followersResult[i].following);
-              }
+              steemGlobalProperties = properties;
+              owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
             }
-            console.log(""+process.env.STEEM_USER+" follows: "+following);
+            // get followers
+            steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function (err, followersResult) {
+              console.log("getFollowing");
+              following = [];
+              if (err) {
+                setError("init_error", false, "Can't get following accounts");
+              } else {
+                for (var i = 0; i < followersResult.length; i++) {
+                  following.push(followersResult[i].following);
+                }
+              }
+              console.log("" + process.env.STEEM_USER + " follows: " + following);
+            });
+            // log owner object
+            console.log("owner: " + JSON.stringify(owner));
           });
-          // log owner object
-          console.log("owner: "+JSON.stringify(owner));
-        });
-      }
-    });
+        }
+      });
+    } catch (err) {
+      console.log("getUserAccount, fatal error: "+err.message);
+    }
   }
 }
 

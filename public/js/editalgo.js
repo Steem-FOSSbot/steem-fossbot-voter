@@ -15,7 +15,8 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   if (lower) {
-	  if ((lower == 0 || (lower.localeCompare && lower.localeCompare("0")))) {
+	  console.log("lower is "+lower);
+	  if (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) {
 	    console.log("lower is zero");
 	    if (inputLower.placeholder) {
         inputLower.value = "";
@@ -31,7 +32,7 @@ function selectKey(key, weight, lower, upper) {
     inputLower.value = "";
 	}
   if (upper) {
-    if ((upper == 0 || (upper.localeCompare && upper.localeCompare("0")))) {
+    if (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) {
       console.log("upper is zero");
       if (inputUpper.placeholder) {
         inputUpper.value = "";

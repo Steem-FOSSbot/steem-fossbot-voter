@@ -16,16 +16,28 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.value = "" + lower;
+		inputLower.value = getFixedDecimalPlacesIfNone(lower);
   } else {
     inputLower.value = "";
 	}
   if (upper) {
-    inputUpper.value = "" + upper;
+    inputUpper.value = getFixedDecimalPlacesIfNone(upper);
   } else {
     inputUpper.value = "";
 	}
+  console.log("selectKey: values now are lower="+inputLower.value+", upper="+inputUpper.value);
   document.body.scrollTop = document.documentElement.scrollTop = 0;
+}
+
+function getFixedDecimalPlacesIfNone(num) {
+  // check if Math.trunc exists, not available on most mobile browsers for example currently
+  if (!Math.trunc) {
+    return num;
+  }
+  if (Math.abs(num - Math.trunc(num)) > 0) {
+    return num;
+  }
+  return num.toFixed(2);
 }
 
 function exportAlgo() {

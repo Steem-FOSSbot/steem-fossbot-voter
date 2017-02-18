@@ -15,12 +15,12 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.value = (lower == 0 || lower.localeCompare("0")) ? "0" : lower;
+		inputLower.value = (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) ? "0" : lower;
   } else {
     inputLower.value = "";
 	}
   if (upper) {
-    inputUpper.value = (upper == 0 || upper.localeCompare("0")) ? "0" : upper;
+    inputUpper.value = (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) ? "0" : upper;
   } else {
     inputUpper.value = "";
 	}

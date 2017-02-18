@@ -28,6 +28,13 @@ function updateVar(index) {
 
 function setupConfigVars() {
   $.getJSON( "/get-config-vars?session_key="+getCookie("session_key"), function(data) {
+    if (data && data.error) {
+      if (data.payload) {
+        window.location.href = "/api-error?type=" + data.payload;
+      } else {
+        window.location.href = "/api-error";
+      }
+    }
     var textArea = document.getElementById('config_vars');
     if (textArea) {
       textArea.value = JSON.stringify(data);

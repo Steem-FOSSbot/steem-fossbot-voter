@@ -251,6 +251,15 @@ function runBot(callback, options) {
               domainWhitelist: [],
               domainBlacklist: []
             };
+            // #8, make all white / black list items lowercase
+            algorithm.authorWhitelist = stringListToLowerCase(algorithm.authorWhitelist);
+            algorithm.authorBlacklist = stringListToLowerCase(algorithm.authorBlacklist);
+            algorithm.contentCategoryWhitelist = stringListToLowerCase(algorithm.contentCategoryWhitelist);
+            algorithm.contentCategoryBlacklist = stringListToLowerCase(algorithm.contentCategoryBlacklist);
+            algorithm.contentWordWhitelist = stringListToLowerCase(algorithm.contentWordWhitelist);
+            algorithm.contentWordBlacklist = stringListToLowerCase(algorithm.contentWordBlacklist);
+            algorithm.domainWhitelist = stringListToLowerCase(algorithm.domainWhitelist);
+            algorithm.domainBlacklist = stringListToLowerCase(algorithm.domainBlacklist);
           }
           getPersistentJson("daily_liked_posts", function(dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
@@ -1167,6 +1176,16 @@ function runBot(callback, options) {
       }
     sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
+}
+
+function stringListToLowerCase(strList) {
+  if (strList == null || strList.length < 1) {
+    return [];
+  }
+  for (var i = 0 ; i < strList.length ; i++) {
+    strList[i] = strList[i].toLowerCase();
+  }
+  return strList;
 }
 
 function countWordsFromRetext(obj) {

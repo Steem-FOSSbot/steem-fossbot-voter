@@ -15,12 +15,34 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.textContent = (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) ? "0" : lower;
+	  if ((lower == 0 || (lower.localeCompare && lower.localeCompare("0")))) {
+	    console.log("lower is zero");
+	    if (inputLower.placeholder) {
+        inputLower.value = "";
+        inputLower.placeholder = "0";
+      } else {
+        inputLower.value = "0";
+      }
+    } else {
+      inputUpper.placeholder = "Lower bound(optional)";
+      inputLower.value = "" + lower;
+    }
   } else {
     inputLower.value = "";
 	}
   if (upper) {
-    inputUpper.textContent = (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) ? "0" : upper;
+    if ((upper == 0 || (upper.localeCompare && upper.localeCompare("0")))) {
+      console.log("upper is zero");
+      if (inputUpper.placeholder) {
+        inputUpper.value = "";
+        inputUpper.placeholder = "0";
+      } else {
+        inputUpper.value = "0";
+      }
+    } else {
+      inputUpper.placeholder = "Upper bound (optional)";
+      inputUpper.value = "" + upper;
+    }
   } else {
     inputUpper.value = "";
 	}

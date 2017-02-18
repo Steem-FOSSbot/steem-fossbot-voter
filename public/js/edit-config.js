@@ -13,7 +13,8 @@ var fieldNames = [
   "CAPITAL_WHALE_MIN",
   "MIN_KEYWORD_LEN",
   "DAYS_KEEP_LOGS",
-  "MIN_LANGUAGE_USAGE_PC"
+  "MIN_LANGUAGE_USAGE_PC",
+  "MIN_KEYWORD_FREQ"
 ];
 
 function updateVar(index) {

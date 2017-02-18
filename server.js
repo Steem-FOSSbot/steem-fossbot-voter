@@ -1134,6 +1134,10 @@ app.get("/edit-config", function(req, res) {
     configVars.TIME_ZONE = atob(req.query.TIME_ZONE);
     change = true;
     html_title += "Updated TIME_ZONE";
+  } else if (req.query.MIN_KEYWORD_FREQ) {
+    configVars.MIN_KEYWORD_FREQ = atob(req.query.MIN_KEYWORD_FREQ);
+    change = true;
+    html_title += "Updated MIN_KEYWORD_FREQ";
   }
   html_title += "</h3>"
   if (change) {

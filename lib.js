@@ -111,7 +111,8 @@ var configVars = {
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
-  EMAIL_DIGEST: 0
+  EMAIL_DIGEST: 0,
+  MIN_KEYWORD_FREQ: 3
 };
 
 /* Private variables */
@@ -610,7 +611,7 @@ function runBot(callback, options) {
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
         //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
-        var glossary = Glossary({minFreq: 3, collapse: true, blacklist: glossaryBlacklist});
+        var glossary = Glossary({minFreq: configVars.MIN_KEYWORD_FREQ, collapse: true, blacklist: glossaryBlacklist});
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];

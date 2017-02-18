@@ -80,7 +80,7 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary"),
+  Glossary = require("glossary"),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -610,6 +610,7 @@ function runBot(callback, options) {
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
         //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
+        var glossary = Glossary({minFreq: 3, collapse: true, blacklist: glossaryBlacklist});
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];

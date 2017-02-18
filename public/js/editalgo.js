@@ -14,6 +14,7 @@ function selectKey(key, weight, lower, upper) {
 	} else {
     inputWeight.value = "";
   }
+  console.log("lower is "+lower);
   if (lower) {
 	  console.log("lower is "+lower);
 	  if (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) {

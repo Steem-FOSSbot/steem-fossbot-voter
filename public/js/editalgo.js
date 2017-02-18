@@ -11,17 +11,17 @@ function selectKey(key, weight, lower, upper) {
   // set values
   input.value = key; //required
 	if (weight) {
-		inputWeight.value = weight;
+		inputWeight.value = "" + weight;
 	} else {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.value = lower;
+		inputLower.value = "" + lower;
   } else {
     inputLower.value = "";
 	}
   if (upper) {
-    inputUpper.value = upper;
+    inputUpper.value = "" + upper;
   } else {
     inputUpper.value = "";
 	}

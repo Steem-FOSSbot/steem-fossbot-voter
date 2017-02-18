@@ -15,39 +15,30 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   console.log("lower is "+lower);
-  if (lower) {
-	  console.log("lower is "+lower);
-	  if (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) {
-	    console.log("lower is zero");
-	    if (inputLower.placeholder) {
-        inputLower.value = "";
-        inputLower.placeholder = "0";
-      } else {
-        inputLower.value = "0";
-      }
+  if (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) {
+    console.log("lower is zero");
+    if (inputLower.placeholder) {
+      inputLower.value = "";
+      inputLower.placeholder = "0";
     } else {
-      inputUpper.placeholder = "Lower bound(optional)";
-      inputLower.value = "" + lower;
+      inputLower.value = "0";
+    }
+  } else if (lower !== undefined) {
+    inputLower.placeholder = "Lower bound(optional)";
+    inputLower.value = "" + ((lower !== undefined) ? lower : "");
+  }
+  if (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) {
+    console.log("upper is zero");
+    if (inputUpper.placeholder) {
+      inputUpper.value = "";
+      inputUpper.placeholder = "0";
+    } else {
+      inputUpper.value = "0";
     }
   } else {
-    inputLower.value = "";
-	}
-  if (upper) {
-    if (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) {
-      console.log("upper is zero");
-      if (inputUpper.placeholder) {
-        inputUpper.value = "";
-        inputUpper.placeholder = "0";
-      } else {
-        inputUpper.value = "0";
-      }
-    } else {
-      inputUpper.placeholder = "Upper bound (optional)";
-      inputUpper.value = "" + upper;
-    }
-  } else {
-    inputUpper.value = "";
-	}
+    inputUpper.placeholder = "Upper bound(optional)";
+    inputUpper.value = "" + ((upper !== undefined) ? upper : "");
+  }
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 

@@ -97,6 +97,24 @@ const
 const
   MILLIS_IN_DAY = 86400000;
 
+var defaultConfigVars = {
+  MAX_POST_TO_READ: 100,
+  CAPITAL_DOLPHIN_MIN: 25000,
+  CAPITAL_WHALE_MIN: 100000,
+  MIN_KEYWORD_LEN: 4,
+  MIN_SCORE_THRESHOLD: 10,
+  SCORE_THRESHOLD_INC_PC: 0.1,
+  NUM_POSTS_FOR_AVG_WINDOW: 10,
+  MAX_VOTES_IN_24_HOURS: 50,
+  MIN_WORDS_FOR_ARTICLE: 100,
+  DAYS_KEEP_LOGS: 5,
+  MIN_POST_AGE_TO_CONSIDER: 30,
+  MIN_LANGUAGE_USAGE_PC: 0.1,
+  TIME_ZONE: "Etc/GMT+3",
+  EMAIL_DIGEST: 0,
+  MIN_KEYWORD_FREQ: 3
+};
+
 var configVars = {
   MAX_POST_TO_READ: 100,
   CAPITAL_DOLPHIN_MIN: 25000,
@@ -1440,7 +1458,7 @@ function initSteem() {
   });
   getPersistentJson("config_vars", function(configVarsResult) {
     if (configVarsResult != null) {
-      configVars = configVarsResult;
+      updateConfigVars(configVarsResult);
     } // else use default, already set
   });
 }
@@ -1790,6 +1808,19 @@ function getConfigVars() {
 }
 
 function updateConfigVars(newConfigVars) {
+  // migrate old config vars if needed
+  // add missing vars
+  for (var key in defaultConfigVars) {
+    if (!newConfigVars.hasOwnProperty(key)) {
+      newConfigVars[key] = defaultConfigVars[key];
+    }
+  }
+  // remove deprecated vars
+  for (var key in newConfigVars) {
+    if (!defaultConfigVars.hasOwnProperty(key)) {
+      delete newConfigVars[key];
+    }
+  }
   configVars = newConfigVars;
   console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
   persistJson("config_vars", newConfigVars, function(err) {

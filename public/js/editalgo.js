@@ -9,17 +9,17 @@ function selectKey(key, weight, lower, upper) {
   var inputUpper = document.getElementById('inputUpper');
   // set values
   input.value = key; //required
-	if (weight) {
+	if (weight !== undefined) {
 		inputWeight.value = "" + weight;
 	} else {
     inputWeight.value = "";
   }
-  if (lower) {
+  if (lower !== undefined) {
 		inputLower.value = "" + lower;
   } else {
     inputLower.value = "";
 	}
-  if (upper) {
+  if (upper !== undefined) {
     inputUpper.value = "" + upper;
   } else {
     inputUpper.value = "";

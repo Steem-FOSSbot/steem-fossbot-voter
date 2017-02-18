@@ -80,7 +80,7 @@ const
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
-  glossary = require("glossary"),
+  Glossary = require("glossary"),
   S = require('string'),
   strip = require('strip-markdown'),
   remark = require('remark'),
@@ -97,6 +97,24 @@ const
 const
   MILLIS_IN_DAY = 86400000;
 
+var defaultConfigVars = {
+  MAX_POST_TO_READ: 100,
+  CAPITAL_DOLPHIN_MIN: 25000,
+  CAPITAL_WHALE_MIN: 100000,
+  MIN_KEYWORD_LEN: 4,
+  MIN_SCORE_THRESHOLD: 10,
+  SCORE_THRESHOLD_INC_PC: 0.1,
+  NUM_POSTS_FOR_AVG_WINDOW: 10,
+  MAX_VOTES_IN_24_HOURS: 50,
+  MIN_WORDS_FOR_ARTICLE: 100,
+  DAYS_KEEP_LOGS: 5,
+  MIN_POST_AGE_TO_CONSIDER: 21.22,
+  MIN_LANGUAGE_USAGE_PC: 0.1,
+  TIME_ZONE: "Etc/GMT+3",
+  EMAIL_DIGEST: 0,
+  MIN_KEYWORD_FREQ: 3
+};
+
 var configVars = {
   MAX_POST_TO_READ: 100,
   CAPITAL_DOLPHIN_MIN: 25000,
@@ -111,7 +129,8 @@ var configVars = {
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
-  EMAIL_DIGEST: 0
+  EMAIL_DIGEST: 0,
+  MIN_KEYWORD_FREQ: 3
 };
 
 /* Private variables */
@@ -232,6 +251,15 @@ function runBot(callback, options) {
               domainWhitelist: [],
               domainBlacklist: []
             };
+            // #8, make all white / black list items lowercase
+            algorithm.authorWhitelist = stringListToLowerCase(algorithm.authorWhitelist);
+            algorithm.authorBlacklist = stringListToLowerCase(algorithm.authorBlacklist);
+            algorithm.contentCategoryWhitelist = stringListToLowerCase(algorithm.contentCategoryWhitelist);
+            algorithm.contentCategoryBlacklist = stringListToLowerCase(algorithm.contentCategoryBlacklist);
+            algorithm.contentWordWhitelist = stringListToLowerCase(algorithm.contentWordWhitelist);
+            algorithm.contentWordBlacklist = stringListToLowerCase(algorithm.contentWordBlacklist);
+            algorithm.domainWhitelist = stringListToLowerCase(algorithm.domainWhitelist);
+            algorithm.domainBlacklist = stringListToLowerCase(algorithm.domainBlacklist);
           }
           getPersistentJson("daily_liked_posts", function(dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
@@ -613,6 +641,7 @@ function runBot(callback, options) {
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
         //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
+        var glossary = Glossary({minFreq: configVars.MIN_KEYWORD_FREQ, collapse: true, blacklist: glossaryBlacklist});
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
         nlp.keywords = [];
@@ -1152,6 +1181,16 @@ function runBot(callback, options) {
   });
 }
 
+function stringListToLowerCase(strList) {
+  if (strList == null || strList.length < 1) {
+    return [];
+  }
+  for (var i = 0 ; i < strList.length ; i++) {
+    strList[i] = strList[i].toLowerCase();
+  }
+  return strList;
+}
+
 function countWordsFromRetext(obj) {
   if (obj != null) {
     if (obj.type.localeCompare("WordNode") == 0) {
@@ -1441,7 +1480,7 @@ function initSteem() {
   });
   getPersistentJson("config_vars", function(configVarsResult) {
     if (configVarsResult != null) {
-      configVars = configVarsResult;
+      updateConfigVars(configVarsResult);
     } // else use default, already set
   });
 }
@@ -1791,6 +1830,19 @@ function getConfigVars() {
 }
 
 function updateConfigVars(newConfigVars) {
+  // migrate old config vars if needed
+  // add missing vars
+  for (var key in defaultConfigVars) {
+    if (!newConfigVars.hasOwnProperty(key)) {
+      newConfigVars[key] = defaultConfigVars[key];
+    }
+  }
+  // remove deprecated vars
+  for (var key in newConfigVars) {
+    if (!defaultConfigVars.hasOwnProperty(key)) {
+      delete newConfigVars[key];
+    }
+  }
   configVars = newConfigVars;
   console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
   persistJson("config_vars", newConfigVars, function(err) {

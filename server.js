@@ -99,10 +99,14 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).send(createMsgPageHTML("API error", html_msg_api_err_body + "<br/><br/>Details: "+message));
 }
 
-function handleErrorJson(res, reason, message, code) {
+function handleErrorJson(res, reason, message, code, payload) {
   console.log("JSON ERROR: " + reason + ", MESSAGE: "+message);
   var status = code || 500;
-  res.json({status:status, error: reason, message: message});
+  if (payload) {
+    res.json({status:status, error: reason, message: message, payload: payload});
+  } else {
+    res.json({status:status, error: reason, message: message});
+  }
 }
 
 function loadFiles() {
@@ -557,13 +561,13 @@ app.get("/stats-data-json", function(req, res) {
 
 app.get("/get-config-vars", function(req, res) {
   if (!req.query.api_key && !req.query.session_key) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401, "1");
     return;
   } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401, "2");
     return;
   } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401, "3");
     return;
   }
   res.json(lib.getConfigVars());
@@ -1134,6 +1138,10 @@ app.get("/edit-config", function(req, res) {
     configVars.TIME_ZONE = atob(req.query.TIME_ZONE);
     change = true;
     html_title += "Updated TIME_ZONE";
+  } else if (req.query.MIN_KEYWORD_FREQ) {
+    configVars.MIN_KEYWORD_FREQ = atob(req.query.MIN_KEYWORD_FREQ);
+    change = true;
+    html_title += "Updated MIN_KEYWORD_FREQ";
   }
   html_title += "</h3>"
   if (change) {
@@ -1144,4 +1152,24 @@ app.get("/edit-config", function(req, res) {
     + html_title
     + html_edit_config2
   );
+});
+
+
+app.get("/api-error", function(req, res) {
+  var title = "Api Error";
+  var message = "An unknown error has ocured";
+  if (req.query.type && req.query.type.length > 0) {
+    if (req.query.type.localeCompare("1")) {
+      title =  "Unauthorized";
+      message = "api_key or session_key not supplied";
+    } else if (req.query.type.localeCompare("2")) {
+      title =  "Unauthorized";
+      message = "api_key invalid";
+    } else if (req.query.type.localeCompare("3")) {
+      title = "Unauthorized";
+      message = "session_key invalid";
+    }
+  }
+  message += ", please visit the dashboard and start your session.<br/>If this persists people log a bug on GitHub";
+  res.send(200, createMsgPageHTML(title, message));
 });

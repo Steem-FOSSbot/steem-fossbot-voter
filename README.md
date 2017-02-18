@@ -111,6 +111,9 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.2.1
+  - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
+  - Add indication to look for newest steem.js library
 - v0.2.0 - **First public release!** No appreciable change from v0.1.5, release versioning up only
 - v0.1.5
   - Update docs for release, fill in missing parts and check for completeness

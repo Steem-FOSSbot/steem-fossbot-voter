@@ -89,7 +89,7 @@
                 <td>Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then</td>
                 <td>
                     <form class="form-add">
-                        <input type="number" name="input_field_1" id="input_field_1" placeholder="30">
+                        <input type="number" step="0.01" name="input_field_1" id="input_field_1" placeholder="21.22">
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(1)" role="button">Update</a></p></th>
@@ -219,6 +219,16 @@
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(13)" role="button">Update</a></p></th>
+            </tr>
+            <tr>
+                <td>MIN_KEYWORD_FREQ</td>
+                <td>Minimum appearances of a word in a post for it to be considered a keyword</td>
+                <td>
+                    <form class="form-add">
+                        <input type="number" step="1" name="input_field_14" id="input_field_14" placeholder="3">
+                    </form>
+                </td>
+                <th><p><a class="btn btn-default" href="javascript:updateVar(14)" role="button">Update</a></p></th>
             </tr>
             </tbody>
         </table>

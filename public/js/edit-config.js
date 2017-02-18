@@ -13,7 +13,8 @@ var fieldNames = [
   "CAPITAL_WHALE_MIN",
   "MIN_KEYWORD_LEN",
   "DAYS_KEEP_LOGS",
-  "MIN_LANGUAGE_USAGE_PC"
+  "MIN_LANGUAGE_USAGE_PC",
+  "MIN_KEYWORD_FREQ"
 ];
 
 function updateVar(index) {
@@ -27,6 +28,13 @@ function updateVar(index) {
 
 function setupConfigVars() {
   $.getJSON( "/get-config-vars?session_key="+getCookie("session_key"), function(data) {
+    if (data && data.error) {
+      if (data.payload) {
+        window.location.href = "/api-error?type=" + data.payload;
+      } else {
+        window.location.href = "/api-error";
+      }
+    }
     var textArea = document.getElementById('config_vars');
     if (textArea) {
       textArea.value = JSON.stringify(data);

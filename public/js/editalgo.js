@@ -7,6 +7,7 @@ function selectKey(key, weight, lower, upper) {
   var inputWeight = document.getElementById('inputWeight');
   var inputLower = document.getElementById('inputLower');
   var inputUpper = document.getElementById('inputUpper');
+  console.log("selectKey: key="+key+", weight="+weight+", lower="+lower+", upper="+upper);
   // set values
   input.value = key; //required
 	if (weight) {

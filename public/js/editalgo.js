@@ -16,7 +16,7 @@ function selectKey(key, weight, lower, upper) {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.value = getFixedDecimalPlacesIfNone(lower);
+		inputLower.innerHTML = getFixedDecimalPlacesIfNone(lower);
   } else {
     inputLower.value = "";
 	}

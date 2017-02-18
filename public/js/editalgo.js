@@ -37,7 +37,7 @@ function getFixedDecimalPlacesIfNone(num) {
   if (Math.abs(num - Math.trunc(num)) > 0) {
     return num;
   }
-  return num.toFixed(2);
+  return "" + num + ".00"
 }
 
 function exportAlgo() {

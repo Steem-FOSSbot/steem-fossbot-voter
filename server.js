@@ -738,28 +738,28 @@ app.get("/edit-algo", function(req, res) {
   }
   var str = "";
   var contents = "";
-  if (req.query.author_whitelist) {
+  if (req.query.author_whitelist !== undefined) {
     str = "authorWhitelist";
     contents = req.query.author_whitelist;
-  } else if (req.query.author_blacklist) {
+  } else if (req.query.author_blacklist !== undefined) {
     str = "authorBlacklist";
     contents = req.query.author_blacklist;
-  } else if (req.query.content_category_whitelist) {
+  } else if (req.query.content_category_whitelist !== undefined) {
     str = "contentCategoryWhitelist";
     contents = req.query.content_category_whitelist;
-  } else if (req.query.content_category_blacklist) {
+  } else if (req.query.content_category_blacklist !== undefined) {
     str = "contentCategoryBlacklist";
     contents = req.query.content_category_blacklist;
-  } else if (req.query.content_word_whitelist) {
+  } else if (req.query.content_word_whitelist !== undefined) {
     str = "contentWordWhitelist";
     contents = req.query.content_word_whitelist;
-  } else if (req.query.content_word_blacklist) {
+  } else if (req.query.content_word_blacklist !== undefined) {
     str = "contentWordBlacklist";
     contents = req.query.content_word_blacklist;
-  } else if (req.query.domain_whitelist) {
+  } else if (req.query.domain_whitelist !== undefined) {
     str = "domainWhitelist";
     contents = req.query.domain_whitelist;
-  } else if (req.query.domain_blacklist) {
+  } else if (req.query.domain_blacklist !== undefined) {
     str = "domainBlacklist";
     contents = req.query.domain_blacklist;
   }

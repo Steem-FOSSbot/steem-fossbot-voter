@@ -7,38 +7,24 @@ function selectKey(key, weight, lower, upper) {
   var inputWeight = document.getElementById('inputWeight');
   var inputLower = document.getElementById('inputLower');
   var inputUpper = document.getElementById('inputUpper');
+  console.log("selectKey: key="+key+", weight="+weight+", lower="+lower+", upper="+upper);
   // set values
   input.value = key; //required
 	if (weight) {
-		inputWeight.value = weight;
+		inputWeight.value = "" + weight;
 	} else {
     inputWeight.value = "";
   }
-  console.log("lower is "+lower);
-  if (lower == 0 || (lower.localeCompare && lower.localeCompare("0"))) {
-    console.log("lower is zero");
-    if (inputLower.placeholder) {
-      inputLower.value = "";
-      inputLower.placeholder = "0";
-    } else {
-      inputLower.value = "0";
-    }
-  } else if (lower !== undefined) {
-    inputLower.placeholder = "Lower bound(optional)";
-    inputLower.value = "" + ((lower !== undefined) ? lower : "");
-  }
-  if (upper == 0 || (upper.localeCompare && upper.localeCompare("0"))) {
-    console.log("upper is zero");
-    if (inputUpper.placeholder) {
-      inputUpper.value = "";
-      inputUpper.placeholder = "0";
-    } else {
-      inputUpper.value = "0";
-    }
+  if (lower) {
+		inputLower.value = "" + lower;
   } else {
-    inputUpper.placeholder = "Upper bound(optional)";
-    inputUpper.value = "" + ((upper !== undefined) ? upper : "");
-  }
+    inputLower.value = "";
+	}
+  if (upper) {
+    inputUpper.value = "" + upper;
+  } else {
+    inputUpper.value = "";
+	}
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
 

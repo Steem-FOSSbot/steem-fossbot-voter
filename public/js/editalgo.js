@@ -7,37 +7,24 @@ function selectKey(key, weight, lower, upper) {
   var inputWeight = document.getElementById('inputWeight');
   var inputLower = document.getElementById('inputLower');
   var inputUpper = document.getElementById('inputUpper');
-  console.log("selectKey: key="+key+", weight="+weight+", lower="+lower+", upper="+upper);
   // set values
   input.value = key; //required
 	if (weight) {
-		inputWeight.value = "" + weight;
+		inputWeight.value = weight;
 	} else {
     inputWeight.value = "";
   }
   if (lower) {
-		inputLower.innerHTML = getFixedDecimalPlacesIfNone(lower);
+		inputLower.value = lower;
   } else {
     inputLower.value = "";
 	}
   if (upper) {
-    inputUpper.value = getFixedDecimalPlacesIfNone(upper);
+    inputUpper.value = upper;
   } else {
     inputUpper.value = "";
 	}
-  console.log("selectKey: values now are lower="+inputLower.value+", upper="+inputUpper.value);
   document.body.scrollTop = document.documentElement.scrollTop = 0;
-}
-
-function getFixedDecimalPlacesIfNone(num) {
-  // check if Math.trunc exists, not available on most mobile browsers for example currently
-  if (!Math.trunc) {
-    return num;
-  }
-  if (Math.abs(num - Math.trunc(num)) > 0) {
-    return num;
-  }
-  return "" + num + ".00"
 }
 
 function exportAlgo() {

@@ -290,7 +290,7 @@ function runBot(callback, options) {
         });
       } else {
         persistentLog(" - getting posts (recursive)");
-        getPosts_recursive(null, lastPost, configVars.MAX_POST_TO_READ, new function(err, result) {
+        getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, new function(err, result) {
           if (err && result != null && result !== undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
@@ -1557,7 +1557,7 @@ function getFollowers_recursive(username, followers, callback) {
 }
 
 function getPosts_recursive(posts, stopAtPost, limit, callback) {
-  console.log("getPosts_recursive");
+  persistentLog("getPosts_recursive");
   var posts_;
   if (posts == null || posts === undefined) {
     posts_ = [];
@@ -1573,12 +1573,12 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
   }
   steem.api.getDiscussionsByCreated(query, function(err, postsResult) {
     if (err || postsResult == null || postsResult === undefined) {
-      console.log("getPosts_recursive, error");
+      persistentLog("getPosts_recursive, error");
       callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
         null);
       return;
     }
-    console.log("getPosts_recursive, got "+postsResult.length+" results");
+    persistentLog("getPosts_recursive, got "+postsResult.length+" results");
     // skip first post in results if search with permlink and author
     // as that will be the first and we already have it from the
     //    last page
@@ -1594,9 +1594,9 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
         break;
       }
     }
-    console.log("getPosts_recursive, posts now "+posts_.length);
+    persistentLog("getPosts_recursive, posts now "+posts_.length);
     if (limitReached || postsResult.length < 100 || posts_.length == 0) {
-      console.log("getPosts_recursive, finished");
+      persistentLog("getPosts_recursive, finished");
       callback(null, posts_);
     } else {
       getPosts_recursive(posts_, stopAtPost, limit, callback);

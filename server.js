@@ -291,7 +291,7 @@ function dashboardExec(req, res) {
       html_usercontent += "<a href=\"http://steemd.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" detailed data</a>";
     }
   }
-  res.send(200,
+  res.status(200).send(
     html_dashboard1
     + html_version
     + html_dashboard2
@@ -325,12 +325,11 @@ app.get("/stats", function(req, res) {
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
-  //res.send(createMsgPageHTML("Bot Stats", "No page here yet! Underconstruction"));
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
       html = createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.");
-      res.send(200, html);
+      res.status(200).send(html);
       console.log("No keys for /stats");
       return;
     } else {
@@ -350,7 +349,7 @@ app.get("/stats", function(req, res) {
     if (req.query.date_str) {
       lib.getPersistentJson("daily_liked_posts", function(dailyLikedPostsResult) {
         if (dailyLikedPostsResult == null) {
-          res.send(200,
+          res.status(200).send(
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 1)"));
           return;
         }
@@ -362,7 +361,7 @@ app.get("/stats", function(req, res) {
           }
         }
         if (dailyLikedPostObj == null) {
-          res.send(200,
+          res.status(200).send(
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)"));
           return;
         }
@@ -377,7 +376,7 @@ app.get("/stats", function(req, res) {
           html_list = html_test_emptyList;
         }
         var thisDate = moment(req.query.date_str);
-        res.send(200,
+        res.status(200).send(
           html_stats_run1
           + html
           + html_stats_run2
@@ -404,7 +403,7 @@ app.get("/stats", function(req, res) {
         } else {
           html_list = html_test_emptyList;
         }
-        res.send(200,
+        res.status(200).send(
           html_stats_run1 
           + html
           + html_stats_run2
@@ -414,7 +413,7 @@ app.get("/stats", function(req, res) {
           + html_stats_run4);
       });
     } else {
-      res.send(200,
+      res.status(200).send(
         html_stats1 
         + html
         + html_stats2
@@ -450,14 +449,14 @@ app.get("/last-log", function(req, res) {
   lib.getPersistentString("last_log_html", function(logs) {
     if (logs == null) {
       var html_logs = createMsgPageHTML("Last log", "No logs yet, please run bot for first time!");
-      res.send(200, html_logs);
+      res.status(200).send(html_logs);
       return;
     }
     saveStringToFile("public/tmp-stats.html", logs, function(err) {
       if (err) {
         handleError(res, "can't save temp file", "/last-log: can't save temp file", 500);
       } else {
-        res.send(200, 
+        res.status(200).send(
           html_last_log1 
           + "/tmp-stats.html"
           + html_last_log2);
@@ -670,7 +669,7 @@ app.get("/run-bot", function(req, res) {
   }
   lib.getPersistentJson("algorithm", function(algo) {
     if (algo == null) {
-      res.send(200,
+      res.status(200).send(
         createMsgPageHTML("Run Bot", "Algorithm is not yet set!<br/>Go to <strong>Edit Algo</strong> from the dashboard to create it."));
       return;
     }
@@ -975,7 +974,7 @@ function editAlgoExec(res, message) {
       html_list = html_algo_emptyList;
     }
     // send back response
-    res.send(200, 
+    res.status(200).send(
       html_editAlgo1
       + (message ? message : "")
       + html_editAlgo2
@@ -1010,7 +1009,7 @@ app.get("/test-algo", function(req, res) {
   if (req.query.limit) {
     testAlgoExec(res, {test: true, limit: 5});
   } else {
-    res.send(200, 
+    res.status(200).send(
       html_testAlgo1
       + html_test_emptyList
       + html_testAlgo2
@@ -1042,7 +1041,7 @@ app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, r
   if (req.body.author && req.body.permlink) {
     testAlgoExec(res, {test: true, author: req.body.author, permlink: req.body.permlink});
   } else {
-    res.send(200, 
+    res.status(200).send(
       html_testAlgo1
       + html_testAlgo2
       );
@@ -1066,7 +1065,7 @@ function testAlgoExec(res, options) {
     } else {
       html_list = html_test_emptyList;
     }
-    res.send(200, 
+    res.status(200).send(
       html_testAlgo1
       + html_list
       + html_testAlgo2
@@ -1139,7 +1138,7 @@ app.get("/edit-config", function(req, res) {
   if (change) {
     lib.updateConfigVars(configVars);
   }
-  res.send(200,
+  res.status(200).send(
     html_edit_config1
     + html_title
     + html_edit_config2

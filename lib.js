@@ -289,7 +289,7 @@ function runBot(callback, options) {
           deferred.resolve(true);
         });
       } else {
-        steem.api.getDiscussionsByCreated({limit: configVars.MAX_POST_TO_READ}, function(err, result) {
+        getPosts_recursive(null, lastPost, configVars.MAX_POST_TO_READ, new function(err, result) {
           if (err) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
@@ -307,7 +307,7 @@ function runBot(callback, options) {
       if (options && options.hasOwnProperty("permlink")) {
         // do nothing, posts should just contain permlink
       } else if (options && options.hasOwnProperty("limit")) {
-        // keep numPosts number of posts
+        // keep options.limit number of posts
         var cleanedPosts = [];
         for (var i = 0 ; i < posts.length ; i++) {
           if (cleanedPosts.length >= options.limit) {
@@ -317,17 +317,6 @@ function runBot(callback, options) {
         }
         posts = cleanedPosts;
       } else {
-        // clean, only keep new posts since last post
-        if (lastPost != null) {
-          var cleanedPosts = [];
-          for (var i = 0 ; i < posts.length ; i++) {
-            if (posts[i].id == lastPost.id) {
-              break;
-            }
-            cleanedPosts.push(posts[i]);
-          }
-          posts = cleanedPosts;
-        }
         // only keep posts older than limit
         if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
@@ -1562,6 +1551,51 @@ function getFollowers_recursive(username, followers, callback) {
       callback(null, followers_);
     } else {
       getFollowers_recursive(username, followers_, callback);
+    }
+  });
+}
+
+function getPosts_recursive(posts, stopAtPost, limit, callback) {
+  console.log("getPosts_recursive");
+  if (posts === undefined || post == null) {
+    posts = [];
+  }
+  var query = {
+    limit: configVars.MAX_POST_TO_READ
+  };
+  if (posts.length > 0) {
+    query.start_permlink = posts[posts.length - 1].permlink;
+    query.start_author = posts[posts.length - 1].author;
+  }
+  steem.api.getDiscussionsByCreated(query, function(err, postsResult) {
+    if (err || postsResult == null || postsResult === undefined) {
+      console.log("getPosts_recursive, error");
+      callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
+        null);
+      return;
+    }
+    console.log("getPosts_recursive, got "+postsResult.length+" results");
+    // skip first post in results if search with permlink and author
+    // as that will be the first and we already have it from the
+    //    last page
+    var limitReached = false;
+    for (var i = (query.start_permlink === undefined ? 0 : 1) ; i < postsResult.length ; i++) {
+      if (stopAtPost !== undefined && postsResult[i].id == stopAtPost.id) {
+        limitReached = true;
+        break;
+      }
+      posts.push(postsResult[i]);
+      if (posts.length >= ++limit) {
+        limitReached = true;
+        break;
+      }
+    }
+    console.log("getPosts_recursive, posts now "+posts.length);
+    if (limitReached || postsResult.length < 100 || posts.length == 0) {
+      console.log("getPosts_recursive, finished");
+      callback(null, posts);
+    } else {
+      getPosts_recursive(posts, stopAtPost, limit, callback);
     }
   });
 }

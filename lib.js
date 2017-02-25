@@ -290,7 +290,7 @@ function runBot(callback, options) {
         });
       } else {
         persistentLog(" - getting posts (recursive)");
-        getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, new function(err, result) {
+        getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, function(err, result) {
           if (err && result != null && result !== undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }

@@ -1552,7 +1552,7 @@ function getFollowers_recursive(username, followers, callback) {
     //    last page
     for (var i = (startFollowerName == null ? 0 : 1) ; i < followersResult.length ; i++) {
       if (followersResult[i].what.indexOf('blog') >= 0) {
-        followers_.push(followersResult[i].follower);
+        followers_.push(followersResult[i].following);
       }
     }
     console.log("getFollowers_recursive, followers now "+followers_.length);

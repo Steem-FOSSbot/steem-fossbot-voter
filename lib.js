@@ -1512,7 +1512,7 @@ function getUserAccount() {
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get followers
-          steem.api.getFollowing(process.env.STEEM_USER, 0, null, 100, function(err, followersResult) {
+          getFollowers_recursive(process.env.STEEM_USER, null, function(err, followersResult) {
             console.log("getFollowing");
             following = [];
             if (err) {
@@ -1530,6 +1530,41 @@ function getUserAccount() {
       }
     });
   }
+}
+
+function getFollowers_recursive(username, followers, callback) {
+  var followers_;
+  if (followers == null || followers === undefined) {
+    followers_ = [];
+  } else {
+    followers_ = followers;
+  }
+  console.log("getFollowers_recursive");
+  var startFollowerName = followers.length < 1 ? null : followers[followers.length-1];
+  steem.api.getFollowing(username, startFollowerName, null, 900, function(err, followersResult) {
+    if (err || followersResult == null) {
+      console.log("getFollowers_recursive, error");
+      callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
+          null);
+    }
+    console.log("getFollowers_recursive, got "+followersResult.length+" results");
+    console.log("getFollowers_recursive, followers in result: "+JSON.stringify(followersResult));
+    // skip first username in results if search with name as that will be the first and we already have it from the
+    //    last page
+    for (var i = (startFollowerName == null ? 0 : 1) ; i < followersResult.length ; i++) {
+      if (followersResult[i].what.indexOf('blog') >= 0) {
+        followers_.push(followersResult[i].follower);
+      }
+    }
+    console.log("getFollowers_recursive, followers now "+followers.length);
+    if (followersResult.length < 900) {
+      console.log("getFollowers_recursive, finished");
+      console.log("getFollowers_recursive, followers: "+JSON.stringify(followers));
+      callback(null, followers_);
+    } else {
+      getFollowers_recursive(username, followers_, callback);
+    }
+  });
 }
 
 /*

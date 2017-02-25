@@ -63,7 +63,11 @@ app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 // set up cookies and session
 app.use(cookieParser());
-app.use(expressSession({secret: process.env.COOKIE_SECRET}));
+app.use(expressSession({
+  secret: process.env.COOKIE_SECRET,
+  resave: true,
+  saveUninitialized: true
+}));
 
 // Start server
 app.listen(app.get('port'), function() {

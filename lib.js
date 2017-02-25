@@ -1557,13 +1557,13 @@ function getFollowers_recursive(username, followers, callback) {
 
 function getPosts_recursive(posts, stopAtPost, limit, callback) {
   console.log("getPosts_recursive");
-  if (posts === undefined || post == null) {
+  if (posts === undefined || posts == null) {
     posts = [];
   }
   var query = {
     limit: configVars.MAX_POST_TO_READ
   };
-  if (posts !== undefined || posts.length > 0) {
+  if (posts.length > 0) {
     query.start_permlink = posts[posts.length - 1].permlink;
     query.start_author = posts[posts.length - 1].author;
   }

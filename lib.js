@@ -1540,7 +1540,7 @@ function getFollowers_recursive(username, followers, callback) {
   console.log("getFollowers_recursive");
   var startFollowerName = followers_.length < 1 ? null : followers_[followers_.length-1];
   steem.api.getFollowing(username, startFollowerName, null, 900, function(err, followersResult) {
-    if (err || followersResult == null) {
+    if (err || followersResult == null || followersResult === undefined) {
       console.log("getFollowers_recursive, error");
       callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
           null);

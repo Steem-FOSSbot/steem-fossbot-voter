@@ -333,6 +333,10 @@ app.get("/stats", function(req, res) {
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
+  execStats(req, res);
+});
+
+function execStats(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
@@ -351,7 +355,7 @@ app.get("/stats", function(req, res) {
             "Votes for " + dateTime.format("MMM Do YYYY") + "</a></li>";
         }
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">" +
-            " --- --- " + dateTime.format("HH:mm") + "</a></li>";
+          " --- --- " + dateTime.format("HH:mm") + "</a></li>";
       }
     }
     if (req.query.date_str) {
@@ -406,13 +410,13 @@ app.get("/stats", function(req, res) {
         if (postsMetadata.length > 0) {
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
-                + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+              + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
           }
         } else {
           html_list = html_test_emptyList;
         }
         res.status(200).send(
-          html_stats_run1 
+          html_stats_run1
           + html
           + html_stats_run2
           + "Bot run details for run at " + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
@@ -422,15 +426,15 @@ app.get("/stats", function(req, res) {
       });
     } else {
       res.status(200).send(
-        html_stats1 
+        html_stats1
         + html
         + html_stats2
         + "<p>To see record and proof of voting, visit <a href=\"https://steemd.com/@"+process.env.STEEM_USER
-            +"\">https://steemd.com/@"+process.env.STEEM_USER+"</a></p>"
+        +"\">https://steemd.com/@"+process.env.STEEM_USER+"</a></p>"
         + html_stats3);
     }
   });
-});
+}
 
 /*
 * /stats
@@ -698,8 +702,10 @@ app.get("/run-bot", function(req, res) {
               if (err) {
                 handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
               } else {
-                res.status(200).send(
-                  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+                // #2, redirect to stats page instead
+                execStats(req, res);
+                //res.status(200).send(
+                //  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
               }
             });
           });

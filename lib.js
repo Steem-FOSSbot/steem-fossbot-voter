@@ -1515,12 +1515,10 @@ function getUserAccount() {
           getFollowers_recursive(process.env.STEEM_USER, null, function(err, followersResult) {
             console.log("getFollowing");
             following = [];
-            if (err) {
+            if (err || followersResult === undefined) {
               setError("init_error", false, "Can't get following accounts");
             } else {
-              for (var i = 0 ; i < followersResult.length ; i++) {
-                following.push(followersResult[i].following);
-              }
+              following = followersResult;
             }
             console.log(""+process.env.STEEM_USER+" follows: "+following);
           });
@@ -1540,7 +1538,7 @@ function getFollowers_recursive(username, followers, callback) {
     followers_ = followers;
   }
   console.log("getFollowers_recursive");
-  var startFollowerName = followers.length < 1 ? null : followers[followers.length-1];
+  var startFollowerName = followers_.length < 1 ? null : followers_[followers_.length-1];
   steem.api.getFollowing(username, startFollowerName, null, 900, function(err, followersResult) {
     if (err || followersResult == null) {
       console.log("getFollowers_recursive, error");
@@ -1556,10 +1554,10 @@ function getFollowers_recursive(username, followers, callback) {
         followers_.push(followersResult[i].follower);
       }
     }
-    console.log("getFollowers_recursive, followers now "+followers.length);
+    console.log("getFollowers_recursive, followers now "+followers_.length);
     if (followersResult.length < 900) {
       console.log("getFollowers_recursive, finished");
-      console.log("getFollowers_recursive, followers: "+JSON.stringify(followers));
+      console.log("getFollowers_recursive, followers: "+JSON.stringify(followers_));
       callback(null, followers_);
     } else {
       getFollowers_recursive(username, followers_, callback);

@@ -289,8 +289,9 @@ function runBot(callback, options) {
           deferred.resolve(true);
         });
       } else {
+        persistentLog(" - getting posts (recursive)");
         getPosts_recursive(null, lastPost, configVars.MAX_POST_TO_READ, new function(err, result) {
-          if (err) {
+          if (err && result != null && result !== undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
           posts = result;
@@ -1557,15 +1558,18 @@ function getFollowers_recursive(username, followers, callback) {
 
 function getPosts_recursive(posts, stopAtPost, limit, callback) {
   console.log("getPosts_recursive");
-  if (posts === undefined || posts == null) {
-    posts = [];
+  var posts_;
+  if (posts == null || posts === undefined) {
+    posts_ = [];
+  } else {
+    posts_ = posts;
   }
   var query = {
     limit: configVars.MAX_POST_TO_READ
   };
-  if (posts.length > 0) {
-    query.start_permlink = posts[posts.length - 1].permlink;
-    query.start_author = posts[posts.length - 1].author;
+  if (posts_.length > 0) {
+    query.start_permlink = posts_[posts_.length - 1].permlink;
+    query.start_author = posts_[posts_.length - 1].author;
   }
   steem.api.getDiscussionsByCreated(query, function(err, postsResult) {
     if (err || postsResult == null || postsResult === undefined) {
@@ -1584,18 +1588,18 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
         limitReached = true;
         break;
       }
-      posts.push(postsResult[i]);
-      if (posts.length >= ++limit) {
+      posts_.push(postsResult[i]);
+      if (posts_.length >= ++limit) {
         limitReached = true;
         break;
       }
     }
-    console.log("getPosts_recursive, posts now "+posts.length);
-    if (limitReached || postsResult.length < 100 || posts.length == 0) {
+    console.log("getPosts_recursive, posts now "+posts_.length);
+    if (limitReached || postsResult.length < 100 || posts_.length == 0) {
       console.log("getPosts_recursive, finished");
-      callback(null, posts);
+      callback(null, posts_);
     } else {
-      getPosts_recursive(posts, stopAtPost, limit, callback);
+      getPosts_recursive(posts_, stopAtPost, limit, callback);
     }
   });
 }
@@ -1676,7 +1680,7 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        console.log("getPersistentJson for key "+key+", raw: "+reply);
+        //console.log("getPersistentJson for key "+key+", raw: "+reply);
         try {
           var json = JSON.parse(reply);
           callback(json);

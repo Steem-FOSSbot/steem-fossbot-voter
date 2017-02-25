@@ -1563,7 +1563,7 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
   var query = {
     limit: configVars.MAX_POST_TO_READ
   };
-  if (posts.length > 0) {
+  if (posts !== undefined || posts.length > 0) {
     query.start_permlink = posts[posts.length - 1].permlink;
     query.start_author = posts[posts.length - 1].author;
   }

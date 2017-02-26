@@ -1166,14 +1166,6 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
-  req.session.api_key = req.body.api_key;
-  var cookies = new Cookies(req, res);
-  if (cookieSessionKey.length < 1) {
-    cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
-  }
-  console.log("created session_key cookie for client: "+cookieSessionKey);
-  cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
-  console.log("check cookie for session_key: "+cookies.get("session_key"));
   // update config
   var configVars = lib.getConfigVars();
   var change = false;

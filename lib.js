@@ -1575,11 +1575,12 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
     query.start_permlink = posts_[posts_.length - 1].permlink;
     query.start_author = posts_[posts_.length - 1].author;
   }
+  console.log(" - query: "+JSON.stringify(query));
   steem.api.getDiscussionsByCreated(query, function(err, postsResult) {
     if (err || postsResult == null || postsResult === undefined) {
       persistentLog("getPosts_recursive, error");
       callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
-        null);
+        []);
       return;
     }
     persistentLog("getPosts_recursive, got "+postsResult.length+" results");

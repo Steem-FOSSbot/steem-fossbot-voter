@@ -281,6 +281,7 @@ function runBot(callback, options) {
             && options.hasOwnProperty("permlink")) {
         persistentLog(" - get post by author: "+options.author+", permlink: "+options.permlink);
         steem.api.getContent(options.author, options.permlink, function(err, post) {
+          persistentLog(" - got getContent result");
           if (err) {
             throw {message: "Error reading post for permlink: "+options.permlink};
           }
@@ -289,7 +290,9 @@ function runBot(callback, options) {
           deferred.resolve(true);
         });
       } else {
+        persistentLog(" - get last posts to max of "+configVars.MAX_POST_TO_READ);
         steem.api.getDiscussionsByCreated({limit: configVars.MAX_POST_TO_READ}, function(err, result) {
+          persistentLog(" - got getDiscussionsByCreated result");
           if (err) {
             throw {message: "Error reading posts from steem: "+err.message};
           }

@@ -111,13 +111,13 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
-- 0.2.3
-  - Patch to fix bot.js not exiting when finished if run locally
-- v0.2.2
-  - Patch to fix express warnings as they prevent correct operation on some local instances
-- v0.2.1
-  - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
-  - Add indication to look for newest steem.js library
+- 0.2.1 to 0.2.4
+  - v0.2.4, patch to implement missing POST /edit-config endpoint
+  - v0.2.3, patch to fix bot.js not exiting when finished if run locally
+  - v0.2.2, patch to fix express warnings as they prevent correct operation on some local instances
+  - v0.2.1
+    - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
+    - Add indication to look for newest steem.js library
 - v0.2.0 - **First public release!** No appreciable change from v0.1.5, release versioning up only
 - v0.1.5
   - Update docs for release, fill in missing parts and check for completeness

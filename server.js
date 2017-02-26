@@ -103,10 +103,14 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).send(createMsgPageHTML("API error", html_msg_api_err_body + "<br/><br/>Details: "+message));
 }
 
-function handleErrorJson(res, reason, message, code) {
+function handleErrorJson(res, reason, message, code, payload) {
   console.log("JSON ERROR: " + reason + ", MESSAGE: "+message);
   var status = code || 500;
-  res.json({status:status, error: reason, message: message});
+  if (payload) {
+    res.json({status:status, error: reason, message: message, payload: payload});
+  } else {
+    res.json({status:status, error: reason, message: message});
+  }
 }
 
 function loadFiles() {
@@ -560,13 +564,13 @@ app.get("/stats-data-json", function(req, res) {
 
 app.get("/get-config-vars", function(req, res) {
   if (!req.query.api_key && !req.query.session_key) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: api_key or session_key not supplied", 401, "1");
     return;
   } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: api_key invalid", 401, "2");
     return;
   } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
-    handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
+    handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401, "3");
     return;
   }
   res.json(lib.getConfigVars());
@@ -737,28 +741,28 @@ app.get("/edit-algo", function(req, res) {
   }
   var str = "";
   var contents = "";
-  if (req.query.author_whitelist) {
+  if (req.query.author_whitelist !== undefined) {
     str = "authorWhitelist";
     contents = req.query.author_whitelist;
-  } else if (req.query.author_blacklist) {
+  } else if (req.query.author_blacklist !== undefined) {
     str = "authorBlacklist";
     contents = req.query.author_blacklist;
-  } else if (req.query.content_category_whitelist) {
+  } else if (req.query.content_category_whitelist !== undefined) {
     str = "contentCategoryWhitelist";
     contents = req.query.content_category_whitelist;
-  } else if (req.query.content_category_blacklist) {
+  } else if (req.query.content_category_blacklist !== undefined) {
     str = "contentCategoryBlacklist";
     contents = req.query.content_category_blacklist;
-  } else if (req.query.content_word_whitelist) {
+  } else if (req.query.content_word_whitelist !== undefined) {
     str = "contentWordWhitelist";
     contents = req.query.content_word_whitelist;
-  } else if (req.query.content_word_blacklist) {
+  } else if (req.query.content_word_blacklist !== undefined) {
     str = "contentWordBlacklist";
     contents = req.query.content_word_blacklist;
-  } else if (req.query.domain_whitelist) {
+  } else if (req.query.domain_whitelist !== undefined) {
     str = "domainWhitelist";
     contents = req.query.domain_whitelist;
-  } else if (req.query.domain_blacklist) {
+  } else if (req.query.domain_blacklist !== undefined) {
     str = "domainBlacklist";
     contents = req.query.domain_blacklist;
   }
@@ -1137,6 +1141,10 @@ app.get("/edit-config", function(req, res) {
     configVars.TIME_ZONE = atob(req.query.TIME_ZONE);
     change = true;
     html_title += "Updated TIME_ZONE";
+  } else if (req.query.MIN_KEYWORD_FREQ) {
+    configVars.MIN_KEYWORD_FREQ = atob(req.query.MIN_KEYWORD_FREQ);
+    change = true;
+    html_title += "Updated MIN_KEYWORD_FREQ";
   }
   html_title += "</h3>"
   if (change) {
@@ -1147,4 +1155,108 @@ app.get("/edit-config", function(req, res) {
     + html_title
     + html_edit_config2
   );
+});
+
+app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req, res) {
+  if (!req.body.api_key) {
+    handleError(res, "/stats Unauthorized", "stats: no api key supplied", 401);
+    return;
+  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "stats: api key is incorrect", 401);
+    return;
+  }
+  req.session.api_key = req.body.api_key;
+  var cookies = new Cookies(req, res);
+  if (cookieSessionKey.length < 1) {
+    cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
+  }
+  console.log("created session_key cookie for client: "+cookieSessionKey);
+  cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
+  console.log("check cookie for session_key: "+cookies.get("session_key"));
+  // update config
+  var configVars = lib.getConfigVars();
+  var change = false;
+  var newConfigVars;
+  try {
+    newConfigVars = JSON.parse(req.body.config_vars);
+  } catch (err) {
+    console.log("POST /edit-config error: "+err.message);
+    handleError(res, "/stats Internal Server Error", "edit-config: updated config var object could not be read", 500);
+    return;
+  }
+  if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
+    configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
+    change = true;
+  } else if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
+    configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;
+    change = true;
+  } else if (newConfigVars.MAX_POST_TO_READ !== undefined) {
+    configVars.MAX_POST_TO_READ = newConfigVars.MAX_POST_TO_READ;
+    change = true;
+  } else if (newConfigVars.EMAIL_DIGEST !== undefined) {
+    configVars.EMAIL_DIGEST = newConfigVars.EMAIL_DIGEST;
+    change = true;
+  } else if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
+    configVars.MIN_WORDS_FOR_ARTICLE = newConfigVars.MIN_WORDS_FOR_ARTICLE;
+    change = true;
+  } else if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
+    configVars.NUM_POSTS_FOR_AVG_WINDOW = newConfigVars.NUM_POSTS_FOR_AVG_WINDOW;
+    change = true;
+  } else if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
+    configVars.MIN_SCORE_THRESHOLD = newConfigVars.MIN_SCORE_THRESHOLD;
+    change = true;
+  } else if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
+    configVars.SCORE_THRESHOLD_INC_PC = newConfigVars.SCORE_THRESHOLD_INC_PC;
+    change = true;
+  } else if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
+    configVars.CAPITAL_DOLPHIN_MIN = newConfigVars.CAPITAL_DOLPHIN_MIN;
+    change = true;
+  } else if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
+    configVars.CAPITAL_WHALE_MIN = newConfigVars.CAPITAL_WHALE_MIN;
+    change = true;
+  } else if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
+    configVars.MIN_KEYWORD_LEN = newConfigVars.MIN_KEYWORD_LEN;
+    change = true;
+  } else if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
+    configVars.DAYS_KEEP_LOGS = newConfigVars.DAYS_KEEP_LOGS;
+    change = true;
+  } else if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
+    configVars.MIN_LANGUAGE_USAGE_PC = newConfigVars.MIN_LANGUAGE_USAGE_PC;
+    change = true;
+  } else if (newConfigVars.TIME_ZONE !== undefined) {
+    configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
+    change = true;
+  } else if (newConfigVars.MIN_KEYWORD_FREQ) {
+    configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
+    change = true;
+  }
+  var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";
+  if (change) {
+    lib.updateConfigVars(configVars);
+  }
+  res.status(200).send(
+    html_edit_config1
+    + html_title
+    + html_edit_config2
+  );
+});
+
+
+app.get("/api-error", function(req, res) {
+  var title = "Api Error";
+  var message = "An unknown error has ocured";
+  if (req.query.type && req.query.type.length > 0) {
+    if (req.query.type.localeCompare("1")) {
+      title =  "Unauthorized";
+      message = "api_key or session_key not supplied";
+    } else if (req.query.type.localeCompare("2")) {
+      title =  "Unauthorized";
+      message = "api_key invalid";
+    } else if (req.query.type.localeCompare("3")) {
+      title = "Unauthorized";
+      message = "session_key invalid";
+    }
+  }
+  message += ", please visit the dashboard and start your session.<br/>If this persists people log a bug on GitHub";
+  res.send(200, createMsgPageHTML(title, message));
 });

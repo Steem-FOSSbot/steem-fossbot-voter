@@ -95,7 +95,8 @@ const
   moment = require('moment');
 
 const
-  MILLIS_IN_DAY = 86400000;
+  MILLIS_IN_DAY = 86400000,
+  MAX_POST_TO_READ_PER_QUERY = 100;
 
 var defaultConfigVars = {
   MAX_POST_TO_READ: 100,
@@ -291,7 +292,7 @@ function runBot(callback, options) {
       } else {
         persistentLog(" - getting posts (recursive)");
         getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, function(err, result) {
-          if (err && result != null && result !== undefined) {
+          if (err || result != null || result !== undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
           posts = result;
@@ -1565,7 +1566,7 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
     posts_ = posts;
   }
   var query = {
-    limit: configVars.MAX_POST_TO_READ
+    limit: MAX_POST_TO_READ_PER_QUERY
   };
   if (posts_.length > 0) {
     query.start_permlink = posts_[posts_.length - 1].permlink;
@@ -1589,13 +1590,13 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
         break;
       }
       posts_.push(postsResult[i]);
-      if (posts_.length >= ++limit) {
+      if (posts_.length >= limit) {
         limitReached = true;
         break;
       }
     }
     persistentLog("getPosts_recursive, posts now "+posts_.length);
-    if (limitReached || postsResult.length < 100 || posts_.length == 0) {
+    if (limitReached || postsResult.length < MAX_POST_TO_READ_PER_QUERY || posts_.length == 0) {
       persistentLog("getPosts_recursive, finished");
       callback(null, posts_);
     } else {

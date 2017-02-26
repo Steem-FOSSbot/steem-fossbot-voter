@@ -1185,6 +1185,7 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     handleError(res, "/stats Internal Server Error", "edit-config: updated config var object could not be read", 500);
     return;
   }
+  console.log("newConfigVars: "+JSON.stringify(newConfigVars));
   if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
     configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
     change = true;

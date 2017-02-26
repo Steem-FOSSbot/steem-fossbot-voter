@@ -20,7 +20,9 @@ This means _you own the server_ and control it completely. There are no fees or 
 
 You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/Steem-FOSSbot/steem-fossbot-voter#usage) below for more details.
 
-More apps are planned to integrate with this system, which we've called the **Steem FOSSbot ecosystem**. Check out [the doc on Steem FOSSbot](/docs/ecosystem.md) and [our ethos](/docs/ethos.md).
+A plugin system has been proposed and will hopefully be implemented. Please refer to [the ticket](https://github.com/Steem-FOSSbot/project-tracker/issues/8) on the main [Steem FOSSbot organization project-tracker](https://github.com/Steem-FOSSbot/project-tracker) for more information. 
+
+Lastly, check out [our ethos](/docs/ethos.md). Bots can be a divisive subject and this document clearly lays out our position.
 
 ## How it works
 
@@ -111,13 +113,13 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
-- 0.2.3
-  - Patch to fix bot.js not exiting when finished if run locally
-- v0.2.2
-  - Patch to fix express warnings as they prevent correct operation on some local instances
-- v0.2.1
-  - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
-  - Add indication to look for newest steem.js library
+- 0.2.1 to 0.2.4
+  - v0.2.4, patch to implement missing POST /edit-config endpoint
+  - v0.2.3, patch to fix bot.js not exiting when finished if run locally
+  - v0.2.2, patch to fix express warnings as they prevent correct operation on some local instances
+  - v0.2.1
+    - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
+    - Add indication to look for newest steem.js library
 - v0.2.0 - **First public release!** No appreciable change from v0.1.5, release versioning up only
 - v0.1.5
   - Update docs for release, fill in missing parts and check for completeness

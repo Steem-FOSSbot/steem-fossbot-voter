@@ -333,6 +333,10 @@ app.get("/stats", function(req, res) {
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
+  execStats(req, res);
+});
+
+function execStats(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
@@ -351,7 +355,7 @@ app.get("/stats", function(req, res) {
             "Votes for " + dateTime.format("MMM Do YYYY") + "</a></li>";
         }
         html += "<li><a href=\"/stats?pd_key="+keys[i].key+"&time="+keys[i].date+"\">" +
-            " --- --- " + dateTime.format("HH:mm") + "</a></li>";
+          " --- --- " + dateTime.format("HH:mm") + "</a></li>";
       }
     }
     if (req.query.date_str) {
@@ -406,13 +410,13 @@ app.get("/stats", function(req, res) {
         if (postsMetadata.length > 0) {
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
-                + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+              + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
           }
         } else {
           html_list = html_test_emptyList;
         }
         res.status(200).send(
-          html_stats_run1 
+          html_stats_run1
           + html
           + html_stats_run2
           + "Bot run details for run at " + (moment_tz.tz(Number(req.query.time), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
@@ -422,15 +426,15 @@ app.get("/stats", function(req, res) {
       });
     } else {
       res.status(200).send(
-        html_stats1 
+        html_stats1
         + html
         + html_stats2
         + "<p>To see record and proof of voting, visit <a href=\"https://steemd.com/@"+process.env.STEEM_USER
-            +"\">https://steemd.com/@"+process.env.STEEM_USER+"</a></p>"
+        +"\">https://steemd.com/@"+process.env.STEEM_USER+"</a></p>"
         + html_stats3);
     }
   });
-});
+}
 
 /*
 * /stats
@@ -698,8 +702,10 @@ app.get("/run-bot", function(req, res) {
               if (err) {
                 handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
               } else {
-                res.status(200).send(
-                  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+                // #2, redirect to stats page instead
+                execStats(req, res);
+                //res.status(200).send(
+                //  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
               }
             });
           });
@@ -1166,14 +1172,6 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     return;
   }
   console.log("req.session.api_key = "+req.session.api_key);
-  req.session.api_key = req.body.api_key;
-  var cookies = new Cookies(req, res);
-  if (cookieSessionKey.length < 1) {
-    cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
-  }
-  console.log("created session_key cookie for client: "+cookieSessionKey);
-  cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
-  console.log("check cookie for session_key: "+cookies.get("session_key"));
   // update config
   var configVars = lib.getConfigVars();
   var change = false;
@@ -1189,46 +1187,60 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
     configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
     change = true;
-  } else if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
+  }
+  if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
     configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;
     change = true;
-  } else if (newConfigVars.MAX_POST_TO_READ !== undefined) {
+  }
+  if (newConfigVars.MAX_POST_TO_READ !== undefined) {
     configVars.MAX_POST_TO_READ = newConfigVars.MAX_POST_TO_READ;
     change = true;
-  } else if (newConfigVars.EMAIL_DIGEST !== undefined) {
+  }
+  if (newConfigVars.EMAIL_DIGEST !== undefined) {
     configVars.EMAIL_DIGEST = newConfigVars.EMAIL_DIGEST;
     change = true;
-  } else if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
+  }
+  if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
     configVars.MIN_WORDS_FOR_ARTICLE = newConfigVars.MIN_WORDS_FOR_ARTICLE;
     change = true;
-  } else if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
+  }
+  if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
     configVars.NUM_POSTS_FOR_AVG_WINDOW = newConfigVars.NUM_POSTS_FOR_AVG_WINDOW;
     change = true;
-  } else if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
+  }
+  if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
     configVars.MIN_SCORE_THRESHOLD = newConfigVars.MIN_SCORE_THRESHOLD;
     change = true;
-  } else if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
+  }
+  if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
     configVars.SCORE_THRESHOLD_INC_PC = newConfigVars.SCORE_THRESHOLD_INC_PC;
     change = true;
-  } else if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
+  }
+  if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
     configVars.CAPITAL_DOLPHIN_MIN = newConfigVars.CAPITAL_DOLPHIN_MIN;
     change = true;
-  } else if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
+  }
+  if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
     configVars.CAPITAL_WHALE_MIN = newConfigVars.CAPITAL_WHALE_MIN;
     change = true;
-  } else if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
+  }
+  if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
     configVars.MIN_KEYWORD_LEN = newConfigVars.MIN_KEYWORD_LEN;
     change = true;
-  } else if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
+  }
+  if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
     configVars.DAYS_KEEP_LOGS = newConfigVars.DAYS_KEEP_LOGS;
     change = true;
-  } else if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
+  }
+  if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
     configVars.MIN_LANGUAGE_USAGE_PC = newConfigVars.MIN_LANGUAGE_USAGE_PC;
     change = true;
-  } else if (newConfigVars.TIME_ZONE !== undefined) {
+  }
+  if (newConfigVars.TIME_ZONE !== undefined) {
     configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
     change = true;
-  } else if (newConfigVars.MIN_KEYWORD_FREQ) {
+  }
+  if (newConfigVars.MIN_KEYWORD_FREQ) {
     configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
     change = true;
   }

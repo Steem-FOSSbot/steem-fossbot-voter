@@ -1158,13 +1158,14 @@ app.get("/edit-config", function(req, res) {
 });
 
 app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req, res) {
-  if (!req.body.api_key) {
-    handleError(res, "/stats Unauthorized", "stats: no api key supplied", 401);
+  if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "edit-config: session is invalid (no session key), please restart from Dashboard", 401);
     return;
-  } else if (req.body.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: api key is incorrect", 401);
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "edit-config: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
+  console.log("req.session.api_key = "+req.session.api_key);
   req.session.api_key = req.body.api_key;
   var cookies = new Cookies(req, res);
   if (cookieSessionKey.length < 1) {

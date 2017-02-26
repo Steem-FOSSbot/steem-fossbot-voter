@@ -1157,6 +1157,90 @@ app.get("/edit-config", function(req, res) {
   );
 });
 
+app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req, res) {
+  if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "edit-config: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "edit-config: session is invalid (out of date session key), please restart from Dashboard", 401);
+    return;
+  }
+  console.log("req.session.api_key = "+req.session.api_key);
+  req.session.api_key = req.body.api_key;
+  var cookies = new Cookies(req, res);
+  if (cookieSessionKey.length < 1) {
+    cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
+  }
+  console.log("created session_key cookie for client: "+cookieSessionKey);
+  cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
+  console.log("check cookie for session_key: "+cookies.get("session_key"));
+  // update config
+  var configVars = lib.getConfigVars();
+  var change = false;
+  var newConfigVars;
+  try {
+    newConfigVars = JSON.parse(req.body.config_vars);
+  } catch (err) {
+    console.log("POST /edit-config error: "+err.message);
+    handleError(res, "/stats Internal Server Error", "edit-config: updated config var object could not be read", 500);
+    return;
+  }
+  if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
+    configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
+    change = true;
+  } else if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
+    configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;
+    change = true;
+  } else if (newConfigVars.MAX_POST_TO_READ !== undefined) {
+    configVars.MAX_POST_TO_READ = newConfigVars.MAX_POST_TO_READ;
+    change = true;
+  } else if (newConfigVars.EMAIL_DIGEST !== undefined) {
+    configVars.EMAIL_DIGEST = newConfigVars.EMAIL_DIGEST;
+    change = true;
+  } else if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
+    configVars.MIN_WORDS_FOR_ARTICLE = newConfigVars.MIN_WORDS_FOR_ARTICLE;
+    change = true;
+  } else if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
+    configVars.NUM_POSTS_FOR_AVG_WINDOW = newConfigVars.NUM_POSTS_FOR_AVG_WINDOW;
+    change = true;
+  } else if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
+    configVars.MIN_SCORE_THRESHOLD = newConfigVars.MIN_SCORE_THRESHOLD;
+    change = true;
+  } else if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
+    configVars.SCORE_THRESHOLD_INC_PC = newConfigVars.SCORE_THRESHOLD_INC_PC;
+    change = true;
+  } else if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
+    configVars.CAPITAL_DOLPHIN_MIN = newConfigVars.CAPITAL_DOLPHIN_MIN;
+    change = true;
+  } else if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
+    configVars.CAPITAL_WHALE_MIN = newConfigVars.CAPITAL_WHALE_MIN;
+    change = true;
+  } else if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
+    configVars.MIN_KEYWORD_LEN = newConfigVars.MIN_KEYWORD_LEN;
+    change = true;
+  } else if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
+    configVars.DAYS_KEEP_LOGS = newConfigVars.DAYS_KEEP_LOGS;
+    change = true;
+  } else if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
+    configVars.MIN_LANGUAGE_USAGE_PC = newConfigVars.MIN_LANGUAGE_USAGE_PC;
+    change = true;
+  } else if (newConfigVars.TIME_ZONE !== undefined) {
+    configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
+    change = true;
+  } else if (newConfigVars.MIN_KEYWORD_FREQ) {
+    configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
+    change = true;
+  }
+  var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";
+  if (change) {
+    lib.updateConfigVars(configVars);
+  }
+  res.status(200).send(
+    html_edit_config1
+    + html_title
+    + html_edit_config2
+  );
+});
 
 app.get("/api-error", function(req, res) {
   var title = "Api Error";

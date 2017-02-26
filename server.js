@@ -1188,46 +1188,60 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
     configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
     change = true;
-  } else if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
+  }
+  if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
     configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;
     change = true;
-  } else if (newConfigVars.MAX_POST_TO_READ !== undefined) {
+  }
+  if (newConfigVars.MAX_POST_TO_READ !== undefined) {
     configVars.MAX_POST_TO_READ = newConfigVars.MAX_POST_TO_READ;
     change = true;
-  } else if (newConfigVars.EMAIL_DIGEST !== undefined) {
+  }
+  if (newConfigVars.EMAIL_DIGEST !== undefined) {
     configVars.EMAIL_DIGEST = newConfigVars.EMAIL_DIGEST;
     change = true;
-  } else if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
+  }
+  if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {
     configVars.MIN_WORDS_FOR_ARTICLE = newConfigVars.MIN_WORDS_FOR_ARTICLE;
     change = true;
-  } else if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
+  }
+  if (newConfigVars.NUM_POSTS_FOR_AVG_WINDOW !== undefined) {
     configVars.NUM_POSTS_FOR_AVG_WINDOW = newConfigVars.NUM_POSTS_FOR_AVG_WINDOW;
     change = true;
-  } else if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
+  }
+  if (newConfigVars.MIN_SCORE_THRESHOLD !== undefined) {
     configVars.MIN_SCORE_THRESHOLD = newConfigVars.MIN_SCORE_THRESHOLD;
     change = true;
-  } else if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
+  }
+  if (newConfigVars.SCORE_THRESHOLD_INC_PC !== undefined) {
     configVars.SCORE_THRESHOLD_INC_PC = newConfigVars.SCORE_THRESHOLD_INC_PC;
     change = true;
-  } else if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
+  }
+  if (newConfigVars.CAPITAL_DOLPHIN_MIN !== undefined) {
     configVars.CAPITAL_DOLPHIN_MIN = newConfigVars.CAPITAL_DOLPHIN_MIN;
     change = true;
-  } else if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
+  }
+  if (newConfigVars.CAPITAL_WHALE_MIN !== undefined) {
     configVars.CAPITAL_WHALE_MIN = newConfigVars.CAPITAL_WHALE_MIN;
     change = true;
-  } else if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
+  }
+  if (newConfigVars.MIN_KEYWORD_LEN !== undefined) {
     configVars.MIN_KEYWORD_LEN = newConfigVars.MIN_KEYWORD_LEN;
     change = true;
-  } else if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
+  }
+  if (newConfigVars.DAYS_KEEP_LOGS !== undefined) {
     configVars.DAYS_KEEP_LOGS = newConfigVars.DAYS_KEEP_LOGS;
     change = true;
-  } else if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
+  }
+  if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
     configVars.MIN_LANGUAGE_USAGE_PC = newConfigVars.MIN_LANGUAGE_USAGE_PC;
     change = true;
-  } else if (newConfigVars.TIME_ZONE !== undefined) {
+  }
+  if (newConfigVars.TIME_ZONE !== undefined) {
     configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
     change = true;
-  } else if (newConfigVars.MIN_KEYWORD_FREQ) {
+  }
+  if (newConfigVars.MIN_KEYWORD_FREQ) {
     configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
     change = true;
   }

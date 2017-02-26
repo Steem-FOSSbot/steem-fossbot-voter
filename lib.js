@@ -292,7 +292,7 @@ function runBot(callback, options) {
       } else {
         persistentLog(" - getting posts (recursive)");
         getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, function(err, result) {
-          if (err || result != null || result !== undefined) {
+          if (err || result == null || result === undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
           posts = result;
@@ -1586,11 +1586,13 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
     var limitReached = false;
     for (var i = (query.start_permlink === undefined ? 0 : 1) ; i < postsResult.length ; i++) {
       if (stopAtPost !== undefined && postsResult[i].id == stopAtPost.id) {
+        persistentLog("getPosts_recursive, limit reached at last post");
         limitReached = true;
         break;
       }
       posts_.push(postsResult[i]);
       if (posts_.length >= limit) {
+        persistentLog("getPosts_recursive, limit reached at max num to fetch");
         limitReached = true;
         break;
       }

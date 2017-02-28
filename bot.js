@@ -16,5 +16,5 @@ if (lib.hasFatalError()) {
 		console.log("runBot finished with message: "+JSON.stringify(msg));
 		// #53, stop this process as it may stay alive indefinitely
     process.exit();
-	});
+	}, {local: true});
 }

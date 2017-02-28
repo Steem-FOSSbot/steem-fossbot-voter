@@ -1046,9 +1046,12 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: return http before casting votes");
       var deferred = Q.defer();
-      // finally, send good http response back
-      // back to http
-      if (callback) {
+      // #53, call callback when everything complete if local run, i.e. not called from web app directly
+      if (options && options.hasOwnProperty("local") && option.local) {
+        // don't call back
+      } else if (callback) {
+        // finally, send good http response back
+        // back to http if not called locally
         callback(
           {
             status: 200, 
@@ -1138,6 +1141,18 @@ function runBot(callback, options) {
         deferred.resolve(true);
       }
       return deferred.promise;
+    },
+    function() {
+      // #53, call callback when everything complete if local run, i.e. not called from web app directly
+      if (callback && options && options.hasOwnProperty("local") && option.local) {
+        console.log("Finally let process know to quit if local")
+        callback(
+          {
+            status: 200,
+            message: "Scores calculated, and votes cast for local run.",
+            posts: postsMetadata
+          });
+      }
     }
   ];
 

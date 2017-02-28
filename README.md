@@ -111,7 +111,8 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
-- 0.2.1 to 0.2.4
+- 0.2.1 to 0.2.5
+  - v0.2.5, updated patch to fix bot.js not exiting when finished if run locally
   - v0.2.4, patch to implement missing POST /edit-config endpoint
   - v0.2.3, patch to fix bot.js not exiting when finished if run locally
   - v0.2.2, patch to fix express warnings as they prevent correct operation on some local instances

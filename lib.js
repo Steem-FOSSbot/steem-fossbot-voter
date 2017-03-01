@@ -228,18 +228,14 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // update average window details
       getPersistentJson("avg_window_info", function(err, info) {
-        if (info != null) {
+        if (err) {
+          persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
+        } else {
           avgWindowInfo = info;
           persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
-        } else {
-          persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
         }
         getPersistentJson("algorithm", function(err, algorithmResult) {
-          if (algorithmResult != null) {
-            algorithmSet = true;
-            algorithm = algorithmResult;
-            persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
-          } else {
+          if (err) {
             algorithmSet = false;
             persistentLog(" - no algorithm in redis store, empty");
             algorithm = {
@@ -262,6 +258,10 @@ function runBot(callback, options) {
             algorithm.contentWordBlacklist = stringListToLowerCase(algorithm.contentWordBlacklist);
             algorithm.domainWhitelist = stringListToLowerCase(algorithm.domainWhitelist);
             algorithm.domainBlacklist = stringListToLowerCase(algorithm.domainBlacklist);
+          } else {
+            algorithmSet = true;
+            algorithm = algorithmResult;
+            persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
           }
           getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
@@ -1037,7 +1037,7 @@ function runBot(callback, options) {
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
       persistJson("avg_window_info", avgWindowInfo, function(err) {
-        if (err !== undefined) {
+        if (err) {
           persistentLog(" - - ERROR SAVING avg_window_info");
         }
       });
@@ -1247,7 +1247,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   // save
   console.log(" - saving updated dailyLikedPosts object");
   persistJson("daily_liked_posts", {data: dailyLikedPosts}, function(err) {
-    if (err !== undefined) {
+    if (err) {
       console.log("ERROR, addDailyLikedPost failed to be saved");
     }
   })
@@ -1382,7 +1382,7 @@ function sendRunEmailNow(options, callback) {
   email += "</body></html>";
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
-      if (err !== undefined) {
+      if (err) {
         console.log("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
@@ -1481,7 +1481,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
   email += "</body></html>";
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
-      if (err !== undefined) {
+      if (err) {
         console.log("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
@@ -1506,11 +1506,11 @@ function initSteem() {
   getUserAccount();
   // get last post
   getPersistentJson("lastpost", function(err, post) {
-    if (post != null) {
+    if (err) {
+      console.log("no last post, probably this is first run for server");
+    } else {
       lastPost = post;
       console.log("got last post, id: "+lastPost.id);
-    } else {
-      console.log("no last post, probably this is first run for server");
     }
   });
   getPersistentJson("config_vars", function(err, configVarsResult) {
@@ -1711,7 +1711,7 @@ function persistJson(key, json, callback) {
   var str = JSON.stringify(json);
   console.log("persistJson for key "+key+", has JSON as str: "+str);
   redisClient.set(key, str, function(err) {
-    if (err !== undefined) {
+    if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
       if (callback !== undefined) {
         callback(err);
@@ -1736,7 +1736,7 @@ function getPersistentJson(key, callback) {
     }
   });
   redisClient.get(key, function(err, reply) {
-    if (reply == null) {
+    if (err) {
       setError(null, false, "getPersistentJson redis error for key "+key+": "+err);
       if (callback) {
         callback(err);
@@ -1810,7 +1810,7 @@ function deleteWeightMetric(key, apiKey, callback) {
     return;
   }
   getPersistentJson("algorithm", function(err, algorithmResult) {
-    if (algorithmResult != null) {
+    if (err) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
@@ -1843,7 +1843,7 @@ function updateMetricList(list, contents, apiKey, callback) {
   // format contents
   var parts = S(contents.replace("  ", " ")).splitLeft(" ");
   getPersistentJson("algorithm", function(err, algorithmResult) {
-    if (algorithmResult != null) {
+    if (err) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
@@ -1859,7 +1859,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
   console.log("savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     var toKeep = [];
-    if (err || keys == null) {
+    if (err) {
       console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
     } else {
       var keysObj = JSON.parse(keys);
@@ -1984,7 +1984,7 @@ function updateConfigVars(newConfigVars) {
   configVars = newConfigVars;
   console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
   persistJson("config_vars", newConfigVars, function(err) {
-    if (err !== undefined) {
+    if (err) {
       console.log("Error updating config vars: "+err.message);
     }
   })

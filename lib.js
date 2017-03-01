@@ -1047,7 +1047,7 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: return http before casting votes");
       var deferred = Q.defer();
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (options && options.hasOwnProperty("local") && option.local) {
+      if (options !== undefined && options.hasOwnProperty("local") && options.local) {
         // don't call back
       } else if (callback) {
         // finally, send good http response back
@@ -1060,7 +1060,7 @@ function runBot(callback, options) {
           });
       }
       // and save postsMetadata to persistent
-      if (options == null || !options.hasOwnProperty("test") || !options.test ) {
+      if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(" - saving posts_metadata");
         savePostsMetadata({postsMetadata: postsMetadata}, function (res) {
           persistentLog(" - - SAVING posts_metadata: " + res.message);
@@ -1086,7 +1086,7 @@ function runBot(callback, options) {
           var numToVoteOn = 0;
           for (var i = 0 ; i < postsMetadata.length ; i++) {
             var doVote = true;
-            if (options && options.test) {
+            if (options !== undefined && options.test) {
               doVote = false;
             }
             if (doVote) {
@@ -1101,7 +1101,7 @@ function runBot(callback, options) {
             persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
                 +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
             var doVote = true;
-            if (options && options.test) {
+            if (options !== undefined && options.test) {
               doVote = false;
             }
             if (doVote) {
@@ -1144,7 +1144,7 @@ function runBot(callback, options) {
     },
     function() {
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (callback && options && options.hasOwnProperty("local") && option.local) {
+      if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
         console.log("Finally let process know to quit if local")
         callback(
           {

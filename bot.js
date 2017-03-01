@@ -15,6 +15,9 @@ if (lib.hasFatalError()) {
 	lib.runBot(function(msg) {
 		console.log("runBot finished with message: "+JSON.stringify(msg));
 		// #53, stop this process as it may stay alive indefinitely
-    process.exit();
+    // #53, additionally, give 30 seconds to complete in case there are loose anonymous processes to finish
+    setTimeout(function () {
+      process.exit();
+    }, 30000);
 	}, {local: true});
 }

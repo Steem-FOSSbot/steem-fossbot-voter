@@ -1382,7 +1382,7 @@ function sendRunEmailNow(options, callback) {
   email += "</body></html>";
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
-      if (err) {
+      if (err !== undefined) {
         console.log("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
@@ -1481,7 +1481,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
   email += "</body></html>";
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
-      if (err) {
+      if (err !== undefined) {
         console.log("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
@@ -1711,7 +1711,7 @@ function persistJson(key, json, callback) {
   var str = JSON.stringify(json);
   console.log("persistJson for key "+key+", has JSON as str: "+str);
   redisClient.set(key, str, function(err) {
-    if (err) {
+    if (err !== undefined) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
       if (callback !== undefined) {
         callback(err);
@@ -1984,7 +1984,9 @@ function updateConfigVars(newConfigVars) {
   configVars = newConfigVars;
   console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
   persistJson("config_vars", newConfigVars, function(err) {
-    console.log("Error updating config vars: "+err.message);
+    if (err !== undefined) {
+      console.log("Error updating config vars: "+err.message);
+    }
   })
 }
 

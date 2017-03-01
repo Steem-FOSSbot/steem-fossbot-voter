@@ -208,10 +208,11 @@ function runBot(callback, options) {
   console.log("mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
-    if (callback) {
-      callback({status: 500, message: "Server in unusable state, cannot run bot"});
-    }
-    sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]");
+    sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]", function () {
+      if (callback) {
+        callback({status: 500, message: "Server in unusable state, cannot run bot"});
+      }
+    });
     return;
   }
   // begin bot logic, use promises with Q
@@ -226,14 +227,14 @@ function runBot(callback, options) {
       persistentLog("Q.deffered: pre set up");
       var deferred = Q.defer();
       // update average window details
-      getPersistentJson("avg_window_info", function(info) {
+      getPersistentJson("avg_window_info", function(err, info) {
         if (info != null) {
           avgWindowInfo = info;
           persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
         } else {
           persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
         }
-        getPersistentJson("algorithm", function(algorithmResult) {
+        getPersistentJson("algorithm", function(err, algorithmResult) {
           if (algorithmResult != null) {
             algorithmSet = true;
             algorithm = algorithmResult;
@@ -262,7 +263,7 @@ function runBot(callback, options) {
             algorithm.domainWhitelist = stringListToLowerCase(algorithm.domainWhitelist);
             algorithm.domainBlacklist = stringListToLowerCase(algorithm.domainBlacklist);
           }
-          getPersistentJson("daily_liked_posts", function(dailyLikedPostsResults) {
+          getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
               dailyLikedPosts = dailyLikedPostsResults.data;
             }
@@ -1036,7 +1037,9 @@ function runBot(callback, options) {
       // save updated avgWindowInfo
       persistentLog(" - saving avg_window_info");
       persistJson("avg_window_info", avgWindowInfo, function(err) {
-        persistentLog(" - - ERROR SAVING avg_window_info");
+        if (err !== undefined) {
+          persistentLog(" - - ERROR SAVING avg_window_info");
+        }
       });
       // finish
       deferred.resolve(true);
@@ -1156,32 +1159,34 @@ function runBot(callback, options) {
       persistentLog("runBot finished successfully");
       console.log("runBot finished successfully");
       // send email
-      sendRunEmail(options);
-      // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
-        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-        setTimeout(function () {
-          console.log("Finally let process know to quit if local")
-          callback(
-            {
-              status: 200,
-              message: "Scores calculated, and votes cast for local run.",
-              posts: postsMetadata
-            });
-        }, 10000);
-      }
+      sendRunEmail(options, function () {
+        // #53, call callback when everything complete if local run, i.e. not called from web app directly
+        if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
+          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+          setTimeout(function () {
+            console.log("Finally let process know to quit if local")
+            callback(
+              {
+                status: 200,
+                message: "Scores calculated, and votes cast for local run.",
+                posts: postsMetadata
+              });
+          }, 10000);
+        }
+      });
     }
   })
   .catch(function (err) {
     setError("stopped", false, err.message);
-    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
-    if (callback) {
+    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]", function () {
+      if (callback) {
         callback(
           {
-            status: 500, 
+            status: 500,
             message: "Error processing run bot: "+err.message
           });
       }
+    });
   });
 }
 
@@ -1241,19 +1246,24 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   }
   // save
   console.log(" - saving updated dailyLikedPosts object");
-  persistJson("daily_liked_posts", {data: dailyLikedPosts}, function() {
-    console.log("ERROR, addDailyLikedPost failed to be saved");
+  persistJson("daily_liked_posts", {data: dailyLikedPosts}, function(err) {
+    if (err !== undefined) {
+      console.log("ERROR, addDailyLikedPost failed to be saved");
+    }
   })
 }
 
-function sendRunEmail(options) {
+function sendRunEmail(options, callback) {
   console.log("sendRunEmail");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
-    sendRunEmailNow(options);
+    sendRunEmailNow(options, callback);
   } else {
     if (dailyLikedPosts.length < 1) {
       // do nothing, nothing saved
       console.log(" - can't send digest email, nothing saved");
+      if (callback !== undefined) {
+        callback();
+      }
       return
     }
     // check if first post of new day is made, the send digest of previous day
@@ -1269,19 +1279,25 @@ function sendRunEmail(options) {
           //send digest of previous date
           nowDate.subtract(1, 'day');
           console.log(" - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
-          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options);
+          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options, callback);
           return;
         }
         // else
         console.log(" - more than one run today, wait until tomorrow to publish digest for today");
+        if (callback !== undefined) {
+          callback();
+        }
         return;
       }
     }
     console.log(" - didn't find match for today, this signifies an ERROR");
   }
+  if (callback !== undefined) {
+    callback();
+  }
 }
 
-function sendRunEmailNow(options) {
+function sendRunEmailNow(options, callback) {
   console.log("sendRunEmailNow");
   var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
   email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
@@ -1364,13 +1380,19 @@ function sendRunEmailNow(options) {
   email += "<h3>Process logs:</h3>";
   email += "<p>"+logHtml+"</p>";
   email += "</body></html>";
-  sendEmail("Voter bot", email, true);
-  persistString("last_log_html", email, function(err) {
-    console.log("couldn't save last log html as persistent string");
+  sendEmail("Voter bot", email, true, function () {
+    persistString("last_log_html", email, function(err) {
+      if (err) {
+        console.log("couldn't save last log html as persistent string");
+      }
+      if (callback !== undefined) {
+        callback();
+      }
+    });
   });
 }
 
-function sendRunEmailDigest(dateStr, options) {
+function sendRunEmailDigest(dateStr, options, callback) {
   console.log("sendRunEmailDigest for "+dateStr);
   var posts = null;
   for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
@@ -1381,6 +1403,9 @@ function sendRunEmailDigest(dateStr, options) {
   }
   if (posts == null) {
     console.log(" - can't send digest, can't find date in list: "+dateStr);
+    if (callback !== undefined) {
+      callback();
+    }
     return;
   }
   var email = "<html><body><h1>Daily digest for Voter bot</h1>";
@@ -1454,9 +1479,15 @@ function sendRunEmailDigest(dateStr, options) {
   email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
   email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
   email += "</body></html>";
-  sendEmail("Voter bot", email, true);
-  persistString("last_log_html", email, function(err) {
-    console.log("couldn't save last log html as persistent string");
+  sendEmail("Voter bot", email, true, function () {
+    persistString("last_log_html", email, function(err) {
+      if (err) {
+        console.log("couldn't save last log html as persistent string");
+      }
+      if (callback !== undefined) {
+        callback();
+      }
+    });
   });
 }
 
@@ -1474,7 +1505,7 @@ function initSteem() {
   testEnvVars();
   getUserAccount();
   // get last post
-  getPersistentJson("lastpost", function(post) {
+  getPersistentJson("lastpost", function(err, post) {
     if (post != null) {
       lastPost = post;
       console.log("got last post, id: "+lastPost.id);
@@ -1482,7 +1513,7 @@ function initSteem() {
       console.log("no last post, probably this is first run for server");
     }
   });
-  getPersistentJson("config_vars", function(configVarsResult) {
+  getPersistentJson("config_vars", function(err, configVarsResult) {
     if (configVarsResult != null) {
       updateConfigVars(configVarsResult);
     } // else use default, already set
@@ -1626,15 +1657,18 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 /*
 persistString(key, string):
 */
-function persistString(key, string, error) {
+function persistString(key, string, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "persistString redis error for key "+key+": "+err);
-    if (error) {
-      error();
+    if (callback !== undefined) {
+      callback(err);
     }
   });
   redisClient.set(key, string, function() {
     console.log("persistString save for key "+key);
+    if (callback !== undefined) {
+      callback();
+    }
   });
 }
 
@@ -1644,19 +1678,20 @@ getPersistentString(key):
 function getPersistentString(key, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentString redis _on_ error for key "+key+": "+err);
+    callback(err);
   });
   redisClient.get(key, function(err, reply) {
     if (reply == null) {
       setError(null, false, "getPersistentString redis error for key "+key+": "+err);
       if (callback) {
-        callback(null);
+        callback(err);
       }
     } else {
-      if (callback) {
+      if (callback !== undefined) {
         try {
-          callback(reply);
+          callback(null, reply);
         } catch(err) {
-          callback(null);
+          callback(err);
         }
       }
     }
@@ -1666,11 +1701,11 @@ function getPersistentString(key, callback) {
 /*
 persistJson(key, json):
 */
-function persistJson(key, json, error) {
+function persistJson(key, json, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "persistJson redis error for key "+key+": "+err);
-    if (error) {
-      error();
+    if (callback !== undefined) {
+      callback(err);
     }
   });
   var str = JSON.stringify(json);
@@ -1678,8 +1713,14 @@ function persistJson(key, json, error) {
   redisClient.set(key, str, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
+      if (callback !== undefined) {
+        callback(err);
+      }
     } else {
       console.log("persistJson save for key "+key);
+      if (callback !== undefined) {
+        callback();
+      }
     }
   });
 }
@@ -1690,22 +1731,25 @@ getPersistentJson(key):
 function getPersistentJson(key, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentJson redis _on_ error for key "+key+": "+err);
+    if (callback !== undefined) {
+      callback(err);
+    }
   });
   redisClient.get(key, function(err, reply) {
     if (reply == null) {
       setError(null, false, "getPersistentJson redis error for key "+key+": "+err);
       if (callback) {
-        callback(null);
+        callback(err);
       }
     } else {
       if (callback) {
         //console.log("getPersistentJson for key "+key+", raw: "+reply);
         try {
           var json = JSON.parse(reply);
-          callback(json);
+          callback(null, json);
         } catch(err) {
           setError(null, false, "getPersistentJson redis error for key "+key+": "+err.message);
-          callback(null);
+          callback(err);
         }
       }
     }
@@ -1719,13 +1763,13 @@ updateWeightMetric(query, apiKey, callback):
 function updateWeightMetric(query, apiKey, callback) {
   console.log("updateWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
-    if (callback) {
+    if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
     }
     return;
   }
   if (metricKeys.indexOf(query.key) < 0) {
-    if (callback) {
+    if (callback !== undefined) {
       callback({status: 500, message: "key "+query.key+" not valid"});
     }
     return;
@@ -1746,8 +1790,8 @@ function updateWeightMetric(query, apiKey, callback) {
     if (!match) {
       algorithm.weights.push(query);
     }
-    persistJson("algorithm", algorithm, null);
-    if (callback) {
+    persistJson("algorithm", algorithm);
+    if (callback !== undefined) {
       callback({status: 200, message: "Added key to algorithm: "+query.key});
     }
   });
@@ -1760,12 +1804,12 @@ deleteWeightMetric(index, apiKey, callback):
 function deleteWeightMetric(key, apiKey, callback) {
   console.log("deleteWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
-    if (callback) {
+    if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
     }
     return;
   }
-  getPersistentJson("algorithm", function(algorithmResult) {
+  getPersistentJson("algorithm", function(err, algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
@@ -1777,8 +1821,8 @@ function deleteWeightMetric(key, apiKey, callback) {
       } // else don't add, effectively delete
     }
     algorithm.weights = newWeights;
-    persistJson("algorithm", algorithm, null);
-    if (callback) {
+    persistJson("algorithm", algorithm);
+    if (callback !== undefined) {
       callback({status: 200, message: "Removed key from algorithm: "+key});
     }
   });
@@ -1791,21 +1835,21 @@ updateMetricList(list, contents, apiKey, callback):
 function updateMetricList(list, contents, apiKey, callback) {
   console.log("updateMetricList call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
-    if (callback) {
+    if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
     }
     return;
   }
   // format contents
   var parts = S(contents.replace("  ", " ")).splitLeft(" ");
-  getPersistentJson("algorithm", function(algorithmResult) {
+  getPersistentJson("algorithm", function(err, algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
     algorithm[list] = parts;
-    persistJson("algorithm", algorithm, null);
-    if (callback) {
+    persistJson("algorithm", algorithm);
+    if (callback !== undefined) {
       callback({status: 200, message: "Updated black / white list: "+list});
     }
   });
@@ -1846,18 +1890,24 @@ function savePostsMetadata(postsMetadataObj, callback) {
     redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
       if (err) {
         console.log("savePostsMetadata, error setting updated keys: "+err.message);
-        callback({status: 500, message: "savePostsMetadata, error setting updated keys: "+err.message});
+        if (callback !== undefined) {
+          callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
+        }
         return;
       }
       console.log(" - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
         if (err) {
           console.log("savePostsMetadata, error setting new object with key: "+err.message);
-          callback({status: 500, message: "savePostsMetadata, error setting new object with key: "+err.message});
+          if (callback !== undefined) {
+            callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
+          }
           return;
         }
         console.log(" - finished saving postsMetadata");
-        callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: "+key});
+        if (callback !== undefined) {
+          callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
+        }
       });
     });
   });
@@ -1989,7 +2039,7 @@ function showFatalError() {
 sendEmail(subject, message)
 * Send email using SendGrid, if set up. Fails cleanly if not.
 */
-function sendEmail(subject, message, isHtml) {
+function sendEmail(subject, message, isHtml, callback) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
@@ -2017,7 +2067,9 @@ function sendEmail(subject, message, isHtml) {
       console.log(" - error sending email: "+err.message);
     } else {
       console.log(" - send email, status: "+response.statusCode);
-      
+    }
+    if (callback !== undefined) {
+      callback();
     }
 	});
 }

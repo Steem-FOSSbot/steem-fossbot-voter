@@ -1141,18 +1141,6 @@ function runBot(callback, options) {
         deferred.resolve(true);
       }
       return deferred.promise;
-    },
-    function() {
-      // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
-        console.log("Finally let process know to quit if local")
-        callback(
-          {
-            status: 200,
-            message: "Scores calculated, and votes cast for local run.",
-            posts: postsMetadata
-          });
-      }
     }
   ];
 
@@ -1169,10 +1157,24 @@ function runBot(callback, options) {
       console.log("runBot finished successfully");
       // send email
       sendRunEmail(options);
+      // #53, call callback when everything complete if local run, i.e. not called from web app directly
+      if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
+        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+        setTimeout(function () {
+          console.log("Finally let process know to quit if local")
+          callback(
+            {
+              status: 200,
+              message: "Scores calculated, and votes cast for local run.",
+              posts: postsMetadata
+            });
+        }, 10000);
+      }
     }
   })
   .catch(function (err) {
     setError("stopped", false, err.message);
+    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
     if (callback) {
         callback(
           {
@@ -1180,7 +1182,6 @@ function runBot(callback, options) {
             message: "Error processing run bot: "+err.message
           });
       }
-    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]");
   });
 }
 

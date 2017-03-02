@@ -113,7 +113,10 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
-- 0.2.1 to 0.2.5
+- v0.2.6
+  - First main round of bug fixes for milestone [Public beta bug fixes and minor improvements](https://github.com/Steem-FOSSbot/steem-fossbot-voter/milestone/1)
+  - #2, #56, #31, #25, #26, #49, #52, #44, #10, #53
+- v0.2.1 to v0.2.5
   - v0.2.5, updated patch to fix bot.js not exiting when finished if run locally
   - v0.2.4, patch to implement missing POST /edit-config endpoint
   - v0.2.3, patch to fix bot.js not exiting when finished if run locally

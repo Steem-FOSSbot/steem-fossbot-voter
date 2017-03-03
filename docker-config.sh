@@ -69,7 +69,7 @@ while true; do
     then
         botapikey=$(openssl rand -base64 32)
         echo "** IMPORTANT ** Note this key down. You can find it in /steem-fossbot-voter/Dockerfile if you lose it"
-        echo botapikey
+        echo $botapikey
         break
     else
         echo "You must enter a valid bot API key"
@@ -116,9 +116,9 @@ done
 
 # Test values
 echo "Test values"
-printf "ENV COOKIE_SECRET \"%s\"" "$cookiesecret"
-printf "ENV BOT_API_KEY \"%s\"" "botapikey"
-printf "ENV STEEM_USER \"%s\"" "steemusername"
-printf "ENV POSTING_KEY_PRV \"%s\"" "prvpostkey"
+printf "ENV COOKIE_SECRET \"%s\"\n" "$cookiesecret"
+printf "ENV BOT_API_KEY \"%s\"\n" "botapikey"
+printf "ENV STEEM_USER \"%s\"\n" "steemusername"
+printf "ENV POSTING_KEY_PRV \"%s\"\n" "prvpostkey"
 
 # TODO : copy files and append these variables

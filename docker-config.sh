@@ -24,10 +24,11 @@ echo "** WARNING ** DO NOT COMMIT THESE FILES TO A PUBLIC REPO"
 echo
 
 # Check if openssl exists for auto password generation
+cangenrnd="n"
 if ! openssl_loc="$(type -p "openssl")" || [ -z "$openssl_loc" ]; then
-  canGenRnd = "n"
+  cangenrnd="n"
 else
-  canGenRnd = "y"
+  cangenrnd="y"
   echo "OpenSSL found on your system. To auto generate keys,"
   echo "press enter without input where indicated."
 fi
@@ -43,7 +44,7 @@ while true; do
   then
     if [[ $cangenrnd == "y" ]]
     then
-        cookiesecret = $(openssl rand -base64 32)
+        cookiesecret=$(openssl rand -base64 32)
         echo $cookiesecret
         break
     else
@@ -66,7 +67,7 @@ while true; do
   then
     if [[ $cangenrnd == "y" ]]
     then
-        botapikey = $(openssl rand -base64 32)
+        botapikey=$(openssl rand -base64 32)
         echo "** IMPORTANT ** Note this key down. You can find it in /steem-fossbot-voter/Dockerfile if you lose it"
         echo botapikey
         break

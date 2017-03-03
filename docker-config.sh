@@ -112,13 +112,61 @@ while true; do
   fi
 done
 
-# TODO : get run frequency
+# rate to run script
+echo "Frequency to run bot. Choose from one of these presets"
+while true; do
+  echo "1 - every day"
+  echo "2 - every hour"
+  echo "3 - every half hour"
+  echo "4 - every 10 minutes"
+  echo "5 - every 5 minutes"
+  echo
+  echo -n "[Type number and press enter]: "
+  read freqchoice
+
+  if [[ -z "$freqchoice" ]]
+  then
+    echo "You must enter a valid number between 1 and 5 inclusive"
+    echo
+  else
+    if [[ $freqchoice == "1" ]]
+    then
+        freqamt="0 0 * * *"
+        break
+    fi
+    if [[ $freqchoice == "2" ]]
+    then
+        freqamt="0 * * * *"
+        break
+    fi
+    if [[ $freqchoice == "3" ]]
+    then
+        freqamt="*/30 * * * *"
+        break
+    fi
+    if [[ $freqchoice == "4" ]]
+    then
+        freqamt="*/10 * * * *"
+        break
+    fi
+    if [[ $freqchoice == "5" ]]
+    then
+        freqamt="*/5 * * * *"
+        break
+    fi
+  fi
+done
 
 # Test values
 echo "Test values"
 printf "ENV COOKIE_SECRET \"%s\"\n" "$cookiesecret"
-printf "ENV BOT_API_KEY \"%s\"\n" "botapikey"
-printf "ENV STEEM_USER \"%s\"\n" "steemusername"
-printf "ENV POSTING_KEY_PRV \"%s\"\n" "prvpostkey"
+printf "ENV BOT_API_KEY \"%s\"\n" "$botapikey"
+printf "ENV STEEM_USER \"%s\"\n" "$steemusername"
+printf "ENV POSTING_KEY_PRV \"%s\"\n" "$prvpostkey"
+echo
+printf "cron period: \"%s\"\n" "$freqamt"
 
 # TODO : copy files and append these variables
+
+# crontab.default is missing the time period, will look like, for example
+# 0 * * * * root node /src/bot.js >> /var/log/cron.log 2>&1

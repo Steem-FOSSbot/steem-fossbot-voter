@@ -1,1 +1,1 @@
-0 * * * * root node /src/bot.js >> /var/log/cron.log 2>&1
+root node /src/bot.js >> /var/log/cron.log 2>&1

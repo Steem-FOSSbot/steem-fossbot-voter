@@ -8,7 +8,7 @@
 #
 # Script and support written by thrize AKA @personz
 #
-# This script helped by steem-docker run.sh script by
+# This script structure copied from steem-docker run.sh script by
 # @someguy123, available at https://github.com/Someguy123/steem-docker
 #
 
@@ -24,7 +24,7 @@ echo "** WARNING ** DO NOT COMMIT THESE FILES TO A PUBLIC REPO"
 echo
 
 # Check if openssl exists for auto password generation
-if ! openssl_loc="$(type -p "$openssl")" || [ -z "$openssl_loc" ]; then
+if ! openssl_loc="$(type -p "openssl")" || [ -z "$openssl_loc" ]; then
   canGenRnd = "n"
 else
   canGenRnd = "y"

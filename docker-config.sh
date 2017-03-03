@@ -168,10 +168,10 @@ done
 
 # Create Dockerfile file
 cp Dockerfile.default Dockerfile
-echo -e "ENV COOKIE_SECRET \"$cookiesecret\"" >> Dockerfile
-echo -e "ENV BOT_API_KEY \n\"$botapikey\"" >> Dockerfile
-echo -e "ENV STEEM_USER \n\"$steemusername\"" >> Dockerfile
-echo -e "ENV POSTING_KEY_PRV \n\"$prvpostkey\"" >> Dockerfile
+echo -e "\nENV COOKIE_SECRET \"$cookiesecret\"" >> Dockerfile
+echo -e "ENV BOT_API_KEY \"$botapikey\"" >> Dockerfile
+echo -e "ENV STEEM_USER \"$steemusername\"" >> Dockerfile
+echo -e "ENV POSTING_KEY_PRV \"$prvpostkey\"" >> Dockerfile
 
 # Create crontab file
 > crontab

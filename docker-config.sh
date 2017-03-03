@@ -158,22 +158,23 @@ while true; do
 done
 
 # Test values
-echo "Test values"
-printf "ENV COOKIE_SECRET \"%s\"\n" "$cookiesecret"
-printf "ENV BOT_API_KEY \"%s\"\n" "$botapikey"
-printf "ENV STEEM_USER \"%s\"\n" "$steemusername"
-printf "ENV POSTING_KEY_PRV \"%s\"\n" "$prvpostkey"
-echo
-printf "cron period: \"%s\"\n" "$freqamt"
+#echo "Test values"
+#printf "ENV COOKIE_SECRET \"%s\"\n" "$cookiesecret"
+#printf "ENV BOT_API_KEY \"%s\"\n" "$botapikey"
+#printf "ENV STEEM_USER \"%s\"\n" "$steemusername"
+#printf "ENV POSTING_KEY_PRV \"%s\"\n" "$prvpostkey"
+#echo
+#printf "cron period: \"%s\"\n" "$freqamt"
 
 # Create Dockerfile file
 cp Dockerfile.default Dockerfile
-echo -e "\n\"$cookiesecret\"" >> Dockerfile
-echo -e "\n\"$botapikey\"" >> Dockerfile
-echo -e "\n\"$steemusername\"" >> Dockerfile
-echo -e "\n\"$prvpostkey\"" >> Dockerfile
+echo -e "ENV COOKIE_SECRET \"$cookiesecret\"" >> Dockerfile
+echo -e "ENV BOT_API_KEY \n\"$botapikey\"" >> Dockerfile
+echo -e "ENV STEEM_USER \n\"$steemusername\"" >> Dockerfile
+echo -e "ENV POSTING_KEY_PRV \n\"$prvpostkey\"" >> Dockerfile
 
 # Create crontab file
+> crontab
 echo "$freqamt root node /src/bot.js >> /var/log/cron.log 2>&1" >> crontab
 
 # Create bot.sh

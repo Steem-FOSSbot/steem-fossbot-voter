@@ -37,10 +37,10 @@ echo
 # COOKIE_SECRET
 echo "Cookie secret (any random string)"
 while true; do
-  echo "[Type and press enter]: "
+  echo -n "[Type and press enter]: "
   read cookiesecret
 
-  if [[ $cookiesecret == "" ]]
+  if [[ -z "$cookiesecret" ]]
   then
     if [[ $cangenrnd == "y" ]]
     then
@@ -60,10 +60,10 @@ echo
 # BOT_API_KEY
 echo "Bot API key. This can be anything but you will need it to 'log in' to your bot dashboard"
 while true; do
-  echo "[Type and press enter]: "
+  echo -n "[Type and press enter]: "
   read botapikey
 
-  if [[ $botapikey == "" ]]
+  if [[ -z "$botapikey" ]]
   then
     if [[ $cangenrnd == "y" ]]
     then
@@ -84,10 +84,10 @@ echo
 # STEEM_USER
 echo "Steem user name"
 while true; do
-  echo "[Type and press enter]: "
+  echo -n "[Type and press enter]: "
   read steemusername
 
-  if [[ $steemusername == "" ]]
+  if [[ -z "$steemusername" ]]
   then
     echo "You must enter a valid username"
     echo
@@ -100,10 +100,10 @@ echo
 # POSTING_KEY_PRV
 echo "Private posting key. This can be found on your Steemit.com wallet dashboard"
 while true; do
-  echo "[Type and press enter]: "
+  echo -n "[Type and press enter]: "
   read prvpostkey
 
-  if [[ $prvpostkey == "" ]]
+  if [[ -z "$prvpostkey" ]]
   then
     echo "You must enter a valid private posting key"
     echo

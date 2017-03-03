@@ -166,7 +166,20 @@ printf "ENV POSTING_KEY_PRV \"%s\"\n" "$prvpostkey"
 echo
 printf "cron period: \"%s\"\n" "$freqamt"
 
-# TODO : copy files and append these variables
+# Create Dockerfile file
+cp Dockerfile.default Dockerfile
+echo -e "\n\"$cookiesecret\"" >> Dockerfile
+echo -e "\n\"$botapikey\"" >> Dockerfile
+echo -e "\n\"$steemusername\"" >> Dockerfile
+echo -e "\n\"$prvpostkey\"" >> Dockerfile
 
-# crontab.default is missing the time period, will look like, for example
-# 0 * * * * root node /src/bot.js >> /var/log/cron.log 2>&1
+# Create crontab file
+echo "$freqamt root node /src/bot.js >> /var/log/cron.log 2>&1" >> crontab
+
+# Create bot.sh
+cp bot.sh.default bot.sh
+
+#Finish
+echo
+echo "docker-config is complete"
+echo "*************************"

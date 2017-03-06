@@ -228,8 +228,13 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // update average window details
       getPersistentJson("avg_window_info", function(err, info) {
-        if (err) {
+        if (err || info === undefined || info == null) {
           persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
+          avgWindowInfo = {
+            scoreThreshold: 0,
+            postScores: [],
+            windowSize: configVars.NUM_POSTS_FOR_AVG_WINDOW
+          };
         } else {
           avgWindowInfo = info;
           persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));

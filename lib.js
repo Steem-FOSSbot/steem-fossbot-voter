@@ -1869,29 +1869,33 @@ function savePostsMetadata(postsMetadataObj, callback) {
   console.log("savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     var toKeep = [];
-    if (err) {
-      console.log(" - postsMetadata_keys doesn't exist, probably first time run, will create newly");
+    if (err || keysObj === undefined || keysObj == null) {
+      console.log(" - postsMetadata_keys doesn't exist, probably first time run");
     } else {
       var keysObj = JSON.parse(keys);
-      console.log(" - removing old keys");
-      // mark old keys for deletion, to clear space before saving
-      var toDelete = [];
-      for (var i = 0 ; i < keysObj.keys.length ; i++) {
-        if (((new Date()).getTime() - keysObj.keys[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-          toDelete.push(keysObj.keys[i].key);
-        } else {
-          toKeep.push(keysObj.keys[i]);
+      if (keysObj == null) {
+        console.log(" - postsMetadata_keys couldn't be parsed, probably first time run");
+      } else {
+        console.log(" - removing old keys");
+        // mark old keys for deletion, to clear space before saving
+        var toDelete = [];
+        for (var i = 0 ; i < keysObj.keys.length ; i++) {
+          if (((new Date()).getTime() - keysObj.keys[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+            toDelete.push(keysObj.keys[i].key);
+          } else {
+            toKeep.push(keysObj.keys[i]);
+          }
         }
+        console.log(" - - keeping "+toKeep.length+" keys");
+        console.log(" - - deleting "+toDelete.length+" keys");
+        redisClient.del(toDelete, function(err, delResult) {
+          if (err || delResult < 1) {
+            console.log(" - - - COULDNT delete redis keys: "+JSON.stringify(toDelete))
+          } else {
+            console.log(" - - - deleted redis keys: "+JSON.stringify(toDelete));
+          }
+        });
       }
-      console.log(" - - keeping "+toKeep.length+" keys");
-      console.log(" - - deleting "+toDelete.length+" keys");
-      redisClient.del(toDelete, function(err, delResult) {
-        if (err || delResult < 1) {
-          console.log(" - - - COULDNT delete redis keys: "+JSON.stringify(toDelete))
-        } else {
-          console.log(" - - - deleted redis keys: "+JSON.stringify(toDelete));
-        }
-      });
     }
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);

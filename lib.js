@@ -1632,6 +1632,11 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
     //    last page
     var limitReached = false;
     for (var i = (query.start_permlink === undefined ? 0 : 1) ; i < postsResult.length ; i++) {
+      // #57, check for null post in list
+      if (postsResult[i] === undefined || postsResult[i] == null) {
+        persistentLog("getPosts_recursive, a post object is null, skipping");
+        continue;
+      }
       if (stopAtPost !== undefined && postsResult[i].id == stopAtPost.id) {
         persistentLog("getPosts_recursive, limit reached at last post");
         limitReached = true;

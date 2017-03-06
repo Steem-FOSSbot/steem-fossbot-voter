@@ -1869,7 +1869,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
   console.log("savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     var toKeep = [];
-    if (err || keysObj === undefined || keysObj == null) {
+    if (err || keys === undefined || keys == null) {
       console.log(" - postsMetadata_keys doesn't exist, probably first time run");
     } else {
       var keysObj = JSON.parse(keys);

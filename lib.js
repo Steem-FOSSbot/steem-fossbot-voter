@@ -2055,6 +2055,7 @@ function sendEmail(subject, message, isHtml, callback) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
 		setError(null, false, "Can't send email, config vars not set. Subject: "+subject);
+		callback();
 		return false;
 	}
   console.log("sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);

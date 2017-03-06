@@ -1821,6 +1821,8 @@ function deleteWeightMetric(key, apiKey, callback) {
   }
   getPersistentJson("algorithm", function(err, algorithmResult) {
     if (err) {
+      console.log(" - coudln't from redis store, using local version");
+    } else {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
@@ -1854,6 +1856,21 @@ function updateMetricList(list, contents, apiKey, callback) {
   var parts = S(contents.replace("  ", " ")).splitLeft(" ");
   getPersistentJson("algorithm", function(err, algorithmResult) {
     if (err) {
+      console.log(" - coudln't from redis store, using local version");
+      if (algorithm === undefined || algorithm == null) {
+        algorithm = {
+          weights: [],
+          authorWhitelist: [],
+          authorBlacklist: [],
+          contentCategoryWhitelist: [],
+          contentCategoryBlacklist: [],
+          contentWordWhitelist: [],
+          contentWordBlacklist: [],
+          domainWhitelist: [],
+          domainBlacklist: []
+        };
+      }
+    } else {
       algorithm = algorithmResult;
       console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }

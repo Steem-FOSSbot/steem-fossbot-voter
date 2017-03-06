@@ -854,6 +854,9 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: calculate scores for each post");
       var deferred = Q.defer();
+      // debug
+      persistentLog("ALGORITHM: "+JSON.stringify(algorithm));
+      persistentLog("POSTMETRICS: "+JSON.stringify(postsMetrics));
       // calculate scores
       postsMetadata = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {

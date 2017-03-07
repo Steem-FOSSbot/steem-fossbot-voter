@@ -1286,7 +1286,7 @@ function sendRunEmail(options, callback) {
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
       console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
-      if (nowDate.date() == date.date()) {
+      if (nowDate.format("MM-DD-YYYY").localeCompare(date.format("MM-DD-YYYY")) == 0) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date

@@ -369,6 +369,23 @@ function execStats(req, res) {
         }
         var dailyLikedPosts = dailyLikedPostsResult.data;
         var dailyLikedPostObj = null;
+
+        // check if first post of new day is made, the send digest of previous day
+        var searchDate = moment(req.query.date_str, "MM-DD-YYYY");
+        console.log("Looking for date liked posts for date: "+req.query.date_str+", with date obj: "+searchDate.format("MM-DD-YYYY"));
+        console.log(" - day of month for search: "+searchDate);
+        for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+          var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
+          console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
+          if (searchDate.format("MM-DD-YYYY").localeCompare(date.format("MM-DD-YYYY")) == 0) {
+            console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
+            console.log(" - found match!");
+            dailyLikedPostObj = dailyLikedPosts[i];
+            break;
+          }
+        }
+
+        /*
         console.log("Looking for date liked posts for date: "+req.query.date_str);
         for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
           console.log("checking "+dailyLikedPosts[i].date_str);
@@ -377,6 +394,8 @@ function execStats(req, res) {
             dailyLikedPostObj = dailyLikedPosts[i];
           }
         }
+        */
+
         if (dailyLikedPostObj == null) {
           console.log("/stats, No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)");
           console.log("/stats, dailyLikedPostObj == null, couldn't find date");

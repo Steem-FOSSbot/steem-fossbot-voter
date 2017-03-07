@@ -360,7 +360,6 @@ function execStats(req, res) {
     }
     if (req.query.date_str) {
       lib.getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResult) {
-        console.log("/stats, get dailylikedposts, result: "+JSON.stringify(dailyLikedPostsResult));
         if (err === undefined || dailyLikedPostsResult === undefined || dailyLikedPostsResult == null) {
           console.log("/stats, err === undefined || dailyLikedPostsResult === undefined || dailyLikedPostsResult == null");
           res.status(200).send(

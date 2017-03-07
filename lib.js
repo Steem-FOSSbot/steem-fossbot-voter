@@ -1276,9 +1276,8 @@ function sendRunEmail(options, callback) {
     console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
     console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
-      console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
-      if (nowDate.date() == date.date()) {
+      console.log(" - - checking date: "+dailyLikedPosts[i].date_str);
+      if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date

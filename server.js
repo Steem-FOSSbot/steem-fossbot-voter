@@ -371,7 +371,9 @@ function execStats(req, res) {
         var dailyLikedPostObj = null;
         console.log("Looking for date liked posts for date: "+req.query.date_str);
         for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+          console.log("checking "+dailyLikedPosts[i].date_str);
           if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {
+            console.log(" - found match!");
             dailyLikedPostObj = dailyLikedPosts[i];
           }
         }

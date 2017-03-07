@@ -1226,6 +1226,19 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
   if (dailyLikedPosts.length > 0) {
+    // clean old posts
+    var limitDate = nowDate.clone();
+    limitDate.subtract(configVars.DAYS_KEEP_LOGS, 'days');
+    var dailyLikedPosts_keep = [];
+    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+      var date = moment(dailyLikedPosts[i].date_str);
+      if (!date.isBefore(limitDate)) {
+        dailyLikedPosts_keep.push(dailyLikedPosts[i]);
+      }
+    }
+    console.log(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    dailyLikedPosts = dailyLikedPosts_keep;
+    // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
         dailyLikedPosts[i].posts.push(postsMetadataObj);

@@ -360,19 +360,24 @@ function execStats(req, res) {
     }
     if (req.query.date_str) {
       lib.getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResult) {
+        console.log("/stats, get dailylikedposts, result: "+JSON.stringify(dailyLikedPostsResult));
         if (err === undefined || dailyLikedPostsResult === undefined || dailyLikedPostsResult == null) {
+          console.log("/stats, err === undefined || dailyLikedPostsResult === undefined || dailyLikedPostsResult == null");
           res.status(200).send(
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 1)"));
           return;
         }
         var dailyLikedPosts = dailyLikedPostsResult.data;
         var dailyLikedPostObj = null;
+        console.log("Looking for date liked posts for date: "+req.query.date_str);
         for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
           if (dailyLikedPosts[i].date_str.localeCompare(req.query.date_str) == 0) {
             dailyLikedPostObj = dailyLikedPosts[i];
           }
         }
         if (dailyLikedPostObj == null) {
+          console.log("/stats, No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)");
+          console.log("/stats, dailyLikedPostObj == null, couldn't find date");
           res.status(200).send(
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)"));
           return;

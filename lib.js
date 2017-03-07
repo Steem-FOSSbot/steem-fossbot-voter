@@ -1287,7 +1287,6 @@ function sendRunEmail(options, callback) {
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
     console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
-    console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       console.log(" - - checking date: "+dailyLikedPosts[i].date_str);
       if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {

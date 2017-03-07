@@ -1004,6 +1004,7 @@ function runBot(callback, options) {
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
+          persistentLog("num votes today + processed / MAX: "+(owner.num_votes_today + upVotesProcessed)+" / "+configVars.MAX_VOTES_IN_24_HOURS);
           thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS, 2);
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;

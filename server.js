@@ -340,8 +340,9 @@ function execStats(req, res) {
   lib.getPostsMetadataKeys(function(err, keys) {
     var html = "";
     if (err || keys == null || keys.length < 1) {
-      html = createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.");
-      res.status(200).send(html);
+      res.status(200).send(
+        createMsgPageHTML("No stats available", "It looks like this is a fresh install of Voter. Please generate some stats by using it and then come back here to see the results in detail.")
+      );
       console.log("No keys for /stats");
       return;
     } else {
@@ -372,27 +373,30 @@ function execStats(req, res) {
             dailyLikedPostObj = dailyLikedPosts[i];
           }
         }
-        if (dailyLikedPostObj == null) {
-          res.status(200).send(
-            createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 2)"));
-          return;
-        }
-        var postsMetadata = dailyLikedPostObj.posts;
-        var html_list = "";
-        if (postsMetadata.length > 0) {
-          for (var i = 0 ; i < postsMetadata.length ; i++) {
-            html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
-              + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
-          }
-        } else {
-          html_list = html_test_emptyList;
-        }
         var thisDate = moment(req.query.date_str);
+        var html_header = "";
+        if (dailyLikedPostObj == null) {
+          // #58, no votes cast today, is not system failure, display meaningful message
+          html_header = "No votes cast on " + (thisDate.format("MMM Do YYYY"));
+          html_list = html_test_emptyList;
+        } else {
+          html_header = "Votes cast on " + (thisDate.format("MMM Do YYYY"));
+          var postsMetadata = dailyLikedPostObj.posts;
+          var html_list = "";
+          if (postsMetadata.length > 0) {
+            for (var i = 0 ; i < postsMetadata.length ; i++) {
+              html_list += "<tr><td><a href=\""+postsMetadata[i].url+"\">"+postsMetadata[i].title+"</a></td><td>"+postsMetadata[i].score+"</td>"
+                + "<td>"+(postsMetadata[i].vote ? "YES" : "NO")+"</td></tr>";
+            }
+          } else {
+            html_list = html_test_emptyList;
+          }
+        }
         res.status(200).send(
           html_stats_run1
           + html
           + html_stats_run2
-          + "Daily likes overview for " + (thisDate.format("MMM Do YYYY"))
+          + html_header
           + html_stats_daily_likes_3
           + html_list
           + html_stats_daily_likes_4);

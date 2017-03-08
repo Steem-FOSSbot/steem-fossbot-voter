@@ -113,6 +113,8 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.2.7
+  - Some additional bug fixes
 - v0.2.6
   - First main round of bug fixes for milestone [Public beta bug fixes and minor improvements](https://github.com/Steem-FOSSbot/steem-fossbot-voter/milestone/1)
   - #2, #56, #31, #25, #26, #49, #52, #44, #10, #53

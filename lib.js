@@ -326,7 +326,7 @@ function runBot(callback, options) {
         }
         posts = cleanedPosts;
       } else {
-        // only keep posts older than limit
+        // only keep posts older than limit and that are not written by the registered (this) user
         if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
           var cleanedPosts = [];
@@ -335,7 +335,14 @@ function runBot(callback, options) {
             if (timeDiff > 0) {
               timeDiff /= (60 * 1000);
             }
-            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER) {
+            // #1, if author is this user, remove post, i.e. disallow vote on own post
+            var isByThisUser = process.env.STEEM_USER !== undefined
+                && process.env.STEEM_USER !== null
+                && posts[i].author !== undefined
+                && posts[i].author !== null
+                && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
+                && !isByThisUser) {
               cleanedPosts.push(posts[i]);
             }
           }
@@ -1004,8 +1011,8 @@ function runBot(callback, options) {
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
-          persistentLog("num votes today + processed / MAX: "+(owner.num_votes_today + upVotesProcessed)+" / "+configVars.MAX_VOTES_IN_24_HOURS);
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS, 2);
+          // #27, removed square scaling of vote limit
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * ((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS);
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;
           }
@@ -1234,6 +1241,19 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
   if (dailyLikedPosts.length > 0) {
+    // clean old posts
+    var limitDate = nowDate.clone();
+    limitDate.subtract(configVars.DAYS_KEEP_LOGS, 'days');
+    var dailyLikedPosts_keep = [];
+    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+      var date = moment(dailyLikedPosts[i].date_str);
+      if (!date.isBefore(limitDate)) {
+        dailyLikedPosts_keep.push(dailyLikedPosts[i]);
+      }
+    }
+    console.log(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    dailyLikedPosts = dailyLikedPosts_keep;
+    // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
         dailyLikedPosts[i].posts.push(postsMetadataObj);
@@ -1282,11 +1302,9 @@ function sendRunEmail(options, callback) {
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
     console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
-    console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
-      console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
-      if (nowDate.format("MM-DD-YYYY").localeCompare(date.format("MM-DD-YYYY")) == 0) {
+      console.log(" - - checking date: "+dailyLikedPosts[i].date_str);
+      if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date

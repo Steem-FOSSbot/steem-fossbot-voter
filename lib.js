@@ -1127,7 +1127,7 @@ function runBot(callback, options) {
           if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
             thresholdInfo.voteAdjustmentInc = (threshold * 10);
           } else {
-            thresholdInfo.voteAdjustmentInc = 0;
+            thresholdInfo.voteAdjustmentInc = -(threshold * 0.1);
           }
           thresholdInfo.total = threshold + thresholdInfo.voteAdjustmentInc;
         } else {

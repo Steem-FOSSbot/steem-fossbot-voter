@@ -1125,7 +1125,7 @@ function runBot(callback, options) {
         } else if (postsMetadata[i].scoreDetail.useAvgOnly) {
           thresholdInfo.percentInc = 0;
           if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
-            thresholdInfo.voteAdjustmentInc = (threshold * 10);
+            thresholdInfo.voteAdjustmentInc = (threshold * 2);
           } else {
             thresholdInfo.voteAdjustmentInc = 0;
           }

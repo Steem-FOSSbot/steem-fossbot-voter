@@ -1913,24 +1913,13 @@ function savePostsMetadata(postsMetadataObj, callback) {
         console.log(" - postsMetadata_keys couldn't be parsed, probably first time run");
       } else {
         console.log(" - removing old keys");
-        // mark old keys for deletion, to clear space before saving
-        var toDelete = [];
+        // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
-          if (((new Date()).getTime() - keysObj.keys[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-            toDelete.push(keysObj.keys[i].key);
-          } else {
+          if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);
           }
         }
-        console.log(" - - keeping "+toKeep.length+" keys");
-        console.log(" - - deleting "+toDelete.length+" keys");
-        redisClient.del(toDelete, function(err, delResult) {
-          if (err || delResult < 1) {
-            console.log(" - - - COULDNT delete redis keys: "+JSON.stringify(toDelete))
-          } else {
-            console.log(" - - - deleted redis keys: "+JSON.stringify(toDelete));
-          }
-        });
+        console.log(" - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
     var stringifiedJson = JSON.stringify(postsMetadataObj);

@@ -1127,7 +1127,7 @@ function runBot(callback, options) {
           if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
             thresholdInfo.voteAdjustmentInc = (threshold * 10);
           } else {
-            thresholdInfo.voteAdjustmentInc = -(threshold * 0.1);
+            thresholdInfo.voteAdjustmentInc = 0;
           }
           thresholdInfo.total = threshold + thresholdInfo.voteAdjustmentInc;
         } else {
@@ -1150,6 +1150,10 @@ function runBot(callback, options) {
           }
         }
         avgWindowInfo.scoreThreshold = thresholdInfo.total;
+        // #24, use threshold at 90% for calculations, but do not pass this on for next calculation
+        if (postsMetadata[i].scoreDetail.useAvgOnly) {
+          thresholdInfo.total *= 0.9;
+        }
         postsMetadata[i].thresholdInfo = thresholdInfo;
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));

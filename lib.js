@@ -325,7 +325,7 @@ function runBot(callback, options) {
         }
         posts = cleanedPosts;
       } else {
-        // only keep posts older than limit
+        // only keep posts older than limit and that are not written by the registered (this) user
         if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
           var cleanedPosts = [];
@@ -334,7 +334,14 @@ function runBot(callback, options) {
             if (timeDiff > 0) {
               timeDiff /= (60 * 1000);
             }
-            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER) {
+            // #1, if author is this user, remove post, i.e. disallow vote on own post
+            var isByThisUser = process.env.STEEM_USER !== undefined
+                && process.env.STEEM_USER !== null
+                && posts[i].author !== undefined
+                && posts[i].author !== null
+                && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
+                && !isByThisUser) {
               cleanedPosts.push(posts[i]);
             }
           }

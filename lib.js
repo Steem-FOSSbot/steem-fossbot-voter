@@ -1003,14 +1003,10 @@ function runBot(callback, options) {
           total: 0,
           metrics: []
         };
-        var numWeightsAboveMinThreshold = 0;
         for (var j = 0 ; j < algorithm.weights.length ; j++) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
             var value = metric[algorithm.weights[j].key];
             var weight = algorithm.weights[j].value;
-            if (weight >= configVars.MIN_SCORE_THRESHOLD) {
-              numWeightsAboveMinThreshold++;
-            }
             if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
               var lower = 0;
               var upper = Number.MAX_VALUE;
@@ -1049,7 +1045,8 @@ function runBot(callback, options) {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        scoreDetail.useAvgOnly = (numWeightsAboveMinThreshold <= 1);
+        // #24, use total number of weights, irrespective of their value
+        scoreDetail.useAvgOnly = (algorithm.weights.length <= 1);
         persistentLog(" - - FINAL SCORE: "+scoreDetail.total);
         postsMetadata.push(
           {
@@ -1128,7 +1125,7 @@ function runBot(callback, options) {
         } else if (postsMetadata[i].scoreDetail.useAvgOnly) {
           thresholdInfo.percentInc = 0;
           if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
-            thresholdInfo.voteAdjustmentInc = (threshold * 0.5);
+            thresholdInfo.voteAdjustmentInc = (threshold * 10);
           } else {
             thresholdInfo.voteAdjustmentInc = 0;
           }

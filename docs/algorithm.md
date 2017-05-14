@@ -111,6 +111,18 @@ This shows that the scoring system is relative and that, for example, a score of
 
 Finally, be warned against changing the post window size to be too small or too large. Too small and, perhaps counter-intuitively, it will be much less likely for posts to be voted on because the lower scores are not keeping the average low. Too large a window means that the algorithm cannot respond to changes quickly and you risk the bot voting on a lot of low quality posts because the threshold could not raise quick enough, or missing a lot of good quality posts because a few very very good quality posts skewed the average too high for too long.
 
+#### Exceptions
+
+If the threshold is below ```MIN_SCORE_THRESHOLD```, it will be set to this value, i.e. it cannot be below this. As a result, you need to take care to make sure that your metrics weights are likely to result in a score which is above ```MIN_SCORE_THRESHOLD``` for the general case of a post you want to vote for.
+
+**IMPORTANT**
+
+There is also a special case for algorithms containing **only one metric**. In this case, only the average will be used, i.e. only _step 1_ from the above, until ```MAX_VOTES_IN_24_HOURS``` at which time the threshold becomes prohibitively high, stopping voting.
+
+In other words, the threshold does not slowly rise with the percentage of votes left for this 24 period; we found that when only one metric is used this effectively disables voting most of the time (thanks to (at)renzoarg and (at)taoteh for helping with this).
+     
+Bear this in mind when designing algorithms with just one metric.
+
 ### Settings and constants
  
 Most settings which effect the algorithm are editable. I have set sensible defaults, but these will not be appropriate for every situation.

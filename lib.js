@@ -76,6 +76,81 @@ const
       ];
 
 const
+  metricKeys_basic = [
+    "owner_num_votes_today",
+    "owner_last_post_time",
+    "post_alive_time",
+    "post_est_payout",
+    "post_num_upvotes",
+    "post_num_downvotes"
+  ],
+  metricKeys_voting = [
+    "post_up_voted_num_dolphin",
+    "post_up_voted_num_whale",
+    "post_up_voted_num_followed",
+    "post_up_voted_num_whitelisted",
+    "post_up_voted_num_blacklisted",
+    "post_down_voted_num_dolphin",
+    "post_down_voted_num_whale",
+    "post_down_voted_num_followed",
+    "post_down_voted_num_whitelisted",
+    "post_down_voted_num_blacklisted",
+    "post_up_voted_any_dolphin",
+    "post_up_voted_any_whale",
+    "post_up_voted_any_followed",
+    "post_up_voted_any_whitelisted",
+    "post_up_voted_any_blacklisted",
+    "post_down_voted_any_dolphin",
+    "post_down_voted_any_whale",
+    "post_down_voted_any_followed",
+    "post_down_voted_any_whitelisted",
+    "post_down_voted_any_blacklisted"
+  ],
+  metricKeys_author = [
+    "author_capital_val",
+    "author_is_minnow",
+    "author_is_dolphin",
+    "author_is_whale",
+    "author_is_followed",
+    "author_is_whitelisted",
+    "author_is_blacklisted"
+  ],
+  metricKeys_nlp_lists_links_lang = [
+    "post_num_chars",
+    "post_num_words",
+    "post_sentiment_val",
+    "post_num_tags_whitelisted",
+    "post_num_tags_blacklisted",
+    "post_num_keywords_whitelisted",
+    "post_num_keywords_blacklisted",
+    "post_num_words_whitelisted",
+    "post_num_words_blacklisted",
+    "post_category_whitelisted",
+    "post_category_blacklisted",
+    "post_any_tag_whitelisted",
+    "post_any_tag_blacklisted",
+    "post_any_keyword_whitelisted",
+    "post_any_keyword_blacklisted",
+    "post_num_links_video",
+    "post_num_links_image",
+    "post_num_links_page",
+    "post_num_links_total",
+    "post_num_link_domains_whitelisted",
+    "post_num_link_domains_blacklisted",
+    "post_any_link_domains_whitelisted",
+    "post_any_link_domains_blacklisted",
+    "author_repuation",
+    "post_very_short",
+    "post_images_only",
+    "post_videos_only",
+    "post_mixed_links_only",
+    "post_has_english_language_use",
+    "post_has_german_language_use",
+    "post_has_spanish_language_use",
+    "post_has_french_language_use"
+  ];
+
+const
 	steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
@@ -152,7 +227,10 @@ var algorithm = {
   contentWordBlacklist: [],
   domainWhitelist: [],
   domainBlacklist: []
-}
+};
+var algorithmUsesVotingAnalysis = false;
+var algorithmUsesAuthorAnalysis = false;
+var algorithmUsesNlpListsLinksLangAnalysis = false;
 
 // data
 var posts = [];
@@ -268,6 +346,40 @@ function runBot(callback, options) {
             algorithm = algorithmResult;
             persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
           }
+          // determine which analysis needs to be run depending on algorithm keys used
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_voting.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_voting[j]) == 0) {
+                algorithmUsesVotingAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesVotingAnalysis) {
+              break;
+            }
+          }
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_author.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_author[j]) == 0) {
+                algorithmUsesAuthorAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesAuthorAnalysis) {
+              break;
+            }
+          }
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_nlp_lists_links_lang.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_nlp_lists_links_lang[j]) == 0) {
+                algorithmUsesNlpListsLinksLangAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesNlpListsLinksLangAnalysis) {
+              break;
+            }
+          }
           getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
               dailyLikedPosts = dailyLikedPostsResults.data;
@@ -276,7 +388,7 @@ function runBot(callback, options) {
           });
 
         });
-      })
+      });
       return deferred.promise;
     },
     // get posts
@@ -466,6 +578,12 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 3, analyse votes");
       var deferred = Q.defer();
+      if (!algorithmUsesVotingAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 3 (voting), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       // analyse votes for posts
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
@@ -569,6 +687,13 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 4, post author metrics");
       var deferred = Q.defer();
+      if (!algorithmUsesAuthorAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 4 (author), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
+      // process
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
         // check we have author account, we should
@@ -624,6 +749,12 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: transform post data to metrics 5, do NLP processing");
       var deferred = Q.defer();
       postsNlp = [];
+      if (!algorithmUsesNlpListsLinksLangAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 5 (NLP/lists/links/language), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       var postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         persistentLog(" - post ["+posts[i].permlink+"]");
@@ -696,6 +827,12 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
       var deferred = Q.defer();
+      if (!algorithmUsesNlpListsLinksLangAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 6 (NLP/lists/links/language), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
@@ -904,7 +1041,7 @@ function runBot(callback, options) {
               value: value,
               weight: weight,
               score: (value * weight)
-            }
+            };
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
             persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);

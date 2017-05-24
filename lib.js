@@ -314,8 +314,10 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: clean posts");
       var deferred = Q.defer();
       if (options && options.hasOwnProperty("permlink")) {
+        persistentLog(" - permlink only");
         // do nothing, posts should just contain permlink
       } else if (options && options.hasOwnProperty("limit")) {
+        persistentLog(" - limit on post number supplied");
         // keep options.limit number of posts
         var cleanedPosts = [];
         for (var i = 0 ; i < posts.length ; i++) {
@@ -327,6 +329,7 @@ function runBot(callback, options) {
         posts = cleanedPosts;
       } else {
         // only keep posts older than limit and that are not written by the registered (this) user
+        persistentLog(" - applying age limit and self post test...");
         if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
           var cleanedPosts = [];
@@ -341,6 +344,7 @@ function runBot(callback, options) {
                 && posts[i].author !== undefined
                 && posts[i].author !== null
                 && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+            persistentLog(" - post["+i+"] - timeDiff="+timeDiff+", isByThisUser? "+isByThisUser);
             if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
                 && !isByThisUser) {
               cleanedPosts.push(posts[i]);

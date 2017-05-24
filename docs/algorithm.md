@@ -148,7 +148,7 @@ Most people will want to edit these
 
 Edit with caution, setting these incorrectly can really break the bot
 
-1. **MAX_POST_TO_READ** (```100```): Max number of posts fetched. Any more than this will be discarded
+1. **MAX_POST_TO_READ** (```1000```): Max number of posts fetched. Any more than this will be discarded
 2. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
 3. **NUM_POSTS_FOR_AVG_WINDOW** (```10```): Maximum number of posts used for averaging window used to determine baseline threshold score
 4. **MIN_SCORE_THRESHOLD** (```10```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.

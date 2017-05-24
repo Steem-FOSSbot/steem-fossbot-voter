@@ -76,6 +76,81 @@ const
       ];
 
 const
+  metricKeys_basic = [
+    "owner_num_votes_today",
+    "owner_last_post_time",
+    "post_alive_time",
+    "post_est_payout",
+    "post_num_upvotes",
+    "post_num_downvotes"
+  ],
+  metricKeys_voting = [
+    "post_up_voted_num_dolphin",
+    "post_up_voted_num_whale",
+    "post_up_voted_num_followed",
+    "post_up_voted_num_whitelisted",
+    "post_up_voted_num_blacklisted",
+    "post_down_voted_num_dolphin",
+    "post_down_voted_num_whale",
+    "post_down_voted_num_followed",
+    "post_down_voted_num_whitelisted",
+    "post_down_voted_num_blacklisted",
+    "post_up_voted_any_dolphin",
+    "post_up_voted_any_whale",
+    "post_up_voted_any_followed",
+    "post_up_voted_any_whitelisted",
+    "post_up_voted_any_blacklisted",
+    "post_down_voted_any_dolphin",
+    "post_down_voted_any_whale",
+    "post_down_voted_any_followed",
+    "post_down_voted_any_whitelisted",
+    "post_down_voted_any_blacklisted"
+  ],
+  metricKeys_author = [
+    "author_capital_val",
+    "author_is_minnow",
+    "author_is_dolphin",
+    "author_is_whale",
+    "author_is_followed",
+    "author_is_whitelisted",
+    "author_is_blacklisted"
+  ],
+  metricKeys_nlp_lists_links_lang = [
+    "post_num_chars",
+    "post_num_words",
+    "post_sentiment_val",
+    "post_num_tags_whitelisted",
+    "post_num_tags_blacklisted",
+    "post_num_keywords_whitelisted",
+    "post_num_keywords_blacklisted",
+    "post_num_words_whitelisted",
+    "post_num_words_blacklisted",
+    "post_category_whitelisted",
+    "post_category_blacklisted",
+    "post_any_tag_whitelisted",
+    "post_any_tag_blacklisted",
+    "post_any_keyword_whitelisted",
+    "post_any_keyword_blacklisted",
+    "post_num_links_video",
+    "post_num_links_image",
+    "post_num_links_page",
+    "post_num_links_total",
+    "post_num_link_domains_whitelisted",
+    "post_num_link_domains_blacklisted",
+    "post_any_link_domains_whitelisted",
+    "post_any_link_domains_blacklisted",
+    "author_repuation",
+    "post_very_short",
+    "post_images_only",
+    "post_videos_only",
+    "post_mixed_links_only",
+    "post_has_english_language_use",
+    "post_has_german_language_use",
+    "post_has_spanish_language_use",
+    "post_has_french_language_use"
+  ];
+
+const
 	steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
@@ -152,7 +227,10 @@ var algorithm = {
   contentWordBlacklist: [],
   domainWhitelist: [],
   domainBlacklist: []
-}
+};
+var algorithmUsesVotingAnalysis = false;
+var algorithmUsesAuthorAnalysis = false;
+var algorithmUsesNlpListsLinksLangAnalysis = false;
 
 // data
 var posts = [];
@@ -268,6 +346,40 @@ function runBot(callback, options) {
             algorithm = algorithmResult;
             persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
           }
+          // determine which analysis needs to be run depending on algorithm keys used
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_voting.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_voting[j]) == 0) {
+                algorithmUsesVotingAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesVotingAnalysis) {
+              break;
+            }
+          }
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_author.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_author[j]) == 0) {
+                algorithmUsesAuthorAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesAuthorAnalysis) {
+              break;
+            }
+          }
+          for (var i = 0 ; i < algorithm.weights.length ; i++) {
+            for (var j = 0 ; j < metricKeys_nlp_lists_links_lang.length ; j++) {
+              if (algorithm.weights[i].key.localeCompare(metricKeys_nlp_lists_links_lang[j]) == 0) {
+                algorithmUsesNlpListsLinksLangAnalysis = true;
+                break;
+              }
+            }
+            if (algorithmUsesNlpListsLinksLangAnalysis) {
+              break;
+            }
+          }
           getPersistentJson("daily_liked_posts", function(err, dailyLikedPostsResults) {
             if (dailyLikedPostsResults != null) {
               dailyLikedPosts = dailyLikedPostsResults.data;
@@ -276,7 +388,7 @@ function runBot(callback, options) {
           });
 
         });
-      })
+      });
       return deferred.promise;
     },
     // get posts
@@ -325,7 +437,7 @@ function runBot(callback, options) {
         }
         posts = cleanedPosts;
       } else {
-        // only keep posts older than limit
+        // only keep posts older than limit and that are not written by the registered (this) user
         if (configVars.MIN_POST_AGE_TO_CONSIDER > 0) {
           var now = (new Date()).getTime();
           var cleanedPosts = [];
@@ -334,7 +446,14 @@ function runBot(callback, options) {
             if (timeDiff > 0) {
               timeDiff /= (60 * 1000);
             }
-            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER) {
+            // #1, if author is this user, remove post, i.e. disallow vote on own post
+            var isByThisUser = process.env.STEEM_USER !== undefined
+                && process.env.STEEM_USER !== null
+                && posts[i].author !== undefined
+                && posts[i].author !== null
+                && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+            if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
+                && !isByThisUser) {
               cleanedPosts.push(posts[i]);
             }
           }
@@ -459,6 +578,12 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 3, analyse votes");
       var deferred = Q.defer();
+      if (!algorithmUsesVotingAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 3 (voting), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       // analyse votes for posts
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
@@ -562,6 +687,13 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 4, post author metrics");
       var deferred = Q.defer();
+      if (!algorithmUsesAuthorAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 4 (author), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
+      // process
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
         // check we have author account, we should
@@ -617,6 +749,12 @@ function runBot(callback, options) {
       persistentLog("Q.deferred: transform post data to metrics 5, do NLP processing");
       var deferred = Q.defer();
       postsNlp = [];
+      if (!algorithmUsesNlpListsLinksLangAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 5 (NLP/lists/links/language), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       var postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
         persistentLog(" - post ["+posts[i].permlink+"]");
@@ -689,6 +827,12 @@ function runBot(callback, options) {
     function () {
       persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
       var deferred = Q.defer();
+      if (!algorithmUsesNlpListsLinksLangAnalysis) {
+        persistentLog("Q.deferred: SKIPPING metrics 6 (NLP/lists/links/language), not required by algorithm");
+        // finish
+        deferred.resolve(true);
+        return deferred.promise;
+      }
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(" - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
@@ -859,14 +1003,10 @@ function runBot(callback, options) {
           total: 0,
           metrics: []
         };
-        var numWeightsAboveMinThreshold = 0;
         for (var j = 0 ; j < algorithm.weights.length ; j++) {
           if (metric.hasOwnProperty(algorithm.weights[j].key)) {
             var value = metric[algorithm.weights[j].key];
             var weight = algorithm.weights[j].value;
-            if (weight >= configVars.MIN_SCORE_THRESHOLD) {
-              numWeightsAboveMinThreshold++;
-            }
             if (algorithm.weights[j].hasOwnProperty("lower")) { //must at least have lower defined, upper is optional
               var lower = 0;
               var upper = Number.MAX_VALUE;
@@ -897,7 +1037,7 @@ function runBot(callback, options) {
               value: value,
               weight: weight,
               score: (value * weight)
-            }
+            };
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
             persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);
@@ -905,7 +1045,8 @@ function runBot(callback, options) {
             persistentLog(" - - - - error, key not found in metrics: "+weight);
           }
         }
-        scoreDetail.useAvgOnly = (numWeightsAboveMinThreshold <= 1);
+        // #24, use total number of weights, irrespective of their value
+        scoreDetail.useAvgOnly = (algorithm.weights.length <= 1);
         persistentLog(" - - FINAL SCORE: "+scoreDetail.total);
         postsMetadata.push(
           {
@@ -984,7 +1125,7 @@ function runBot(callback, options) {
         } else if (postsMetadata[i].scoreDetail.useAvgOnly) {
           thresholdInfo.percentInc = 0;
           if ((owner.num_votes_today + upVotesProcessed) > configVars.MAX_VOTES_IN_24_HOURS) {
-            thresholdInfo.voteAdjustmentInc = (threshold * 0.5);
+            thresholdInfo.voteAdjustmentInc = (threshold * 2);
           } else {
             thresholdInfo.voteAdjustmentInc = 0;
           }
@@ -997,7 +1138,8 @@ function runBot(callback, options) {
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for
           //   vote and no post will be voted on, thus maintaining limit
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * Math.pow((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS, 2);
+          // #27, removed square scaling of vote limit
+          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * ((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS);
           if (thresholdInfo.voteAdjustmentInc < 0) {
             thresholdInfo.voteAdjustmentInc = 0;
           }
@@ -1008,6 +1150,10 @@ function runBot(callback, options) {
           }
         }
         avgWindowInfo.scoreThreshold = thresholdInfo.total;
+        // #24, use threshold at 90% for calculations, but do not pass this on for next calculation
+        if (postsMetadata[i].scoreDetail.useAvgOnly) {
+          thresholdInfo.total *= 0.9;
+        }
         postsMetadata[i].thresholdInfo = thresholdInfo;
         persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
         persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
@@ -1226,6 +1372,19 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
   if (dailyLikedPosts.length > 0) {
+    // clean old posts
+    var limitDate = nowDate.clone();
+    limitDate.subtract(configVars.DAYS_KEEP_LOGS, 'days');
+    var dailyLikedPosts_keep = [];
+    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
+      var date = moment(dailyLikedPosts[i].date_str);
+      if (!date.isBefore(limitDate)) {
+        dailyLikedPosts_keep.push(dailyLikedPosts[i]);
+      }
+    }
+    console.log(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    dailyLikedPosts = dailyLikedPosts_keep;
+    // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
       if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
         dailyLikedPosts[i].posts.push(postsMetadataObj);
@@ -1274,11 +1433,9 @@ function sendRunEmail(options, callback) {
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
     console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
-    console.log(" - day of month today: "+nowDate.date());
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
-      console.log(" - - checking day of month for "+dailyLikedPosts[i].date_str+": "+date.date());
-      if (nowDate.date() == date.date()) {
+      console.log(" - - checking date: "+dailyLikedPosts[i].date_str);
+      if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
         console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date
@@ -1894,24 +2051,13 @@ function savePostsMetadata(postsMetadataObj, callback) {
         console.log(" - postsMetadata_keys couldn't be parsed, probably first time run");
       } else {
         console.log(" - removing old keys");
-        // mark old keys for deletion, to clear space before saving
-        var toDelete = [];
+        // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
-          if (((new Date()).getTime() - keysObj.keys[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-            toDelete.push(keysObj.keys[i].key);
-          } else {
+          if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);
           }
         }
-        console.log(" - - keeping "+toKeep.length+" keys");
-        console.log(" - - deleting "+toDelete.length+" keys");
-        redisClient.del(toDelete, function(err, delResult) {
-          if (err || delResult < 1) {
-            console.log(" - - - COULDNT delete redis keys: "+JSON.stringify(toDelete))
-          } else {
-            console.log(" - - - deleted redis keys: "+JSON.stringify(toDelete));
-          }
-        });
+        console.log(" - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
     var stringifiedJson = JSON.stringify(postsMetadataObj);

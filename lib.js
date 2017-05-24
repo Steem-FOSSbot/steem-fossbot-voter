@@ -1321,7 +1321,7 @@ function runBot(callback, options) {
               callback(
                 {
                   status: 200,
-                  message: "Finished with error",
+                  message: "Scores calculated, and votes cast for local run.",
                   posts: postsMetadata
                 });
             }, 10000);
@@ -1330,7 +1330,7 @@ function runBot(callback, options) {
             callback(
               {
                 status: 200,
-                message: "Finished with error",
+                message: "Scores calculated, and votes cast for local run.",
                 posts: postsMetadata
               });
           }
@@ -1449,6 +1449,7 @@ function sendRunEmail(options, callback) {
   console.log("sendRunEmail");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
     sendRunEmailNow(options, callback);
+    return;
   } else {
     if (dailyLikedPosts.length < 1) {
       // do nothing, nothing saved

@@ -1315,7 +1315,7 @@ function runBot(callback, options) {
         if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
           // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
           setTimeout(function () {
-            console.log("Finally let process know to quit if local")
+            console.log("Finally let process know to quit if local");
             callback(
               {
                 status: 200,
@@ -1329,13 +1329,17 @@ function runBot(callback, options) {
   })
   .catch(function (err) {
     setError("stopped", false, err.message);
-    sendEmail("Voter bot", "Update: runBot could not run: [error: "+err.message+"]", function () {
-      if (callback) {
-        callback(
-          {
-            status: 500,
-            message: "Error processing run bot: "+err.message
-          });
+    sendRunEmail(options, function () {
+      if (callback && options !== undefined  && options.hasOwnProperty("local") && options.local) {
+        setTimeout(function () {
+          console.log("Finally let process know to quit if local");
+          callback(
+            {
+              status: 200,
+              message: "Finished with error",
+              posts: postsMetadata
+            });
+        }, 10000);
       }
     });
   });

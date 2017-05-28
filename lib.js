@@ -1,6 +1,11 @@
 'use strict';
 
 const
+  LOG_GENERAL = 0,
+  LOG_VERBOSE = 1
+    ;
+
+const
   alphanumOnlyRegex = new RegExp("([^a-zA-Z0-9])", 'g'),
   urlRegex = new RegExp("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?", 'g'),
   glossaryBlacklist = ["http", "https", "I ve"],
@@ -262,18 +267,21 @@ var algorithmSet = false;
 /*
 * Bot logic
 */
+var verboseLoggingEnabled = false;
+function setupLogging() {
+  verboseLoggingEnabled = process.env.VERBOSE_LOGGING !== undefined
+        && process.env.VERBOSE_LOGGING !== null
+        && process.env.VERBOSE_LOGGING.toLowerCase().localeCompare("true") === 0;
+}
 
 /*
 persistentLog(msg):
 * Logs to console and appends to log var
 */
-function persistentLog(msg) {
-  console.log(msg);
-  /*
-  if (++logNumLines % 500 == 0) {
-    console.log("persistentLog logged another 50 lines...");
+function persistentLog(level, msg) {
+  if (verboseLoggingEnabled || level === LOG_GENERAL) {
+    console.log(msg);
   }
-  */
   log += ((log.length > 0) ? "\n" : "") + msg;
   logHtml += ((logHtml.length > 0) ? "<br/>" : "") + msg;
 }
@@ -283,7 +291,9 @@ runBot(messageCallback):
 * Process a bot iteration
 */
 function runBot(callback, options) {
-  persistentLog("mainLoop: started, state: "+serverState);
+  setupLogging();
+  persistentLog(LOG_GENERAL, "runBot started...");
+  persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
     sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]", function () {
@@ -302,12 +312,12 @@ function runBot(callback, options) {
     function () {
       numVoteOn = 0;
       log = "";
-      persistentLog("Q.deffered: pre set up");
+      persistentLog(LOG_GENERAL, "pre set up...");
       var deferred = Q.defer();
       // update average window details
       getPersistentJson("avg_window_info", function(err, info) {
         if (err || info === undefined || info == null) {
-          persistentLog(" - no avgWindowInfo in redis store, probably first time bot run");
+          persistentLog(LOG_VERBOSE, " - no avgWindowInfo in redis store, probably first time bot run");
           avgWindowInfo = {
             scoreThreshold: 0,
             postScores: [],
@@ -315,12 +325,12 @@ function runBot(callback, options) {
           };
         } else {
           avgWindowInfo = info;
-          persistentLog(" - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
+          persistentLog(LOG_VERBOSE, " - updated avgWindowInfo from redis store: "+JSON.stringify(avgWindowInfo));
         }
         getPersistentJson("algorithm", function(err, algorithmResult) {
           if (err) {
             algorithmSet = false;
-            persistentLog(" - no algorithm in redis store, empty");
+            persistentLog(LOG_VERBOSE, " - no algorithm in redis store, empty");
             algorithm = {
               weights: [],
               authorWhitelist: [],
@@ -344,7 +354,7 @@ function runBot(callback, options) {
           } else {
             algorithmSet = true;
             algorithm = algorithmResult;
-            persistentLog(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+            persistentLog(LOG_VERBOSE, " - updated algorithm from redis store: "+JSON.stringify(algorithm));
           }
           // determine which analysis needs to be run depending on algorithm keys used
           for (var i = 0 ; i < algorithm.weights.length ; i++) {
@@ -393,28 +403,28 @@ function runBot(callback, options) {
     },
     // get posts
     function () {
-      persistentLog("Q.deffered: get posts");
+      persistentLog(LOG_GENERAL, "getting recent posts...");
       var deferred = Q.defer();
       // get posts
       if (options && options.hasOwnProperty("author")
             && options.hasOwnProperty("permlink")) {
-        persistentLog(" - get post by author: "+options.author+", permlink: "+options.permlink);
+        persistentLog(LOG_VERBOSE, " - get post by author: "+options.author+", permlink: "+options.permlink);
         steem.api.getContent(options.author, options.permlink, function(err, post) {
           if (err) {
             throw {message: "Error reading post for permlink: "+options.permlink};
           }
-          persistentLog(" - got post by permlink: "+JSON.stringify(post));
+          persistentLog(LOG_VERBOSE, " - got post by permlink: "+JSON.stringify(post));
           posts = [post];
           deferred.resolve(true);
         });
       } else {
-        persistentLog(" - getting posts (recursive)");
+        persistentLog(LOG_VERBOSE, " - getting posts (recursive)");
         getPosts_recursive([], lastPost, configVars.MAX_POST_TO_READ, function(err, result) {
           if (err || result == null || result === undefined) {
             throw {message: "Error reading posts from steem: "+err.message};
           }
           posts = result;
-          persistentLog(" - num fetched posts: "+posts.length);
+          persistentLog(LOG_GENERAL, " - num fetched posts: "+posts.length);
           deferred.resolve(true);
         });
       }
@@ -422,7 +432,7 @@ function runBot(callback, options) {
     },
     // clean posts and update last fetched post
     function () {
-      persistentLog("Q.deferred: clean posts");
+      persistentLog(LOG_GENERAL, "filter posts...");
       var deferred = Q.defer();
       if (options && options.hasOwnProperty("permlink")) {
         // do nothing, posts should just contain permlink
@@ -469,23 +479,23 @@ function runBot(callback, options) {
         lastPost = posts[0];
         persistJson("lastpost", lastPost);
       } else {
-        persistentLog("didn't set lastpost, this is a test run");
+        persistentLog(LOG_VERBOSE, "didn't set lastpost, this is a test run");
       }
       // finish
-      persistentLog(" - num new posts: "+posts.length);
+      persistentLog(LOG_GENERAL, " - num remaining posts: "+posts.length);
       deferred.resolve(true);
       return deferred.promise;
     },
     // transform post data to metrics 1, get owner metrics 
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 1, get owner metrics ");
+      persistentLog(LOG_GENERAL, "metrics generation 1: owner metrics...");
       var deferred = Q.defer();
       // get this user's votes
-      persistentLog(" - count this user's votes today");
+      persistentLog(LOG_VERBOSE, " - count this user's votes today");
       steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
         var num_votes_today = 0;
         if (err) {
-          persistentLog(" - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
+          persistentLog(LOG_GENERAL, " - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
@@ -495,20 +505,20 @@ function runBot(callback, options) {
         }
         // finish
         owner.num_votes_today = num_votes_today;
-        persistentLog(" - num_votes_today: "+num_votes_today);
+        persistentLog(LOG_VERBOSE, " - num_votes_today: "+num_votes_today);
         deferred.resolve(num_votes_today > 0);
       });
       return deferred.promise;
     },
     // transform post data to metrics 2, basic post metrics
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 2, basic post metrics");
+      persistentLog(LOG_GENERAL, "metrics generation 2, basic post metrics...");
       var deferred = Q.defer();
       // create metrics for posts
       postsMetrics = [];
       var fetchUsers = [];
       for (var i = 0 ; i < posts.length ; i++) {
-        persistentLog(" - post ["+posts[i].permlink+"]");
+        persistentLog(LOG_VERBOSE, " - post ["+posts[i].permlink+"]");
         var metric = {};
         // post_alive_time: Time since post, in minutes
         var postTimeStamp = getEpochMillis(posts[i].created);
@@ -517,10 +527,10 @@ function runBot(callback, options) {
           alive_time = (timeNow - postTimeStamp) / (1000 * 60);
         }
         metric.post_alive_time = alive_time;
-        persistentLog(" - - metrics.post.alive_time: "+metric.post_alive_time);
+        persistentLog(LOG_VERBOSE, " - - metrics.post.alive_time: "+metric.post_alive_time);
         //post_est_payout: Estimated payout
         metric.post_est_payout = parseFloat(posts[i].total_pending_payout_value);
-        persistentLog(" - - metrics.post.est_payout: "+metric.post_est_payout);
+        persistentLog(LOG_VERBOSE, " - - metrics.post.est_payout: "+metric.post_est_payout);
         //post_num_upvotes: Number of up votes (normal votes for a post)
         //post_num_downvotes: Number of flags / downvotes
         posts[i].up_votes = [];
@@ -534,12 +544,12 @@ function runBot(callback, options) {
         }
         metric.post_num_upvotes = posts[i].up_votes.length;
         metric.post_num_downvotes = posts[i].down_votes.length;
-        persistentLog(" - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
-        persistentLog(" - - metrics.post.post_num_downvotes: "+metric.post_num_downvotes);
+        persistentLog(LOG_VERBOSE, " - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
+        persistentLog(LOG_VERBOSE, " - - metrics.post.post_num_downvotes: "+metric.post_num_downvotes);
         // add author and voters to user fetch list
         fetchUsers.push(posts[i].author);
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
-          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
           if (voter.localeCompare(process.env.STEEM_USER) != 0) {
@@ -556,19 +566,19 @@ function runBot(callback, options) {
         // get user info
         steem.api.getAccounts(fetchUsers, function(err, userAccounts) {
           if (err) {
-            persistentLog(" - error, can't get "+voter+" votes: "+err.message);
+            persistentLog(LOG_GENERAL, " - error, can't get "+voter+" votes: "+err.message);
           } else {
             for (var k = 0 ; k < userAccounts.length ; k++) { 
               users[userAccounts[k].name] = userAccounts[k];
             }
           }
           // finish
-          persistentLog(" - - finished getting voters for post");
+          persistentLog(LOG_VERBOSE, " - - finished getting voters for post");
           deferred.resolve(true);
         });
       } else {
         // finish
-        persistentLog(" - - no voters account information to get for post");
+        persistentLog(LOG_VERBOSE, " - - no voters account information to get for post");
         deferred.resolve(true);
       }
       // return promise
@@ -576,20 +586,20 @@ function runBot(callback, options) {
     },
     // transform post data to metrics 3, analyse votes
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 3, analyse votes");
+      persistentLog(LOG_GENERAL, "metrics generation 3, analyse votes...");
       var deferred = Q.defer();
       if (!algorithmUsesVotingAnalysis) {
-        persistentLog("Q.deferred: SKIPPING metrics 3 (voting), not required by algorithm");
+        persistentLog(LOG_GENERAL, " - SKIPPING metrics 3 (voting), not required by algorithm");
         // finish
         deferred.resolve(true);
         return deferred.promise;
       }
       // analyse votes for posts
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - postsMetrics ["+i+"]");
+        persistentLog(LOG_VERBOSE, " - postsMetrics ["+i+"]");
         // *** VOTES IN DETAIL
         // note, should do this last, has complex nesting that we need to use Q to sort out
-        //persistentLog(" - - * VOTES IN DETAIL");
+        //persistentLog(LOG_VERBOSE, " - - * VOTES IN DETAIL");
         // up votes
         postsMetrics[i].post_up_voted_num_dolphin = 0;
         postsMetrics[i].post_up_voted_num_whale = 0;
@@ -597,7 +607,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_up_voted_num_whitelisted = 0;
         postsMetrics[i].post_up_voted_num_blacklisted = 0;
         for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
-          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
               && users[voter]) {
@@ -641,7 +651,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_down_voted_num_whitelisted = 0;
         postsMetrics[i].post_down_voted_num_blacklisted = 0;
         for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
-          //persistentLog(" - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
+          //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
             && users[voter]) {
@@ -685,17 +695,17 @@ function runBot(callback, options) {
     },
     // transform post data to metrics 4, post author metrics
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 4, post author metrics");
+      persistentLog(LOG_GENERAL, "metrics generation 4, post author metrics...");
       var deferred = Q.defer();
       if (!algorithmUsesAuthorAnalysis) {
-        persistentLog("Q.deferred: SKIPPING metrics 4 (author), not required by algorithm");
+        persistentLog(LOG_GENERAL, " - SKIPPING metrics 4 (author), not required by algorithm");
         // finish
         deferred.resolve(true);
         return deferred.promise;
       }
       // process
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - postsMetrics ["+i+"]");
+        persistentLog(LOG_VERBOSE, " - postsMetrics ["+i+"]");
         // check we have author account, we should
         if (users[posts[i].author]) {
           // get capital value
@@ -746,18 +756,18 @@ function runBot(callback, options) {
     },
     // transform post data to metrics 5, do NLP processing
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 5, do NLP processing");
+      persistentLog(LOG_VERBOSE, "metrics generation 5, do NLP processing");
       var deferred = Q.defer();
       postsNlp = [];
       if (!algorithmUsesNlpListsLinksLangAnalysis) {
-        persistentLog("Q.deferred: SKIPPING metrics 5 (NLP/lists/links/language), not required by algorithm");
+        persistentLog(LOG_VERBOSE, " - SKIPPING metrics 5 (NLP/lists/links/language), not required by algorithm");
         // finish
         deferred.resolve(true);
         return deferred.promise;
       }
       var postCount = 0;
       for (var i = 0 ; i < posts.length ; i++) {
-        persistentLog(" - post ["+posts[i].permlink+"]");
+        persistentLog(LOG_VERBOSE, " - post ["+posts[i].permlink+"]");
         var nlp = {};
         // sanitize body content, make plaintext, remove HTML tags and non-latin characters
         nlp.content = posts[i].body;
@@ -769,10 +779,10 @@ function runBot(callback, options) {
           .latinise()
           .s;
         // remove markdown formatting
-        persistentLog(" - - nlp.content (length): "+nlp.content.length);
+        persistentLog(LOG_VERBOSE, " - - nlp.content (length): "+nlp.content.length);
         // get keywords from alphanumberic only, and in lower case to stop different case duplicates
         var alphaNumericContent = nlp.content.replace(alphanumOnlyRegex," ").toLowerCase();
-        //persistentLog(" - - - alphaNumericContent: "+alphaNumericContent);
+        //persistentLog(LOG_VERBOSE, " - - - alphaNumericContent: "+alphaNumericContent);
         var glossary = Glossary({minFreq: configVars.MIN_KEYWORD_FREQ, collapse: true, blacklist: glossaryBlacklist});
         var keywords = glossary.extract(alphaNumericContent);
         // remove keywords less than MIN_KEYWORD_LEN letters long
@@ -785,8 +795,8 @@ function runBot(callback, options) {
             removedCount++;
           }
         }
-        persistentLog(" - - nlp.keywords: "+nlp.keywords);
-        //persistentLog(" - - - removed "+removedCount+" short keywords");
+        persistentLog(LOG_VERBOSE, " - - nlp.keywords: "+nlp.keywords);
+        //persistentLog(LOG_VERBOSE, " - - - removed "+removedCount+" short keywords");
         // get all url links
         nlp.urls = [];
         var urlResult;
@@ -803,15 +813,15 @@ function runBot(callback, options) {
                 nlp.sentiment = tree.data.polarity;
               } catch (err) {
                 nlp.sentiment = 0;
-                persistentLog(" - - - sentiment extraction error: "+err.message);
+                persistentLog(LOG_VERBOSE, " - - - sentiment extraction error: "+err.message);
               }
-              //persistentLog(" - - nlp.sentiment: "+nlp.sentiment);
+              //persistentLog(LOG_VERBOSE, " - - nlp.sentiment: "+nlp.sentiment);
               postsNlp.push(nlp);
               // count words using tree, i.e. count WordNode instances
               nlp.num_words = countWordsFromRetext(tree);
-              //persistentLog(" - - nlp.num_words: "+nlp.num_words);
+              //persistentLog(LOG_VERBOSE, " - - nlp.num_words: "+nlp.num_words);
               // commit to postsNlp
-              persistentLog(" - - nlp done on post");
+              persistentLog(LOG_VERBOSE, " - - nlp done on post");
               postCount++;
               if (postCount == posts.length) {
                 // finish
@@ -825,16 +835,16 @@ function runBot(callback, options) {
     },
     // transform post data to metrics 6, calc cultural metrics, content
     function () {
-      persistentLog("Q.deferred: transform post data to metrics 6, calc cultural metrics, content - textpost");
+      persistentLog(LOG_GENERAL, "metrics generation 6, calc cultural metrics, content - textpost...");
       var deferred = Q.defer();
       if (!algorithmUsesNlpListsLinksLangAnalysis) {
-        persistentLog("Q.deferred: SKIPPING metrics 6 (NLP/lists/links/language), not required by algorithm");
+        persistentLog(LOG_GENERAL, " - SKIPPING metrics 6 (NLP/lists/links/language), not required by algorithm");
         // finish
         deferred.resolve(true);
         return deferred.promise;
       }
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - postsMetrics ["+i+"]");
+        persistentLog(LOG_VERBOSE, " - postsMetrics ["+i+"]");
         var nlp = postsNlp[i];
         // content - text
         postsMetrics[i].post_num_chars = nlp.content.length;
@@ -848,26 +858,26 @@ function runBot(callback, options) {
           try {
             var metadata = JSON.parse(posts[i].json_metadata);
             if (metadata && metadata.hasOwnProperty("tags")) {
-              //persistentLog(" - - checking tags: "+metadata.tags);
+              //persistentLog(LOG_VERBOSE, " - - checking tags: "+metadata.tags);
               for (var j = 0 ; j < metadata.tags.length ; j++) {
                 var tag = metadata.tags[j];
                 postsMetrics[i].post_num_tags_whitelisted += (algorithm.contentCategoryWhitelist.indexOf(tag) > 0) ? 1 : 0;
                 postsMetrics[i].post_num_tags_blacklisted += (algorithm.contentCategoryBlacklist.indexOf(tag) > 0) ? 1 : 0;
               }
             } else {
-              persistentLog(" - - no tags to check");
+              persistentLog(LOG_VERBOSE, " - - no tags to check");
             }
           } catch(err) {
-            persistentLog(" - - no tags to check, err: "+err.message);
+            persistentLog(LOG_VERBOSE, " - - no tags to check, err: "+err.message);
           }
         } else {
-          persistentLog(" - - no tags to check");
+          persistentLog(LOG_VERBOSE, " - - no tags to check");
         }
         postsMetrics[i].post_num_keywords_whitelisted = 0;
         postsMetrics[i].post_num_keywords_blacklisted = 0;
         postsMetrics[i].post_num_words_whitelisted = 0;
         postsMetrics[i].post_num_words_blacklisted = 0;
-        //persistentLog(" - - checking keywords");
+        //persistentLog(LOG_VERBOSE, " - - checking keywords");
         for (var j = 0 ; j < nlp.keywords.length ; j++) {
           var keyword = nlp.keywords[j];
           postsMetrics[i].post_num_keywords_whitelisted += (algorithm.contentWordWhitelist.indexOf(keyword) > 0) ? 1 : 0;
@@ -890,11 +900,11 @@ function runBot(callback, options) {
         postsMetrics[i].post_num_links_total = 0; 
         postsMetrics[i].post_num_link_domains_whitelisted = 0;
         postsMetrics[i].post_num_link_domains_blacklisted = 0;
-        //persistentLog(" - - classifying urls");
+        //persistentLog(LOG_VERBOSE, " - - classifying urls");
         for (var j = 0 ; j < nlp.urls.length ; j++) {
           var url = nlp.urls[j];
           postsMetrics[i].post_num_links_total++;
-          //persistentLog(" - - - url: "+url);
+          //persistentLog(LOG_VERBOSE, " - - - url: "+url);
           // get domain
           var domain = "";
           var urlParts = S(url).splitLeft("//", 1);
@@ -909,14 +919,14 @@ function runBot(callback, options) {
               } // else failed, leave domain blank
             }
           }
-          //persistentLog(" - - - domain: "+domain);
+          //persistentLog(LOG_VERBOSE, " - - - domain: "+domain);
           // track matching progress
           var match = false;
           // check if is image
           for (var k = 0 ; k < imagesExt.length ; k++) {
             if (S(url).endsWith("."+imagesExt[k])) {
               postsMetrics[i].post_num_links_image++;
-              //persistentLog(" - - - - is image");
+              //persistentLog(LOG_VERBOSE, " - - - - is image");
               match = true;
               break;
             }
@@ -925,7 +935,7 @@ function runBot(callback, options) {
           if (!match) {
             if (videoDomains.indexOf(domain) >= 0) {
               postsMetrics[i].post_num_links_video++;
-              //persistentLog(" - - - - is video");
+              //persistentLog(LOG_VERBOSE, " - - - - is video");
               match = true;
             }
           }
@@ -966,38 +976,38 @@ function runBot(callback, options) {
         postsMetrics[i].post_has_spanish_language_use = 0;
         postsMetrics[i].post_has_french_language_use = 0;
         var detectedLanguages = langDetector.detect(posts[i].body);
-        persistentLog(" - language detect for ["+posts[i].permlink+"] :"+detectedLanguages);
+        persistentLog(LOG_VERBOSE, " - language detect for ["+posts[i].permlink+"] :"+detectedLanguages);
         if (detectedLanguages.length > 0 && detectedLanguages[0][1] > configVars.MIN_LANGUAGE_USAGE_PC) {
           var language = detectedLanguages[0][0];
           if (language.localeCompare('english') == 0) {
             postsMetrics[i].post_has_english_language_use = 1;
-            persistentLog(" - - post is in English");
+            persistentLog(LOG_VERBOSE, " - - post is in English");
           } else if (language.localeCompare('german') == 0) {
             postsMetrics[i].post_has_german_language_use = 1;
-            persistentLog(" - - post is in German");
+            persistentLog(LOG_VERBOSE, " - - post is in German");
           } else if (language.localeCompare('spanish') == 0) {
             postsMetrics[i].post_has_spanish_language_use = 1;
-            persistentLog(" - - post is in Spanish");
+            persistentLog(LOG_VERBOSE, " - - post is in Spanish");
           } else if (language.localeCompare('french') == 0) {
             postsMetrics[i].post_has_french_language_use = 1;
-            persistentLog(" - - post is in French");
+            persistentLog(LOG_VERBOSE, " - - post is in French");
           }
         }
       }
       // finish
-      persistentLog(" - finished gathering metrics");
-      //persistentLog(" - postsMetrics array: "+JSON.stringify(postsMetrics));
+      persistentLog(LOG_GENERAL, "*** finished gathering metrics");
+      //persistentLog(LOG_VERBOSE, " - postsMetrics array: "+JSON.stringify(postsMetrics));
       deferred.resolve(true);
       return deferred.promise;
     },
     // calculate scores for each post
     function () {
-      persistentLog("Q.deferred: calculate scores for each post");
+      persistentLog(LOG_GENERAL, "calculate scores for each post...");
       var deferred = Q.defer();
       // calculate scores
       postsMetadata = [];
       for (var i = 0 ; i < postsMetrics.length ; i++) {
-        persistentLog(" - - post "+i);
+        persistentLog(LOG_VERBOSE, " - - post "+i);
         var metric = postsMetrics[i];
         var scoreDetail = {
           total: 0,
@@ -1016,7 +1026,7 @@ function runBot(callback, options) {
               if (algorithm.weights[j].hasOwnProperty("upper")) {
                 upper = algorithm.weights[j].upper;
               }
-              //persistentLog(" - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
+              //persistentLog(LOG_VERBOSE, " - - - - - bounding metric("+value+") for range "+lower+" to "+upper);
               if (value < lower) {
                 value = 0;
               } else if (value > upper) {
@@ -1030,7 +1040,7 @@ function runBot(callback, options) {
                   value++;
                 }
               }
-              //persistentLog(" - - - - - after bounding: "+value);
+              //persistentLog(LOG_VERBOSE, " - - - - - after bounding: "+value);
             }
             var metricScore = {
               key: algorithm.weights[j].key,
@@ -1040,14 +1050,14 @@ function runBot(callback, options) {
             };
             scoreDetail.total += metricScore.score;
             scoreDetail.metrics.push(metricScore);
-            persistentLog(" - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);
+            persistentLog(LOG_VERBOSE, " - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);
           } else {
-            persistentLog(" - - - - error, key not found in metrics: "+weight);
+            persistentLog(LOG_VERBOSE, " - - - - error, key not found in metrics: "+weight);
           }
         }
         // #24, use total number of weights, irrespective of their value
         scoreDetail.useAvgOnly = (algorithm.weights.length <= 1);
-        persistentLog(" - - FINAL SCORE: "+scoreDetail.total);
+        persistentLog(LOG_VERBOSE, " - - FINAL SCORE: "+scoreDetail.total);
         postsMetadata.push(
           {
             title: posts[i].title,
@@ -1069,7 +1079,7 @@ function runBot(callback, options) {
     },
     // choose posts to vote on based on scores
     function () {
-      persistentLog("Q.deferred: choose posts to vote on based on scores");
+      persistentLog(LOG_GENERAL, "choose posts to vote on based on scores...");
       var deferred = Q.defer();
       var upVotesProcessed = 0;
       var isFirst = true;
@@ -1077,7 +1087,7 @@ function runBot(callback, options) {
       // perform check, if this is the first time the bot is run, make the threshold window out of the first
       //    NUM_POSTS_FOR_AVG_WINDOW number of posts, or less if not that many are equal to or above MIN_SCORE_THRESHOLD
       if (avgWindowInfo.postScores.length == 0) {
-        persistentLog(" - first bot run, looking ahead to create scores window");
+        persistentLog(LOG_VERBOSE, " - first bot run, looking ahead to create scores window");
         var count = 0;
         for (var i = 0 ; i < posts.length ; i++) {
           if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
@@ -1087,7 +1097,7 @@ function runBot(callback, options) {
             }
           }
         }
-        persistentLog(" - created window from "+count+" scores");
+        persistentLog(LOG_VERBOSE, " - created window from "+count+" scores");
       }
       for (var i = 0 ; i < posts.length ; i++) {
         var thresholdInfo = {
@@ -1098,7 +1108,7 @@ function runBot(callback, options) {
         	avgWindowInfo.postScores.push(postsMetadata[i].score);
         }
         // recalculate avgerage based on window value
-        persistentLog(" - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
+        persistentLog(LOG_VERBOSE, " - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
         var avg = 0;
         var maxScore = configVars.MIN_SCORE_THRESHOLD;
         var count = 0;
@@ -1155,8 +1165,8 @@ function runBot(callback, options) {
           thresholdInfo.total *= 0.9;
         }
         postsMetadata[i].thresholdInfo = thresholdInfo;
-        persistentLog(" - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
-        persistentLog(" - - - - new threshold info: "+JSON.stringify(thresholdInfo));
+        persistentLog(LOG_VERBOSE, " - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
+        persistentLog(LOG_VERBOSE, " - - - - new threshold info: "+JSON.stringify(thresholdInfo));
         // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
         if ((avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
           var newScoresWindow = [];
@@ -1170,14 +1180,14 @@ function runBot(callback, options) {
         if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
           postsMetadata[i].vote = true;
           upVotesProcessed++;
-          persistentLog(" - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
+          persistentLog(LOG_VERBOSE, " - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
           if (options == null || !options.hasOwnProperty("test") || !options.test ) {
             addDailyLikedPost(postsMetadata[i], isFirst);
             isFirst = false;
           }
         } else {
           postsMetadata[i].vote = false;
-          persistentLog(" - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
+          persistentLog(LOG_VERBOSE, " - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
         }
 
       }
@@ -1186,10 +1196,10 @@ function runBot(callback, options) {
         avgWindowInfo = avgWindowInfo_copy;
       }
       // save updated avgWindowInfo
-      persistentLog(" - saving avg_window_info");
+      persistentLog(LOG_VERBOSE, " - saving avg_window_info");
       persistJson("avg_window_info", avgWindowInfo, function(err) {
         if (err) {
-          persistentLog(" - - ERROR SAVING avg_window_info");
+          persistentLog(LOG_GENERAL, " - - ERROR SAVING avg_window_info");
         }
       });
       // finish
@@ -1198,7 +1208,7 @@ function runBot(callback, options) {
     },
     // return http before casting votes
     function () {
-      persistentLog("Q.deferred: return http before casting votes");
+      persistentLog(LOG_GENERAL, "return http before casting votes...");
       var deferred = Q.defer();
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
       if (options !== undefined && options.hasOwnProperty("local") && options.local) {
@@ -1215,14 +1225,14 @@ function runBot(callback, options) {
       }
       // and save postsMetadata to persistent
       if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
-        persistentLog(" - saving posts_metadata");
+        persistentLog(LOG_VERBOSE, " - saving posts_metadata");
         savePostsMetadata({postsMetadata: postsMetadata}, function (res) {
-          persistentLog(" - - SAVING posts_metadata: " + res.message);
+          persistentLog(LOG_VERBOSE, " - - SAVING posts_metadata: " + res.message);
           // finish
           deferred.resolve(true);
         });
       } else {
-        persistentLog(" - - NOT saving postsmetadata, this is a test run");
+        persistentLog(LOG_GENERAL, " - - NOT saving postsmetadata, this is a test run");
         // finish
         deferred.resolve(true);
       }
@@ -1230,11 +1240,11 @@ function runBot(callback, options) {
     },
     // cast votes to steem
     function () {
-      persistentLog("Q.deferred: cast votes to steem");
+      persistentLog(LOG_GENERAL, "cast votes to steem...");
       var deferred = Q.defer();
       var count = 0;
       // cast vote
-      persistentLog(" - voting");
+      persistentLog(LOG_VERBOSE, " - voting");
       if (postsMetadata.length > 0) {
         wait.launchFiber(function() {
           var numToVoteOn = 0;
@@ -1252,7 +1262,7 @@ function runBot(callback, options) {
           numVoteOn = numToVoteOn;
           var numVotedOn = 0;
           for (var i = 0 ; i < postsMetadata.length ; i++) {
-            persistentLog(" - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
+            persistentLog(LOG_VERBOSE, " - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
                 +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
             var doVote = true;
             if (options !== undefined && options.test) {
@@ -1265,33 +1275,33 @@ function runBot(callback, options) {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
                         process.env.STEEM_USER, postsMetadata[i].author,
                         postsMetadata[i].permlink, 10000);
-                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                  persistentLog(LOG_GENERAL, " - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 } catch (err) {
-                  persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
+                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 }
                 numVotedOn++;
-                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
+                persistentLog(LOG_GENERAL, " - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 // wait 5 seconds
-                persistentLog(" - - - waiting 3 seconds...");
+                persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function() {
                     func(null, true);
                   }, delay);
                 }
                 var timeOutResult = wait.for(timeOutWrapper, 5000);
-                persistentLog(" - - - finished waiting");
+                persistentLog(LOG_VERBOSE, " - - - finished waiting");
               } else {
-                persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
+                persistentLog(LOG_VERBOSE, " - - - - not voting on post: "+postsMetadata[i].permlink);
               }
             } else {
-              persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
+              persistentLog(LOG_VERBOSE, " - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
             }
           }
-          persistentLog(" - finished voting");
+          persistentLog(LOG_GENERAL, " - finished voting");
           deferred.resolve(true);
         });
       } else {
-        persistentLog(" - - no post to vote on");
+        persistentLog(LOG_GENERAL, " - - no post to vote on");
         deferred.resolve(true);
       }
       return deferred.promise;
@@ -1307,14 +1317,14 @@ function runBot(callback, options) {
   overallResult()
   .then(function(response) {
     if (response) {
-      persistentLog("runBot finished successfully");
+      persistentLog(LOG_GENERAL, "runBot finished successfully!");
       // send email
       sendRunEmail(options, function () {
         // #53, call callback when everything complete if local run, i.e. not called from web app directly
         if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
           // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
           setTimeout(function () {
-            persistentLog("Finally let process know to quit if local");
+            persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
             callback(
               {
                 status: 200,
@@ -1333,7 +1343,7 @@ function runBot(callback, options) {
       if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
         // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
         setTimeout(function () {
-          persistentLog("Finally let process know to quit if local");
+          persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
           callback(
             {
               status: 200,
@@ -1372,7 +1382,7 @@ function countWordsFromRetext(obj) {
 }
 
 function addDailyLikedPost(postsMetadataObj, isFirst) {
-  persistentLog("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
+  persistentLog(LOG_VERBOSE, "addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
   var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
@@ -1387,7 +1397,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         dailyLikedPosts_keep.push(dailyLikedPosts[i]);
       }
     }
-    persistentLog(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    persistentLog(LOG_VERBOSE, " - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
     dailyLikedPosts = dailyLikedPosts_keep;
     // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
@@ -1396,7 +1406,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         if (isFirst) {
           dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
         }
-        persistentLog(" - match on existing date: "+dateStr+", adding to that");
+        persistentLog(LOG_VERBOSE, " - match on existing date: "+dateStr+", adding to that");
         createNew = false;
         break;
       }
@@ -1411,26 +1421,26 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
       ],
       runs: 1
     });
-    persistentLog(" - creating new date: "+dateStr);
+    persistentLog(LOG_VERBOSE, " - creating new date: "+dateStr);
   }
   // save
-  persistentLog(" - saving updated dailyLikedPosts object");
+  persistentLog(LOG_VERBOSE, " - saving updated dailyLikedPosts object");
   persistJson("daily_liked_posts", {data: dailyLikedPosts}, function(err) {
     if (err) {
-      persistentLog("ERROR, addDailyLikedPost failed to be saved");
+      persistentLog(LOG_GENERAL, "ERROR, addDailyLikedPost failed to be saved");
     }
   })
 }
 
 function sendRunEmail(options, callback) {
-  persistentLog("sendRunEmail");
+  persistentLog(LOG_GENERAL, "check how to send email...");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
     sendRunEmailNow(options, callback);
     return;
   } else {
     if (dailyLikedPosts.length < 1) {
       // do nothing, nothing saved
-      persistentLog(" - can't send digest email, nothing saved");
+      persistentLog(LOG_GENERAL, " - can't send digest email, nothing saved");
       if (callback !== undefined) {
         callback();
       }
@@ -1438,27 +1448,27 @@ function sendRunEmail(options, callback) {
     }
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
-    persistentLog(" - checking if latest bot run is of new day, if so then email digest of previous day");
+    persistentLog(LOG_VERBOSE, " - checking if latest bot run is of new day, if so then email digest of previous day");
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      persistentLog(" - - checking date: "+dailyLikedPosts[i].date_str);
+      persistentLog(LOG_VERBOSE, " - - checking date: "+dailyLikedPosts[i].date_str);
       if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
-        persistentLog(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
+        persistentLog(LOG_VERBOSE, " - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date
           nowDate.subtract(1, 'day');
-          persistentLog(" - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
+          persistentLog(LOG_VERBOSE, " - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
           sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options, callback);
           return;
         }
         // else
-        persistentLog(" - more than one run today, wait until tomorrow to publish digest for today");
+        persistentLog(LOG_GENERAL, " - more than one run today, wait until tomorrow to publish digest for today");
         if (callback !== undefined) {
           callback();
         }
         return;
       }
     }
-    persistentLog(" - didn't find match for today, this signifies an ERROR");
+    persistentLog(LOG_GENERAL, " - didn't find match for today, this signifies an ERROR");
   }
   if (callback !== undefined) {
     callback();
@@ -1466,7 +1476,7 @@ function sendRunEmail(options, callback) {
 }
 
 function sendRunEmailNow(options, callback) {
-  persistentLog("sendRunEmailNow");
+  persistentLog(LOG_GENERAL, "send email now...");
   var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
   email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
   //algorithmSet
@@ -1551,7 +1561,7 @@ function sendRunEmailNow(options, callback) {
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
       if (err) {
-        persistentLog("couldn't save last log html as persistent string");
+        persistentLog(LOG_GENERAL, "couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
         callback();
@@ -1561,7 +1571,7 @@ function sendRunEmailNow(options, callback) {
 }
 
 function sendRunEmailDigest(dateStr, options, callback) {
-  persistentLog("sendRunEmailDigest for "+dateStr);
+  persistentLog(LOG_GENERAL, "send digest email for "+dateStr+"...");
   var posts = null;
   for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
     if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
@@ -1570,7 +1580,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
     }
   }
   if (posts == null) {
-    persistentLog(" - can't send digest, can't find date in list: "+dateStr);
+    persistentLog(LOG_GENERAL, " - can't send digest, can't find date in list: "+dateStr);
     if (callback !== undefined) {
       callback();
     }
@@ -1650,7 +1660,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
       if (err) {
-        persistentLog("couldn't save last log html as persistent string");
+        persistentLog(LOG_GENERAL, "couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
         callback();
@@ -1773,7 +1783,7 @@ function getFollowers_recursive(username, followers, callback) {
 }
 
 function getPosts_recursive(posts, stopAtPost, limit, callback) {
-  persistentLog("getPosts_recursive");
+  persistentLog(LOG_VERBOSE, "getPosts_recursive");
   var posts_;
   if (posts == null || posts === undefined) {
     posts_ = [];
@@ -1789,12 +1799,12 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
   }
   steem.api.getDiscussionsByCreated(query, function(err, postsResult) {
     if (err || postsResult == null || postsResult === undefined) {
-      persistentLog("getPosts_recursive, error");
+      persistentLog(LOG_VERBOSE, "getPosts_recursive, error");
       callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
         null);
       return;
     }
-    persistentLog("getPosts_recursive, got "+postsResult.length+" results");
+    persistentLog(LOG_VERBOSE, "getPosts_recursive, got "+postsResult.length+" results");
     // skip first post in results if search with permlink and author
     // as that will be the first and we already have it from the
     //    last page
@@ -1802,24 +1812,24 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
     for (var i = (query.start_permlink === undefined ? 0 : 1) ; i < postsResult.length ; i++) {
       // #57, check for null post in list
       if (postsResult[i] === undefined || postsResult[i] == null) {
-        persistentLog("getPosts_recursive, a post object is null, skipping");
+        persistentLog(LOG_VERBOSE, "getPosts_recursive, a post object is null, skipping");
         continue;
       }
       if (stopAtPost !== undefined && stopAtPost != null && postsResult[i].id == stopAtPost.id) {
-        persistentLog("getPosts_recursive, limit reached at last post");
+        persistentLog(LOG_VERBOSE, "getPosts_recursive, limit reached at last post");
         limitReached = true;
         break;
       }
       posts_.push(postsResult[i]);
       if (posts_.length >= limit) {
-        persistentLog("getPosts_recursive, limit reached at max num to fetch");
+        persistentLog(LOG_VERBOSE, "getPosts_recursive, limit reached at max num to fetch");
         limitReached = true;
         break;
       }
     }
-    persistentLog("getPosts_recursive, posts now "+posts_.length);
+    persistentLog(LOG_VERBOSE, "getPosts_recursive, posts now "+posts_.length);
     if (limitReached || postsResult.length < MAX_POST_TO_READ_PER_QUERY || posts_.length == 0) {
-      persistentLog("getPosts_recursive, finished");
+      persistentLog(LOG_VERBOSE, "getPosts_recursive, finished");
       callback(null, posts_);
     } else {
       getPosts_recursive(posts_, stopAtPost, limit, callback);
@@ -2227,7 +2237,7 @@ sendEmail(subject, message)
 function sendEmail(subject, message, isHtml, callback) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
-		persistentLog("Can't send email, config vars not set. Subject: "+subject);
+		persistentLog(LOG_GENERAL, "Can't send email, config vars not set. Subject: "+subject);
 		callback();
 		return false;
 	}

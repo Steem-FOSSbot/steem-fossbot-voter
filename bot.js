@@ -13,7 +13,13 @@ if (lib.hasFatalError()) {
 } else {
 	console.log("calling runBot...");
 	lib.runBot(function(msg) {
-		console.log("(bot.js) runBot finished with message: "+JSON.stringify(msg));
+		if (process.env.VERBOSE_LOGGING !== undefined
+      && process.env.VERBOSE_LOGGING !== null
+      && process.env.VERBOSE_LOGGING.toLowerCase().localeCompare("true") === 0) {
+      console.log("(bot.js) runBot finished with message: "+JSON.stringify(msg));
+		} else {
+      console.log("(bot.js) runBot finished");
+		}
 		// #53, stop this process as it may stay alive indefinitely
 		process.exit();
 	}, {local: true});

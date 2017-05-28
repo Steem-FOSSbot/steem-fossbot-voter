@@ -283,7 +283,7 @@ runBot(messageCallback):
 * Process a bot iteration
 */
 function runBot(callback, options) {
-  console.log("mainLoop: started, state: "+serverState);
+  persistentLog("mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
     sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]", function () {
@@ -1265,29 +1265,29 @@ function runBot(callback, options) {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
                         process.env.STEEM_USER, postsMetadata[i].author,
                         postsMetadata[i].permlink, 10000);
-                  console.log(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
+                  persistentLog(" - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 } catch (err) {
                   persistentLog(" - - - - ERROR voting on post: "+postsMetadata[i].permlink);
                 }
                 numVotedOn++;
-                console.log(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
+                persistentLog(" - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
                 // wait 5 seconds
-                console.log(" - - - waiting 3 seconds...");
+                persistentLog(" - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function() {
                     func(null, true);
                   }, delay);
                 }
                 var timeOutResult = wait.for(timeOutWrapper, 5000);
-                console.log(" - - - finished waiting");
+                persistentLog(" - - - finished waiting");
               } else {
-                console.log(" - - - - not voting on post: "+postsMetadata[i].permlink);
+                persistentLog(" - - - - not voting on post: "+postsMetadata[i].permlink);
               }
             } else {
-              console.log(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
+              persistentLog(" - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
             }
           }
-          console.log(" - finished voting");
+          persistentLog(" - finished voting");
           deferred.resolve(true);
         });
       } else {
@@ -1314,7 +1314,7 @@ function runBot(callback, options) {
         if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
           // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
           setTimeout(function () {
-            console.log("Finally let process know to quit if local");
+            persistentLog("Finally let process know to quit if local");
             callback(
               {
                 status: 200,
@@ -1333,7 +1333,7 @@ function runBot(callback, options) {
       if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
         // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
         setTimeout(function () {
-          console.log("Finally let process know to quit if local");
+          persistentLog("Finally let process know to quit if local");
           callback(
             {
               status: 200,
@@ -1372,7 +1372,7 @@ function countWordsFromRetext(obj) {
 }
 
 function addDailyLikedPost(postsMetadataObj, isFirst) {
-  console.log("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
+  persistentLog("addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
   var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
@@ -1387,7 +1387,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         dailyLikedPosts_keep.push(dailyLikedPosts[i]);
       }
     }
-    console.log(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    persistentLog(" - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
     dailyLikedPosts = dailyLikedPosts_keep;
     // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
@@ -1396,7 +1396,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         if (isFirst) {
           dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
         }
-        console.log(" - match on existing date: "+dateStr+", adding to that");
+        persistentLog(" - match on existing date: "+dateStr+", adding to that");
         createNew = false;
         break;
       }
@@ -1411,26 +1411,26 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
       ],
       runs: 1
     });
-    console.log(" - creating new date: "+dateStr);
+    persistentLog(" - creating new date: "+dateStr);
   }
   // save
-  console.log(" - saving updated dailyLikedPosts object");
+  persistentLog(" - saving updated dailyLikedPosts object");
   persistJson("daily_liked_posts", {data: dailyLikedPosts}, function(err) {
     if (err) {
-      console.log("ERROR, addDailyLikedPost failed to be saved");
+      persistentLog("ERROR, addDailyLikedPost failed to be saved");
     }
   })
 }
 
 function sendRunEmail(options, callback) {
-  console.log("sendRunEmail");
+  persistentLog("sendRunEmail");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
     sendRunEmailNow(options, callback);
     return;
   } else {
     if (dailyLikedPosts.length < 1) {
       // do nothing, nothing saved
-      console.log(" - can't send digest email, nothing saved");
+      persistentLog(" - can't send digest email, nothing saved");
       if (callback !== undefined) {
         callback();
       }
@@ -1438,27 +1438,27 @@ function sendRunEmail(options, callback) {
     }
     // check if first post of new day is made, the send digest of previous day
     var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
-    console.log(" - checking if latest bot run is of new day, if so then email digest of previous day");
+    persistentLog(" - checking if latest bot run is of new day, if so then email digest of previous day");
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      console.log(" - - checking date: "+dailyLikedPosts[i].date_str);
+      persistentLog(" - - checking date: "+dailyLikedPosts[i].date_str);
       if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
-        console.log(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
+        persistentLog(" - - found today, number of runs: "+dailyLikedPosts[i].runs);
         if (dailyLikedPosts[i].runs <= 1) {
           //send digest of previous date
           nowDate.subtract(1, 'day');
-          console.log(" - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
+          persistentLog(" - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
           sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options, callback);
           return;
         }
         // else
-        console.log(" - more than one run today, wait until tomorrow to publish digest for today");
+        persistentLog(" - more than one run today, wait until tomorrow to publish digest for today");
         if (callback !== undefined) {
           callback();
         }
         return;
       }
     }
-    console.log(" - didn't find match for today, this signifies an ERROR");
+    persistentLog(" - didn't find match for today, this signifies an ERROR");
   }
   if (callback !== undefined) {
     callback();
@@ -1466,7 +1466,7 @@ function sendRunEmail(options, callback) {
 }
 
 function sendRunEmailNow(options, callback) {
-  console.log("sendRunEmailNow");
+  persistentLog("sendRunEmailNow");
   var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
   email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
   //algorithmSet
@@ -1551,7 +1551,7 @@ function sendRunEmailNow(options, callback) {
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
       if (err) {
-        console.log("couldn't save last log html as persistent string");
+        persistentLog("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
         callback();
@@ -1561,7 +1561,7 @@ function sendRunEmailNow(options, callback) {
 }
 
 function sendRunEmailDigest(dateStr, options, callback) {
-  console.log("sendRunEmailDigest for "+dateStr);
+  persistentLog("sendRunEmailDigest for "+dateStr);
   var posts = null;
   for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
     if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
@@ -1570,7 +1570,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
     }
   }
   if (posts == null) {
-    console.log(" - can't send digest, can't find date in list: "+dateStr);
+    persistentLog(" - can't send digest, can't find date in list: "+dateStr);
     if (callback !== undefined) {
       callback();
     }
@@ -1650,7 +1650,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
   sendEmail("Voter bot", email, true, function () {
     persistString("last_log_html", email, function(err) {
       if (err) {
-        console.log("couldn't save last log html as persistent string");
+        persistentLog("couldn't save last log html as persistent string");
       }
       if (callback !== undefined) {
         callback();

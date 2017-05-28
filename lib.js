@@ -267,7 +267,13 @@ var algorithmSet = false;
 /*
 * Bot logic
 */
+
 var verboseLoggingEnabled = false;
+
+/*
+setupLogging()
+* Initialize logging based on environment variable
+*/
 function setupLogging() {
   verboseLoggingEnabled = process.env.VERBOSE_LOGGING !== undefined
         && process.env.VERBOSE_LOGGING !== null
@@ -1753,17 +1759,17 @@ function getFollowers_recursive(username, followers, callback) {
   } else {
     followers_ = followers;
   }
-  console.log("getFollowers_recursive");
+  persistentLog(LOG_VERBOSE, "getFollowers_recursive");
   var startFollowerName = followers_.length < 1 ? null : followers_[followers_.length-1];
   steem.api.getFollowing(username, startFollowerName, null, 100, function(err, followersResult) {
     if (err || followersResult == null || followersResult === undefined) {
-      console.log("getFollowers_recursive, error");
+      persistentLog(LOG_VERBOSE, "getFollowers_recursive, error");
       callback({message: "error: "+(err != null ? err.message + ", " + JSON.stringify(err.payload) : "null result")},
           null);
       return;
     }
-    console.log("getFollowers_recursive, got "+followersResult.length+" results");
-    console.log("getFollowers_recursive, followers in result: "+JSON.stringify(followersResult));
+    persistentLog(LOG_VERBOSE, "getFollowers_recursive, got "+followersResult.length+" results");
+    persistentLog(LOG_VERBOSE, "getFollowers_recursive, followers in result: "+JSON.stringify(followersResult));
     // skip first username in results if search with name as that will be the first and we already have it from the
     //    last page
     for (var i = (startFollowerName == null ? 0 : 1) ; i < followersResult.length ; i++) {
@@ -1771,10 +1777,10 @@ function getFollowers_recursive(username, followers, callback) {
         followers_.push(followersResult[i].following);
       }
     }
-    console.log("getFollowers_recursive, followers now "+followers_.length);
+    persistentLog(LOG_VERBOSE, "getFollowers_recursive, followers now "+followers_.length);
     if (followersResult.length < 100) {
-      console.log("getFollowers_recursive, finished");
-      console.log("getFollowers_recursive, followers: "+JSON.stringify(followers_));
+      persistentLog(LOG_VERBOSE, "getFollowers_recursive, finished");
+      persistentLog(LOG_VERBOSE, "getFollowers_recursive, followers: "+JSON.stringify(followers_));
       callback(null, followers_);
     } else {
       getFollowers_recursive(username, followers_, callback);
@@ -1848,7 +1854,7 @@ function persistString(key, string, callback) {
     }
   });
   redisClient.set(key, string, function() {
-    console.log("persistString save for key "+key);
+    persistentLog(LOG_VERBOSE, "persistString save for key "+key);
     if (callback !== undefined) {
       callback();
     }
@@ -1892,7 +1898,7 @@ function persistJson(key, json, callback) {
     }
   });
   var str = JSON.stringify(json);
-  console.log("persistJson for key "+key+", has JSON as str: "+str);
+  persistentLog(LOG_VERBOSE, "persistJson for key "+key+", has JSON as str: "+str);
   redisClient.set(key, str, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
@@ -1900,7 +1906,7 @@ function persistJson(key, json, callback) {
         callback(err);
       }
     } else {
-      console.log("persistJson save for key "+key);
+      persistentLog(LOG_VERBOSE, "persistJson save for key "+key);
       if (callback !== undefined) {
         callback();
       }
@@ -1926,7 +1932,7 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        //console.log("getPersistentJson for key "+key+", raw: "+reply);
+        //persistentLog(LOG_VERBOSE, "getPersistentJson for key "+key+", raw: "+reply);
         try {
           var json = JSON.parse(reply);
           callback(null, json);
@@ -1944,7 +1950,7 @@ updateWeightMetric(query, apiKey, callback):
 * update weight metric
 */
 function updateWeightMetric(query, apiKey, callback) {
-  console.log("updateWeightMetric call");
+  persistentLog(LOG_VERBOSE, "updateWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
     if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
@@ -1960,7 +1966,7 @@ function updateWeightMetric(query, apiKey, callback) {
   getPersistentJson("algorithm", function(algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
-      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+      persistentLog(LOG_VERBOSE, " - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
     var match = false;
     for (var i = 0 ; i < algorithm.weights.length ; i++) {
@@ -1985,7 +1991,7 @@ deleteWeightMetric(index, apiKey, callback):
 * update weight metric
 */
 function deleteWeightMetric(key, apiKey, callback) {
-  console.log("deleteWeightMetric call");
+  persistentLog(LOG_VERBOSE, "deleteWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
     if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
@@ -1994,10 +2000,10 @@ function deleteWeightMetric(key, apiKey, callback) {
   }
   getPersistentJson("algorithm", function(err, algorithmResult) {
     if (err) {
-      console.log(" - coudln't from redis store, using local version");
+      persistentLog(LOG_VERBOSE, " - coudln't from redis store, using local version");
     } else {
       algorithm = algorithmResult;
-      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+      persistentLog(LOG_VERBOSE, " - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
     var newWeights = [];
     for (var i = 0 ; i < algorithm.weights.length ; i++) {
@@ -2018,7 +2024,7 @@ updateMetricList(list, contents, apiKey, callback):
 * update weight metric
 */
 function updateMetricList(list, contents, apiKey, callback) {
-  console.log("updateMetricList call");
+  persistentLog(LOG_VERBOSE, "updateMetricList call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
     if (callback !== undefined) {
       callback({status: 500, message: "API key is incorrect"});
@@ -2029,7 +2035,7 @@ function updateMetricList(list, contents, apiKey, callback) {
   var parts = S(contents.replace("  ", " ")).splitLeft(" ");
   getPersistentJson("algorithm", function(err, algorithmResult) {
     if (err) {
-      console.log(" - coudln't from redis store, using local version");
+      persistentLog(LOG_VERBOSE, " - coudln't from redis store, using local version");
       if (algorithm === undefined || algorithm == null) {
         algorithm = {
           weights: [],
@@ -2045,7 +2051,7 @@ function updateMetricList(list, contents, apiKey, callback) {
       }
     } else {
       algorithm = algorithmResult;
-      console.log(" - updated algorithm from redis store: "+JSON.stringify(algorithm));
+      persistentLog(LOG_VERBOSE, " - updated algorithm from redis store: "+JSON.stringify(algorithm));
     }
     algorithm[list] = parts;
     persistJson("algorithm", algorithm);
@@ -2056,48 +2062,48 @@ function updateMetricList(list, contents, apiKey, callback) {
 }
 
 function savePostsMetadata(postsMetadataObj, callback) {
-  console.log("savePostsMetadata");
+  persistentLog(LOG_VERBOSE, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     var toKeep = [];
     if (err || keys === undefined || keys == null) {
-      console.log(" - postsMetadata_keys doesn't exist, probably first time run");
+      persistentLog(LOG_VERBOSE, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
       var keysObj = JSON.parse(keys);
       if (keysObj == null) {
-        console.log(" - postsMetadata_keys couldn't be parsed, probably first time run");
+        persistentLog(LOG_VERBOSE, " - postsMetadata_keys couldn't be parsed, probably first time run");
       } else {
-        console.log(" - removing old keys");
+        persistentLog(LOG_VERBOSE, " - removing old keys");
         // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);
           }
         }
-        console.log(" - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
+        persistentLog(LOG_VERBOSE, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);
-    console.log(" - adding new postsMetadata key: "+key);
+    persistentLog(LOG_VERBOSE, " - adding new postsMetadata key: "+key);
     toKeep.push({date: (new Date()).getTime(), key: key});
     redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
       if (err) {
-        console.log("savePostsMetadata, error setting updated keys: "+err.message);
+        persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting updated keys: "+err.message);
         if (callback !== undefined) {
           callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
         }
         return;
       }
-      console.log(" - adding new postsMetadata under key: "+key);
+      persistentLog(LOG_VERBOSE, " - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
         if (err) {
-          console.log("savePostsMetadata, error setting new object with key: "+err.message);
+          persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting new object with key: "+err.message);
           if (callback !== undefined) {
             callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
           }
           return;
         }
-        console.log(" - finished saving postsMetadata");
+        persistentLog(LOG_VERBOSE, " - finished saving postsMetadata");
         if (callback !== undefined) {
           callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
         }
@@ -2107,19 +2113,19 @@ function savePostsMetadata(postsMetadataObj, callback) {
 }
 
 function getPostsMetadataKeys(callback) {
-  console.log("getPostsMetadataKeys");
-  console.log(" - getting keys");
+  persistentLog(LOG_VERBOSE, "getPostsMetadataKeys");
+  persistentLog(LOG_VERBOSE, " - getting keys");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     if (err) {
-      console.log("getPostsMetadataKeys, error: "+err.message);
+      persistentLog(LOG_VERBOSE, "getPostsMetadataKeys, error: "+err.message);
       callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
     } else if (keys == null) {
-      console.log("getPostsMetadataKeys, error: no result");
+      persistentLog(LOG_VERBOSE, "getPostsMetadataKeys, error: no result");
       callback({status: 500, message: "getPostsMetadataKeys, error: no result"}, []);
     } else {
-      console.log(" - parsing keys");
+      persistentLog(LOG_VERBOSE, " - parsing keys");
       var keysObj = JSON.parse(keys);
-      console.log(" - returning keys");
+      persistentLog(LOG_VERBOSE, " - returning keys");
       callback(null, keysObj.keys);
     }
   });
@@ -2175,10 +2181,10 @@ function updateConfigVars(newConfigVars) {
     }
   }
   configVars = newConfigVars;
-  console.log("updateConfigVars: "+JSON.stringify(newConfigVars));
+  persistentLog(LOG_VERBOSE, "updateConfigVars: "+JSON.stringify(newConfigVars));
   persistJson("config_vars", newConfigVars, function(err) {
     if (err) {
-      console.log("Error updating config vars: "+err.message);
+      persistentLog(LOG_VERBOSE, "Error updating config vars: "+err.message);
     }
   })
 }
@@ -2241,7 +2247,7 @@ function sendEmail(subject, message, isHtml, callback) {
 		callback();
 		return false;
 	}
-  console.log("sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);
+  persistentLog(LOG_VERBOSE, "sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);
 	var helper = require('sendgrid').mail;
 	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
@@ -2257,12 +2263,12 @@ function sendEmail(subject, message, isHtml, callback) {
 		body: mail.toJSON(),
 	});
 
-	console.log("sending email");
+	persistentLog(LOG_VERBOSE, "sending email");
 	sg.API(request, function(err, response) {
     if (err) {
-      console.log(" - error sending email: "+err.message);
+      persistentLog(LOG_VERBOSE, " - error sending email: "+err.message);
     } else {
-      console.log(" - send email, status: "+response.statusCode);
+      persistentLog(LOG_VERBOSE, " - send email, status: "+response.statusCode);
     }
     if (callback !== undefined) {
       callback();

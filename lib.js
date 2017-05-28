@@ -1265,6 +1265,7 @@ function runBot(callback, options) {
               }
             }
           }
+          persistentLog(LOG_GENERAL, " - num posts to vote on: "+numToVoteOn);
           numVoteOn = numToVoteOn;
           var numVotedOn = 0;
           for (var i = 0 ; i < postsMetadata.length ; i++) {

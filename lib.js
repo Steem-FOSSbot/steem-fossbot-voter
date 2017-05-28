@@ -1308,7 +1308,6 @@ function runBot(callback, options) {
   .then(function(response) {
     if (response) {
       persistentLog("runBot finished successfully");
-      console.log("runBot finished successfully");
       // send email
       sendRunEmail(options, function () {
         // #53, call callback when everything complete if local run, i.e. not called from web app directly

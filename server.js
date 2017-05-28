@@ -690,7 +690,7 @@ app.get("/run-bot", function(req, res) {
       return;
     }
     lib.runBot(function(obj) {
-      console.log("lib.runBot returned: " + JSON.stringify(obj));
+      //console.log("lib.runBot returned: " + JSON.stringify(obj));
       if (obj) {
         if (req.query.json) {
           // return json directly

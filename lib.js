@@ -1311,28 +1311,17 @@ function runBot(callback, options) {
       // send email
       sendRunEmail(options, function () {
         // #53, call callback when everything complete if local run, i.e. not called from web app directly
-        // #69, also callback when not local run but execute immediately
-        if (callback) {
-          if (options !== undefined && options.hasOwnProperty("local") && options.local) {
-            // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-            setTimeout(function () {
-              console.log("Finally let process know to quit if local");
-              callback(
-                {
-                  status: 200,
-                  message: "Scores calculated, and votes cast for local run.",
-                  posts: postsMetadata
-                });
-            }, 10000);
-          } else {
-            console.log("Not run locally, exiting now");
+        if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+          setTimeout(function () {
+            console.log("Finally let process know to quit if local");
             callback(
               {
                 status: 200,
                 message: "Scores calculated, and votes cast for local run.",
                 posts: postsMetadata
               });
-          }
+          }, 10000);
         }
       });
     }
@@ -1341,28 +1330,17 @@ function runBot(callback, options) {
     setError("stopped", false, err.message);
     sendRunEmail(options, function () {
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      // #69, also callback when not local run but execute immediately
-      if (callback) {
-        if (options !== undefined && options.hasOwnProperty("local") && options.local) {
-          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-          setTimeout(function () {
-            console.log("Finally let process know to quit if local");
-            callback(
-              {
-                status: 200,
-                message: "Finished with error",
-                posts: postsMetadata
-              });
-          }, 10000);
-        } else {
-          console.log("Not run locally, exiting now");
+      if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+        setTimeout(function () {
+          console.log("Finally let process know to quit if local");
           callback(
             {
               status: 200,
               message: "Finished with error",
               posts: postsMetadata
             });
-        }
+        }, 10000);
       }
     });
   });

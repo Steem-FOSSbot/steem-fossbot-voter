@@ -72,15 +72,16 @@ app.use(expressSession({
 // Start server
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
-  lib.initSteem();
-  if (!lib.hasFatalError()) {
-    console.log("Dashboard min requirements met, will be active on HTTPS");
-    loadFiles();
-  } else {
-    // kill node server to stop dashboard from showing and let owner know there is a problem without
-    // giving any information away
-    process.exit();
-  }
+  lib.initSteem(function() {
+    if (!lib.hasFatalError()) {
+      console.log("Dashboard min requirements met, will be active on HTTPS");
+      loadFiles();
+    } else {
+      // kill node server to stop dashboard from showing and let owner know there is a problem without
+      // giving any information away
+      process.exit();
+    }
+  });
 });
 
 module.exports = app;

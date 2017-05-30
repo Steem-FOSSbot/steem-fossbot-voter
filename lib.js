@@ -1684,32 +1684,93 @@ function sendRunEmailDigest(dateStr, options, callback) {
 initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
-function initSteem() {
+function initSteem(callback) {
   // #50, fix Websocket address, server has migrated to new URL
   steem.api.setWebSocket('wss://steemd.steemit.com');
-  testEnvVars();
-  getUserAccount();
-  // get last post
-  getPersistentJson("lastpost", function(err, post) {
-    if (err) {
-      console.log("no last post, probably this is first run for server");
-    } else {
-      lastPost = post;
-      console.log("got last post, id: "+lastPost.id);
+  var processes = [
+    function() {
+      var deferred = Q.defer();
+      testEnvVars(function(err) {
+        if (err) {
+          throw err;
+        } else {
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
+    },
+    function() {
+      var deferred = Q.defer();
+      getUserAccount(function(err) {
+        if (err) {
+          throw err;
+        } else {
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
+    },
+    function() {
+      var deferred = Q.defer();
+      // get last post
+      getPersistentJson("lastpost", function(err, post) {
+        if (err) {
+          console.log("no last post, probably this is first run for server");
+          throw err;
+        } else {
+          lastPost = post;
+          console.log("got last post, id: "+lastPost.id);
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
+    },
+    function() {
+      var deferred = Q.defer();
+      getPersistentJson("config_vars", function(err, configVarsResult) {
+        if (configVarsResult !== null) {
+          updateConfigVars(configVarsResult, function(err) {
+            if (err) {
+              throw err;
+            } else {
+              deferred.resolve(true);
+            }
+          });
+        } else {
+          // use default, already set
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
     }
-  });
-  getPersistentJson("config_vars", function(err, configVarsResult) {
-    if (configVarsResult != null) {
-      updateConfigVars(configVarsResult);
-    } // else use default, already set
-  });
+  ];
+
+  var overallResult = function() {
+    return processes.reduce(function(nextProcess, f) {
+      return nextProcess.then(f);
+    }, Q());
+  };
+
+  overallResult()
+    .then(function(response) {
+      if (response) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    })
+    .catch(function (err) {
+      setError("stopped", false, err.message);
+      callback(false);
+    });
 }
 
 /*
 getUserAccount():
 */
-function getUserAccount() {
+function getUserAccount(callback) {
   if (showFatalError()) {
+    callback({message: "Fatal error in getUserAccount"});
     return;
   }
   if (process.env.STEEM_USER) {
@@ -1717,10 +1778,12 @@ function getUserAccount() {
       console.log(err, result);
       if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
+        callback({message: "Fatal error in getUserAccount"});
       } else {
         // check if user can vote, if not this app is useless
         if (!result[0].can_vote) {
           setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");
+          callback({message: "Fatal error in getUserAccount"});
           return;
         }
         // save some values about this user in owner object
@@ -1730,6 +1793,7 @@ function getUserAccount() {
           //console.log(err, properties);
           if (err) {
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
+            callback({message: "Fatal error in getUserAccount"});
           } else {
             steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
@@ -1740,10 +1804,13 @@ function getUserAccount() {
             following = [];
             if (err || followersResult === undefined) {
               setError("init_error", false, "Can't get following accounts");
+              callback({message: "Fatal error in getUserAccount"});
             } else {
               following = followersResult;
             }
             console.log(""+process.env.STEEM_USER+" follows: "+following);
+            // final callback without error, all functions completed
+            callback();
           });
           // log owner object
           console.log("owner: "+JSON.stringify(owner));
@@ -2167,7 +2234,7 @@ function getConfigVars() {
   return configVars;
 }
 
-function updateConfigVars(newConfigVars) {
+function updateConfigVars(newConfigVars, callback) {
   // migrate old config vars if needed
   // add missing vars
   for (var key in defaultConfigVars) {
@@ -2186,6 +2253,9 @@ function updateConfigVars(newConfigVars) {
   persistJson("config_vars", newConfigVars, function(err) {
     if (err) {
       persistentLog(LOG_VERBOSE, "Error updating config vars: "+err.message);
+      callback({message: "Fatal error in updateConfigVars"});
+    } else {
+      callback();
     }
   })
 }
@@ -2319,8 +2389,9 @@ function clone(obj) {
 testEnvVars():
 * Test environment variables and log results
 */
-function testEnvVars() {
+function testEnvVars(callback) {
   if (showFatalError()) {
+    callback({message: "Fatal error in testEnvVars"});
     return;
   }
   console.log("steem user: "+process.env.STEEM_USER);
@@ -2342,6 +2413,9 @@ function testEnvVars() {
 
   if (!fatalError) {
     serverState = "started";
+    callback();
+  } else {
+    callback({message: "Error in testEnvVars"});
   }
 }
 

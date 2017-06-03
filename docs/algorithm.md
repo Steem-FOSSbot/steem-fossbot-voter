@@ -79,7 +79,7 @@ The threshold uses a _sliding window_ to first calculate average post score, end
 
 #### 2. Increase by percentage
 
-By default, we add 10% of the _variance_ of the window to the average. This is specified as a ratio, so 10% is stored as value ```0.1```.
+By default, we add 10% of the _variance_ of the window to the average. This is specified in variable ```SCORE_THRESHOLD_INC_PC``` as a ratio, so 10% is stored as value ```0.1```.
 
 This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
 

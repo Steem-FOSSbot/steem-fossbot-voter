@@ -1115,6 +1115,7 @@ function runBot(callback, options) {
         }
         // recalculate avgerage based on window value
         persistentLog(LOG_VERBOSE, " - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
+        // calculate average
         var avg = 0;
         var maxScore = configVars.MIN_SCORE_THRESHOLD;
         var count = 0;
@@ -1127,11 +1128,23 @@ function runBot(callback, options) {
             }
           }
         }
-        var threshold = 0;
-        if (avg != 0 && count > 0) {
-          threshold = avg / count;
+        if (count > 0) {
+          avg /= count;
         }
-        thresholdInfo.average = threshold;
+        thresholdInfo.average = avg;
+        // calculate variance
+        var variance = 0;
+        for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
+          if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
+            variance += Math.pow(avgWindowInfo.postScores[j] - avg, 2);
+          }
+        }
+        if (count > 0) {
+          variance /= count;
+        }
+        thresholdInfo.variance = variance;
+        // calculate threshold
+        var threshold = avg;
         if (threshold < configVars.MIN_SCORE_THRESHOLD) {
           threshold = configVars.MIN_SCORE_THRESHOLD;
           // stats
@@ -1149,7 +1162,12 @@ function runBot(callback, options) {
         } else {
           // first apply percentage increase on threshold,
           //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
-          thresholdInfo.percentInc = (threshold * configVars.SCORE_THRESHOLD_INC_PC);
+          // #74, as of this ticket, use as percentage of variance, but cannot exceed same
+          //    percentage of threshold (average)
+          thresholdInfo.percentInc = variance * configVars.SCORE_THRESHOLD_INC_PC;
+          if (thresholdInfo.percentInc > (threshold * configVars.SCORE_THRESHOLD_INC_PC)) {
+            thresholdInfo.percentInc = threshold * configVars.SCORE_THRESHOLD_INC_PC;
+          }
           threshold += thresholdInfo.percentInc;
           // then add more (make more unlikely to vote on) proportional to how many votes already
           //   cast today. if there are max or exceeding max voted, threshold will be too high for

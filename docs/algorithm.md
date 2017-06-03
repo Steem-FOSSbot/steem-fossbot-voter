@@ -79,7 +79,9 @@ The threshold uses a _sliding window_ to first calculate average post score, end
 
 #### 2. Increase by percentage
 
-By default, we increase the average by a ratio of 0.1, i.e. by 10%. This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
+By default, we add 10% of the _variance_ of the window to the average. This is specified as a ratio, so 10% is stored as value ```0.1```.
+
+This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
 
 Values of up to 0.6 or 60% can also work.
 
@@ -91,15 +93,9 @@ The most usual way is to set a voting limit per 24 hour period. As this voter bo
  
 The amount to increase by uses this formula of proportionality, scaled to match the current highest post in the window:
 
-```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS) ^ 2)```
+```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS)```
 
-Note also that the effect is not linear, it follows the square curve of values between 0.0 and 1.0, so the increase will have less of an effect until the number of posts approaches the limit for the day.
-
-_made on GraphSketch.com_
-
-![](/img/graph-squared.png)
-
-The orange line is a straight linear effect, and the blue line shows the squared effect. At low values (close to the bottom) the effect is small, but then shoots up for higher values. 
+Note also that the effect is linear (as of change in issue #24). 
 
 #### Summary of threshold calculation
 

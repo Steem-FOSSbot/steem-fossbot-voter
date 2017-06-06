@@ -555,7 +555,7 @@ app.get("/stats-data-json", function(req, res) {
             var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
             summary.push({
               date: keys[i].date,
-              date_str: (dateTime.format("MM/DD//YY HH:mm")),
+              date_str: (dateTime.format("MM/DD/YY HH:mm")),
               date_day: dateTime.date(),
               num_posts: postsMetadataList[i].postsMetadata.length,
               num_votes: numVotes

@@ -2136,7 +2136,9 @@ function updateMetricList(list, contents, apiKey, callback) {
 function savePostsMetadata(postsMetadataObj, callback) {
   persistentLog(LOG_VERBOSE, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
+    // get keys and update which to keep and which to remove
     var toKeep = [];
+    var toRemove = [];
     if (err || keys === undefined || keys == null) {
       persistentLog(LOG_VERBOSE, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
@@ -2149,39 +2151,67 @@ function savePostsMetadata(postsMetadataObj, callback) {
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);
+          } else {
+            toRemove.push(keysObj.keys[i]);
           }
         }
         persistentLog(LOG_VERBOSE, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
+    // add supplied key to keep list
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);
     persistentLog(LOG_VERBOSE, " - adding new postsMetadata key: "+key);
     toKeep.push({date: (new Date()).getTime(), key: key});
     redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
       if (err) {
-        persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting updated keys: "+err.message);
-        if (callback !== undefined) {
-          callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
-        }
+        persistentLog(LOG_GENERAL, "savePostsMetadata, error setting updated keys: "+err.message);
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+toRemove.length+" keys");
+        removePostsMetadataKeys(toRemove, 0, function(err) {
+          if (err) {
+            persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
+          }
+          if (callback !== undefined) {
+            callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
+          }
+        });
         return;
       }
       persistentLog(LOG_VERBOSE, " - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
-        if (err) {
-          persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting new object with key: "+err.message);
-          if (callback !== undefined) {
-            callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+toRemove.length+" keys");
+        removePostsMetadataKeys(toRemove, 0, function(err2) {
+          if (err2) {
+            persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
           }
-          return;
-        }
-        persistentLog(LOG_VERBOSE, " - finished saving postsMetadata");
-        if (callback !== undefined) {
-          callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
-        }
+          if (err) {
+            persistentLog(LOG_GENERAL, "savePostsMetadata, error setting new object with key: "+err.message);
+            if (callback !== undefined) {
+              callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
+            }
+          }
+          persistentLog(LOG_GENERAL, " - finished saving postsMetadata");
+          if (callback !== undefined) {
+            callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
+          }
+        });
       });
     });
   });
+}
+
+function removePostsMetadataKeys(toRemove, idx, callback) {
+  if (idx < toRemove.length) {
+    redisClient.del(toRemove[idx], function(err, result) {
+      if (err) {
+        callback(err);
+      } else {
+        removePostsMetadataKeys(toRemove, idx + 1, callback);
+      }
+    });
+  } else {
+    callback();
+  }
 }
 
 function getPostsMetadataKeys(callback) {

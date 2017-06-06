@@ -2177,6 +2177,7 @@ function savePostsMetadata(postsMetadataObj, callback) {
     var key = extra.calcMD5(stringifiedJson);
     persistentLog(LOG_GENERAL, " - adding new postsMetadata key: "+key);
     toKeep.push({date: (new Date()).getTime(), key: key});
+    persistentLog(LOG_GENERAL, " - keys to keep: "+JSON.stringify({keys: toKeep}));
     redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
       if (err) {
         persistentLog(LOG_GENERAL, "savePostsMetadata, error setting updated keys: "+err.message);

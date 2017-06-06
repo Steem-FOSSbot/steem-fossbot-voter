@@ -1173,7 +1173,12 @@ app.get("/edit-config", function(req, res) {
   }
   html_title += "</h3>"
   if (change) {
-    lib.updateConfigVars(configVars);
+    lib.updateConfigVars(configVars, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
   }
   res.status(200).send(
     html_edit_config1
@@ -1265,7 +1270,12 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";
   if (change) {
-    lib.updateConfigVars(configVars);
+    lib.updateConfigVars(configVars, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
   }
   res.status(200).send(
     html_edit_config1

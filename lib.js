@@ -2152,12 +2152,14 @@ function savePostsMetadata(postsMetadataObj, callback) {
     if (err || keys === undefined || keys == null) {
       persistentLog(LOG_GENERAL, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
+      persistentLog(LOG_GENERAL, " - postsMetadataObj key list: "+keys);
       var keysObj = JSON.parse(keys);
       if (keysObj == null) {
         persistentLog(LOG_GENERAL, " - postsMetadata_keys couldn't be parsed, probably first time run");
       } else {
         persistentLog(LOG_GENERAL, " - removing old keys");
         // only keep keys under DAYS_KEEP_LOGS days old
+        persistentLog(LOG_GENERAL, " - - DEBUG: time now in millis: "+((new Date()).getTime()));
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);

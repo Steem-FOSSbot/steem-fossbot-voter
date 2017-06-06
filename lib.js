@@ -1403,7 +1403,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
     limitDate.subtract(configVars.DAYS_KEEP_LOGS, 'days');
     var dailyLikedPosts_keep = [];
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment(dailyLikedPosts[i].date_str);
+      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
       if (!date.isBefore(limitDate)) {
         dailyLikedPosts_keep.push(dailyLikedPosts[i]);
       }

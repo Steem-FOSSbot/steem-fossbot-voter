@@ -1404,7 +1404,7 @@ function countWordsFromRetext(obj) {
 }
 
 function addDailyLikedPost(postsMetadataObj, isFirst) {
-  persistentLog(LOG_VERBOSE, "addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
+  persistentLog(LOG_GENERAL, "addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
   var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
   var dateStr = nowDate.format("MM-DD-YYYY");
   var createNew = true;
@@ -1419,7 +1419,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         dailyLikedPosts_keep.push(dailyLikedPosts[i]);
       }
     }
-    persistentLog(LOG_VERBOSE, " - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
+    persistentLog(LOG_GENERAL, " - removing "+(dailyLikedPosts.length - dailyLikedPosts_keep.length)+" old dailyLikedPosts entries, too old");
     dailyLikedPosts = dailyLikedPosts_keep;
     // try to find match to add this daily voted post to
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
@@ -1428,7 +1428,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
         if (isFirst) {
           dailyLikedPosts[i].runs = dailyLikedPosts[i].runs + 1;
         }
-        persistentLog(LOG_VERBOSE, " - match on existing date: "+dateStr+", adding to that");
+        persistentLog(LOG_GENERAL, " - match on existing date: "+dateStr+", adding to that");
         createNew = false;
         break;
       }
@@ -1443,10 +1443,10 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
       ],
       runs: 1
     });
-    persistentLog(LOG_VERBOSE, " - creating new date: "+dateStr);
+    persistentLog(LOG_GENERAL, " - creating new date: "+dateStr);
   }
   // save
-  persistentLog(LOG_VERBOSE, " - saving updated dailyLikedPosts object");
+  persistentLog(LOG_GENERAL, " - saving updated dailyLikedPosts object");
   persistJson("daily_liked_posts", {data: dailyLikedPosts}, function(err) {
     if (err) {
       persistentLog(LOG_GENERAL, "ERROR, addDailyLikedPost failed to be saved");
@@ -1938,7 +1938,7 @@ function persistString(key, string, callback) {
     }
   });
   redisClient.set(key, string, function() {
-    persistentLog(LOG_VERBOSE, "persistString save for key "+key);
+    persistentLog(LOG_GENERAL, "persistString save for key "+key);
     if (callback !== undefined) {
       callback();
     }
@@ -1982,7 +1982,7 @@ function persistJson(key, json, callback) {
     }
   });
   var str = JSON.stringify(json);
-  persistentLog(LOG_VERBOSE, "persistJson for key "+key+", has JSON as str: "+str);
+  persistentLog(LOG_GENERAL, "persistJson for key "+key+", has JSON as str: "+str);
   redisClient.set(key, str, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);
@@ -1990,7 +1990,7 @@ function persistJson(key, json, callback) {
         callback(err);
       }
     } else {
-      persistentLog(LOG_VERBOSE, "persistJson save for key "+key);
+      persistentLog(LOG_GENERAL, "persistJson save for key "+key);
       if (callback !== undefined) {
         callback();
       }
@@ -2016,7 +2016,7 @@ function getPersistentJson(key, callback) {
       }
     } else {
       if (callback) {
-        //persistentLog(LOG_VERBOSE, "getPersistentJson for key "+key+", raw: "+reply);
+        //persistentLog(LOG_GENERAL, "getPersistentJson for key "+key+", raw: "+reply);
         try {
           var json = JSON.parse(reply);
           callback(null, json);
@@ -2146,48 +2146,48 @@ function updateMetricList(list, contents, apiKey, callback) {
 }
 
 function savePostsMetadata(postsMetadataObj, callback) {
-  persistentLog(LOG_VERBOSE, "savePostsMetadata");
+  persistentLog(LOG_GENERAL, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     var toKeep = [];
     if (err || keys === undefined || keys == null) {
-      persistentLog(LOG_VERBOSE, " - postsMetadata_keys doesn't exist, probably first time run");
+      persistentLog(LOG_GENERAL, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
       var keysObj = JSON.parse(keys);
       if (keysObj == null) {
-        persistentLog(LOG_VERBOSE, " - postsMetadata_keys couldn't be parsed, probably first time run");
+        persistentLog(LOG_GENERAL, " - postsMetadata_keys couldn't be parsed, probably first time run");
       } else {
-        persistentLog(LOG_VERBOSE, " - removing old keys");
+        persistentLog(LOG_GENERAL, " - removing old keys");
         // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
             toKeep.push(keysObj.keys[i]);
           }
         }
-        persistentLog(LOG_VERBOSE, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
+        persistentLog(LOG_GENERAL, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);
-    persistentLog(LOG_VERBOSE, " - adding new postsMetadata key: "+key);
+    persistentLog(LOG_GENERAL, " - adding new postsMetadata key: "+key);
     toKeep.push({date: (new Date()).getTime(), key: key});
     redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
       if (err) {
-        persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting updated keys: "+err.message);
+        persistentLog(LOG_GENERAL, "savePostsMetadata, error setting updated keys: "+err.message);
         if (callback !== undefined) {
           callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
         }
         return;
       }
-      persistentLog(LOG_VERBOSE, " - adding new postsMetadata under key: "+key);
+      persistentLog(LOG_GENERAL, " - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
         if (err) {
-          persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting new object with key: "+err.message);
+          persistentLog(LOG_GENERAL, "savePostsMetadata, error setting new object with key: "+err.message);
           if (callback !== undefined) {
             callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
           }
           return;
         }
-        persistentLog(LOG_VERBOSE, " - finished saving postsMetadata");
+        persistentLog(LOG_GENERAL, " - finished saving postsMetadata");
         if (callback !== undefined) {
           callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
         }
@@ -2197,19 +2197,19 @@ function savePostsMetadata(postsMetadataObj, callback) {
 }
 
 function getPostsMetadataKeys(callback) {
-  persistentLog(LOG_VERBOSE, "getPostsMetadataKeys");
-  persistentLog(LOG_VERBOSE, " - getting keys");
+  persistentLog(LOG_GENERAL, "getPostsMetadataKeys");
+  persistentLog(LOG_GENERAL, " - getting keys");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     if (err) {
-      persistentLog(LOG_VERBOSE, "getPostsMetadataKeys, error: "+err.message);
+      persistentLog(LOG_GENERAL, "getPostsMetadataKeys, error: "+err.message);
       callback({status: 500, message: "getPostsMetadataKeys, error: "+err.message}, []);
     } else if (keys == null) {
-      persistentLog(LOG_VERBOSE, "getPostsMetadataKeys, error: no result");
+      persistentLog(LOG_GENERAL, "getPostsMetadataKeys, error: no result");
       callback({status: 500, message: "getPostsMetadataKeys, error: no result"}, []);
     } else {
-      persistentLog(LOG_VERBOSE, " - parsing keys");
+      persistentLog(LOG_GENERAL, " - parsing keys");
       var keysObj = JSON.parse(keys);
-      persistentLog(LOG_VERBOSE, " - returning keys");
+      persistentLog(LOG_GENERAL, " - returning keys");
       callback(null, keysObj.keys);
     }
   });

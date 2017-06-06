@@ -588,7 +588,7 @@ app.get("/get-config-vars", function(req, res) {
 function recursiveGetPostsMetadata(keys, index, callback, list) {
   redisClient.get(keys[index], function(err, result) {
     index++;
-    if (index >= keys.length) {
+    if (index > keys.length) {
       callback(list);
       return;
     }

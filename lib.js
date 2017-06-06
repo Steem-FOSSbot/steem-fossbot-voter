@@ -1722,7 +1722,7 @@ function initSteem(callback) {
           console.log("no last post, probably this is first run for server");
           throw err;
         } else {
-          if (lastPost !== undefined || lastPost !== null) {
+          if (lastPost !== undefined && lastPost !== null) {
             lastPost = post;
             console.log("got last post, id: "+lastPost.id);
           } else {

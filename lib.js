@@ -188,7 +188,7 @@ var defaultConfigVars = {
   NUM_POSTS_FOR_AVG_WINDOW: 10,
   MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
-  DAYS_KEEP_LOGS: 5,
+  DAYS_KEEP_LOGS: 3,
   MIN_POST_AGE_TO_CONSIDER: 21.22,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
@@ -206,7 +206,7 @@ var configVars = {
   NUM_POSTS_FOR_AVG_WINDOW: 10,
   MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
-  DAYS_KEEP_LOGS: 5,
+  DAYS_KEEP_LOGS: 3,
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
@@ -1733,8 +1733,12 @@ function initSteem(callback) {
           console.log("no last post, probably this is first run for server");
           throw err;
         } else {
-          lastPost = post;
-          console.log("got last post, id: "+lastPost.id);
+          if (lastPost !== undefined && lastPost !== null) {
+            lastPost = post;
+            console.log("got last post, id: "+lastPost.id);
+          } else {
+            console.log("no last post recorded yet");
+          }
           deferred.resolve(true);
         }
       });

@@ -2165,9 +2165,13 @@ function savePostsMetadata(postsMetadataObj, callback) {
       } else {
         persistentLog(LOG_GENERAL, " - removing old keys");
         // only keep keys under DAYS_KEEP_LOGS days old
-        persistentLog(LOG_GENERAL, " - - DEBUG: time now in millis: "+((new Date()).getTime()));
+        var timeNow = (new Date()).getTime();
+        var keepDaysInMillis = configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY;
+        persistentLog(LOG_GENERAL, " - - DEBUG: time now in millis: "+timeNow);
+        persistentLog(LOG_GENERAL, " - - DEBUG: keep days in millis: "+keepDaysInMillis);
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
-          if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+          persistentLog(LOG_GENERAL, " - - - testing "+i+": "+keysObj.keys[i].date+", diff is "+(timeNow - keysObj.keys[i].date));
+          if ((timeNow - keysObj.keys[i].date) <= keepDaysInMillis) {
             toKeep.push(keysObj.keys[i]);
           } else {
             toRemove.push(keysObj.keys[i]);

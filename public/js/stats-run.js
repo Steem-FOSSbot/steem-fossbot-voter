@@ -84,9 +84,6 @@ function loadChart() {
 						Minimum: '#7f7f7f'
 		    	}
 		    },
-				subchart: {
-		    	show: true
-				},
 		    bar: {
 		    	width: {
 		    		ratio: 0.3

@@ -2141,8 +2141,8 @@ function savePostsMetadata(postsMetadataObj, callback) {
   persistentLog(LOG_VERBOSE, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
     // get keys and update which to keep and which to remove
-    var toKeep = [];
-    var toRemove = [];
+    var objToKeep = [];
+    var keysToRemove = [];
     if (err || keys === undefined || keys == null) {
       persistentLog(LOG_VERBOSE, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
@@ -2154,24 +2154,24 @@ function savePostsMetadata(postsMetadataObj, callback) {
         // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-            toKeep.push(keysObj.keys[i]);
+            objToKeep.push(keysObj.keys[i]);
           } else {
-            toRemove.push(keysObj.keys[i]);
+            keysToRemove.push(keysObj.keys[i].key);
           }
         }
-        persistentLog(LOG_VERBOSE, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
+        persistentLog(LOG_VERBOSE, " - - keeping "+objToKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
     // add supplied key to keep list
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);
     persistentLog(LOG_VERBOSE, " - adding new postsMetadata key: "+key);
-    toKeep.push({date: (new Date()).getTime(), key: key});
-    redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
+    objToKeep.push({date: (new Date()).getTime(), key: key});
+    redisClient.set("postsMetadata_keys", JSON.stringify({keys: objToKeep}), function(err, setResult1) {
       if (err) {
         persistentLog(LOG_GENERAL, "savePostsMetadata, error setting updated keys: "+err.message);
-        persistentLog(LOG_GENERAL, "postsMetadata, removing "+toRemove.length+" keys");
-        removePostsMetadataKeys(toRemove, 0, function(err) {
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+keysToRemove.length+" keys");
+        removePostsMetadataKeys(keysToRemove, 0, function(err) {
           if (err) {
             persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
           }
@@ -2183,8 +2183,8 @@ function savePostsMetadata(postsMetadataObj, callback) {
       }
       persistentLog(LOG_VERBOSE, " - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
-        persistentLog(LOG_GENERAL, "postsMetadata, removing "+toRemove.length+" keys");
-        removePostsMetadataKeys(toRemove, 0, function(err2) {
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+keysToRemove.length+" keys");
+        removePostsMetadataKeys(keysToRemove, 0, function(err2) {
           if (err2) {
             persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
           }

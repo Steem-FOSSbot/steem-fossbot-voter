@@ -14,6 +14,10 @@ Explains how to design your algorithm and get the most out of the bot
 
 A full overview of using the bot through the web app dashboard.
 
+**[FAQ](/docs/faq.md)**
+
+Common questions and issues with Voter.
+
 ## Installation
 
 **[Installation](/docs/installation.md)**

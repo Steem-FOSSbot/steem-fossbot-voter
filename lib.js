@@ -478,7 +478,10 @@ function runBot(callback, options) {
       }
       // throw nice error if no posts left
       if (posts.length < 1) {
-        throw {message: "No new posts since last post and within minimum time of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes"};
+        // #78, add information of potential config issue here
+        throw {message: "No new posts since last post and within MIN_POST_AGE_TO_CONSIDER of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes."
+            + "\nPlease note that MAX_POST_TO_READ value is set to "+configVars.MAX_POST_TO_READ+" in your config."
+            + "\nYou may need to increase this number. Please see the FAQ."};
       }
       // update last fetched post
       if (options == null || !options.hasOwnProperty("test") || !options.test ) {

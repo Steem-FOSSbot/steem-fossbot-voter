@@ -188,7 +188,7 @@ var defaultConfigVars = {
   NUM_POSTS_FOR_AVG_WINDOW: 10,
   MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
-  DAYS_KEEP_LOGS: 5,
+  DAYS_KEEP_LOGS: 2,
   MIN_POST_AGE_TO_CONSIDER: 21.22,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
@@ -206,7 +206,7 @@ var configVars = {
   NUM_POSTS_FOR_AVG_WINDOW: 10,
   MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
-  DAYS_KEEP_LOGS: 5,
+  DAYS_KEEP_LOGS: 2,
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
@@ -478,7 +478,10 @@ function runBot(callback, options) {
       }
       // throw nice error if no posts left
       if (posts.length < 1) {
-        throw {message: "No new posts since last post and within minimum time of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes"};
+        // #78, add information of potential config issue here
+        throw {message: "No new posts since last post and within MIN_POST_AGE_TO_CONSIDER of "+configVars.MIN_POST_AGE_TO_CONSIDER+" minutes."
+            + "\nPlease note that MAX_POST_TO_READ value is set to "+configVars.MAX_POST_TO_READ+" in your config."
+            + "\nYou may need to increase this number. Please see the FAQ."};
       }
       // update last fetched post
       if (options == null || !options.hasOwnProperty("test") || !options.test ) {
@@ -1403,7 +1406,7 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
     limitDate.subtract(configVars.DAYS_KEEP_LOGS, 'days');
     var dailyLikedPosts_keep = [];
     for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      var date = moment(dailyLikedPosts[i].date_str);
+      var date = moment(dailyLikedPosts[i].date_str, "MM-DD-YYYY");
       if (!date.isBefore(limitDate)) {
         dailyLikedPosts_keep.push(dailyLikedPosts[i]);
       }
@@ -1722,8 +1725,12 @@ function initSteem(callback) {
           console.log("no last post, probably this is first run for server");
           throw err;
         } else {
-          lastPost = post;
-          console.log("got last post, id: "+lastPost.id);
+          if (lastPost !== undefined && lastPost !== null) {
+            lastPost = post;
+            console.log("got last post, id: "+lastPost.id);
+          } else {
+            console.log("no last post recorded yet");
+          }
           deferred.resolve(true);
         }
       });
@@ -2136,7 +2143,9 @@ function updateMetricList(list, contents, apiKey, callback) {
 function savePostsMetadata(postsMetadataObj, callback) {
   persistentLog(LOG_VERBOSE, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
-    var toKeep = [];
+    // get keys and update which to keep and which to remove
+    var objToKeep = [];
+    var keysToRemove = [];
     if (err || keys === undefined || keys == null) {
       persistentLog(LOG_VERBOSE, " - postsMetadata_keys doesn't exist, probably first time run");
     } else {
@@ -2148,40 +2157,68 @@ function savePostsMetadata(postsMetadataObj, callback) {
         // only keep keys under DAYS_KEEP_LOGS days old
         for (var i = 0 ; i < keysObj.keys.length ; i++) {
           if (((new Date()).getTime() - keysObj.keys[i].date) <= (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
-            toKeep.push(keysObj.keys[i]);
+            objToKeep.push(keysObj.keys[i]);
+          } else {
+            keysToRemove.push(keysObj.keys[i].key);
           }
         }
-        persistentLog(LOG_VERBOSE, " - - keeping "+toKeep.length+" of "+keysObj.keys.length+" keys");
+        persistentLog(LOG_VERBOSE, " - - keeping "+objToKeep.length+" of "+keysObj.keys.length+" keys");
       }
     }
+    // add supplied key to keep list
     var stringifiedJson = JSON.stringify(postsMetadataObj);
     var key = extra.calcMD5(stringifiedJson);
     persistentLog(LOG_VERBOSE, " - adding new postsMetadata key: "+key);
-    toKeep.push({date: (new Date()).getTime(), key: key});
-    redisClient.set("postsMetadata_keys", JSON.stringify({keys: toKeep}), function(err, setResult1) {
+    objToKeep.push({date: (new Date()).getTime(), key: key});
+    redisClient.set("postsMetadata_keys", JSON.stringify({keys: objToKeep}), function(err, setResult1) {
       if (err) {
-        persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting updated keys: "+err.message);
-        if (callback !== undefined) {
-          callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
-        }
+        persistentLog(LOG_GENERAL, "savePostsMetadata, error setting updated keys: "+err.message);
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+keysToRemove.length+" keys");
+        removePostsMetadataKeys(keysToRemove, 0, function(err) {
+          if (err) {
+            persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
+          }
+          if (callback !== undefined) {
+            callback({status: 500, message: "savePostsMetadata, error setting updated keys: " + err.message});
+          }
+        });
         return;
       }
       persistentLog(LOG_VERBOSE, " - adding new postsMetadata under key: "+key);
       redisClient.set(key, stringifiedJson, function(err, setResult2) {
-        if (err) {
-          persistentLog(LOG_VERBOSE, "savePostsMetadata, error setting new object with key: "+err.message);
-          if (callback !== undefined) {
-            callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
+        persistentLog(LOG_GENERAL, "postsMetadata, removing "+keysToRemove.length+" keys");
+        removePostsMetadataKeys(keysToRemove, 0, function(err2) {
+          if (err2) {
+            persistentLog(LOG_GENERAL, "postsMetadata, error removing keys");
           }
-          return;
-        }
-        persistentLog(LOG_VERBOSE, " - finished saving postsMetadata");
-        if (callback !== undefined) {
-          callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
-        }
+          if (err) {
+            persistentLog(LOG_GENERAL, "savePostsMetadata, error setting new object with key: "+err.message);
+            if (callback !== undefined) {
+              callback({status: 500, message: "savePostsMetadata, error setting new object with key: " + err.message});
+            }
+          }
+          persistentLog(LOG_GENERAL, " - finished saving postsMetadata");
+          if (callback !== undefined) {
+            callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
+          }
+        });
       });
     });
   });
+}
+
+function removePostsMetadataKeys(toRemove, idx, callback) {
+  if (idx < toRemove.length) {
+    redisClient.del(toRemove[idx], function(err, result) {
+      if (err) {
+        callback(err);
+      } else {
+        removePostsMetadataKeys(toRemove, idx + 1, callback);
+      }
+    });
+  } else {
+    callback();
+  }
 }
 
 function getPostsMetadataKeys(callback) {

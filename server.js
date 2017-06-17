@@ -72,15 +72,16 @@ app.use(expressSession({
 // Start server
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
-  lib.initSteem();
-  if (!lib.hasFatalError()) {
-    console.log("Dashboard min requirements met, will be active on HTTPS");
-    loadFiles();
-  } else {
-    // kill node server to stop dashboard from showing and let owner know there is a problem without
-    // giving any information away
-    process.exit();
-  }
+  lib.initSteem(function() {
+    if (!lib.hasFatalError()) {
+      console.log("Dashboard min requirements met, will be active on HTTPS");
+      loadFiles();
+    } else {
+      // kill node server to stop dashboard from showing and let owner know there is a problem without
+      // giving any information away
+      process.exit();
+    }
+  });
 });
 
 module.exports = app;
@@ -554,7 +555,7 @@ app.get("/stats-data-json", function(req, res) {
             var dateTime = moment_tz.tz(keys[i].date, lib.getConfigVars().TIME_ZONE);
             summary.push({
               date: keys[i].date,
-              date_str: (dateTime.format("MM/DD//YY HH:mm")),
+              date_str: (dateTime.format("MM/DD/YY HH:mm")),
               date_day: dateTime.date(),
               num_posts: postsMetadataList[i].postsMetadata.length,
               num_votes: numVotes
@@ -586,17 +587,17 @@ app.get("/get-config-vars", function(req, res) {
 
 function recursiveGetPostsMetadata(keys, index, callback, list) {
   redisClient.get(keys[index], function(err, result) {
-    if (err || result == null) {
-      callback(list);
-      return;
-    }
-    list.push(result);
     index++;
-    if (index >= keys.length) {
+    if (index > keys.length) {
       callback(list);
       return;
     }
-    recursiveGetPostsMetadata(keys, index, callback, list);
+    if (err || result === null) {
+      recursiveGetPostsMetadata(keys, index, callback, list);
+    } else {
+      list.push(result);
+      recursiveGetPostsMetadata(keys, index, callback, list);
+    }
   });
 }
 
@@ -690,7 +691,7 @@ app.get("/run-bot", function(req, res) {
       return;
     }
     lib.runBot(function(obj) {
-      console.log("lib.runBot returned: " + JSON.stringify(obj));
+      //console.log("lib.runBot returned: " + JSON.stringify(obj));
       if (obj) {
         if (req.query.json) {
           // return json directly
@@ -1160,7 +1161,12 @@ app.get("/edit-config", function(req, res) {
   }
   html_title += "</h3>"
   if (change) {
-    lib.updateConfigVars(configVars);
+    lib.updateConfigVars(configVars, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
   }
   res.status(200).send(
     html_edit_config1
@@ -1251,7 +1257,12 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";
   if (change) {
-    lib.updateConfigVars(configVars);
+    lib.updateConfigVars(configVars, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
   }
   res.status(200).send(
     html_edit_config1

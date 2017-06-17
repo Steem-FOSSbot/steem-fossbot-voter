@@ -79,7 +79,9 @@ The threshold uses a _sliding window_ to first calculate average post score, end
 
 #### 2. Increase by percentage
 
-By default, we increase the average by a ratio of 0.1, i.e. by 10%. This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
+By default, we add 10% of the _variance_ of the window to the average. This is specified in variable ```SCORE_THRESHOLD_INC_PC``` as a ratio, so 10% is stored as value ```0.1```.
+
+This feature is intended to raise the average so that we don't end up just voting on average posts, literally, as defined by our own scoring algorithm.
 
 Values of up to 0.6 or 60% can also work.
 
@@ -91,25 +93,35 @@ The most usual way is to set a voting limit per 24 hour period. As this voter bo
  
 The amount to increase by uses this formula of proportionality, scaled to match the current highest post in the window:
 
-```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS) ^ 2)```
+```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS)```
 
-Note also that the effect is not linear, it follows the square curve of values between 0.0 and 1.0, so the increase will have less of an effect until the number of posts approaches the limit for the day.
-
-_made on GraphSketch.com_
-
-![](/img/graph-squared.png)
-
-The orange line is a straight linear effect, and the blue line shows the squared effect. At low values (close to the bottom) the effect is small, but then shoots up for higher values. 
+Note also that the effect is linear (as of change in issue #24). 
 
 #### Summary of threshold calculation
 
 In general, the threshold decreases if the scores have been low, and increases if the scores are high. If there are a few good posts in one hour, it will get progressively less likely they are all voted on, as the threshold will get raised for each good post scored and processed. Similarly, if a lot of posts score very low, the next good post is much more likely to be voted on.
 
+Note that if the threshold is below ```MIN_SCORE_THRESHOLD```, it will be set to this value, i.e. it cannot be below this. As a result, you need to take care to make sure that your metrics weights are likely to result in a score which is above ```MIN_SCORE_THRESHOLD``` for the general case of a post you want to vote for.
+
 The result (we have verified this works) is a steady flow of votes of relative quality to the most recent previous posts. Note that the window only includes posts which score above the minimum threshold, so really low scored posts are irrelevant to the threshold, i.e. there is some minimum standard of quality required.
 
 This shows that the scoring system is relative and that, for example, a score of 40 does not mean anything except in relation to another score, say 20. 40 is twice as "suitable" as 20, but beyond that we don't need to know anything, nor do we need to. This needs to be kept in mind when designing your bot algorithm, when setting the weights, and tested against real data.
 
-Finally, be warned against changing the post window size to be too small or too large. Too small and, perhaps counter-intuitively, it will be much less likely for posts to be voted on because the lower scores are not keeping the average low. Too large a window means that the algorithm cannot respond to changes quickly and you risk the bot voting on a lot of low quality posts because the threshold could not raise quick enough, or missing a lot of good quality posts because a few very very good quality posts skewed the average too high for too long.
+Be warned against changing the post window size to be too small or too large. Too small and, perhaps counter-intuitively, it will be much less likely for posts to be voted on because the lower scores are not keeping the average low. Too large a window means that the algorithm cannot respond to changes quickly and you risk the bot voting on a lot of low quality posts because the threshold could not raise quick enough, or missing a lot of good quality posts because a few very very good quality posts skewed the average too high for too long.
+
+Finally, most of this assumes that you have a somewhat complex algorithm, i.e. that a few metrics are used which make the score result complex. However if only one metric is used, the system becomes simple and some of these assumptions do not hold. Please read the next subsection if you use a simple algorithm.
+
+#### Exceptions
+
+##### Single metric algorithms
+
+There is also a special case for algorithms containing **only one metric**. In this case, only the average will be used **at 90%**, i.e. only _step 1_ from the above, until ```MAX_VOTES_IN_24_HOURS``` at which time the threshold becomes prohibitively high, stopping voting.
+
+Another detail is that the threshold is used at 90% for this case. This is combat the situation where all scores above ```MIN_SCORE_THRESHOLD``` are the same, and the average will approach and eventually equal this same score value, eventually disabling voting permanently for this algorithm.
+
+So we have two he threshold _does not_ slowly rise with the percentage of votes left for this 24 period; we found that when only one metric is used this effectively disables voting most of the time (thanks to (at)renzoarg and (at)taoteh for helping with this).
+     
+Bear this in mind when designing algorithms with just one metric.
 
 ### Settings and constants
  
@@ -132,7 +144,7 @@ Most people will want to edit these
 
 Edit with caution, setting these incorrectly can really break the bot
 
-1. **MAX_POST_TO_READ** (```100```): Max number of posts fetched. Any more than this will be discarded
+1. **MAX_POST_TO_READ** (```400```): Max number of posts fetched. Any more than this will be discarded
 2. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
 3. **NUM_POSTS_FOR_AVG_WINDOW** (```10```): Maximum number of posts used for averaging window used to determine baseline threshold score
 4. **MIN_SCORE_THRESHOLD** (```10```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
@@ -140,7 +152,7 @@ Edit with caution, setting these incorrectly can really break the bot
 6. **CAPITAL_DOLPHIN_MIN** (```25000```): Minimum Steem Power to qualify as a _dolphin_
 7. **CAPITAL_WHALE_MIN** (```100000```): Minimum Steem Power to qualify as a _whale_
 8. **MIN_KEYWORD_LEN** (```4```): Minimum number of characters for a word to be considered a keyword
-9. **DAYS_KEEP_LOGS** (```5```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
+9. **DAYS_KEEP_LOGS** (```2```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
 10. **MIN_LANGUAGE_USAGE_PC** (```0.3``` i.e. ```35%```): Minimum amount (expressed as a ratio, between 0.0 and 1.0) of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
 11. **MIN_KEYWORD_FREQ** (```3```): Minimum appearances of a word in a post for it to be considered a keyword
 

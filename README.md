@@ -111,8 +111,14 @@ Also please note that development of this project was done piece-wise, and there
 
 Finally, as mentioned in the [discussion](/docs/discussion.md), this project is not intended as a customer ready solution, it is a kind of "hobby grade" project. As such, **do not expect consumer level support**.
 
+## Note
+
+In the next version of Voter the Redis database will be changed for a MongoDB database.
+
 ## Changelog
 
+- v0.2.8
+  - Bugfixes for issues #27, #1, #63, #41, #24, #69, #70, #54, #62, #74, #84, #77, #78
 - v0.2.7
   - Some additional bug fixes
 - v0.2.6

@@ -11,6 +11,7 @@
   	"EMAIL_ADDRESS_TO": "none",
   	"EMAIL_ADDRESS_SENDER": "none",
   	"SENDGRID_API_KEY": "none",
-    "COOKIE_SECRET": "pk7uKiAbQHcVxNBLQVnBwbwd"
+    "COOKIE_SECRET": "pk7uKiAbQHcVxNBLQVnBwbwd",
+    "VERBOSE_LOGGING": "false"
   }
 }

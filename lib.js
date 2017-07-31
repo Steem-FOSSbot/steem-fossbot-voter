@@ -193,7 +193,9 @@ var defaultConfigVars = {
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
   EMAIL_DIGEST: 0,
-  MIN_KEYWORD_FREQ: 3
+  MIN_KEYWORD_FREQ: 3,
+  MIN_VOTING_POWER: 50,
+  VOTE_VOTING_POWER: 100
 };
 
 var configVars = {
@@ -211,7 +213,9 @@ var configVars = {
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
   EMAIL_DIGEST: 0,
-  MIN_KEYWORD_FREQ: 3
+  MIN_KEYWORD_FREQ: 3,
+  MIN_VOTING_POWER: 50,
+  VOTE_VOTING_POWER: 100
 };
 
 /* Private variables */
@@ -314,6 +318,19 @@ function runBot(callback, options) {
   var timeNow = new Date();
   // define steps processes
   var processes = [
+    // initial vote power check
+    function () {
+      persistentLog(LOG_GENERAL, "checking we have enough voting power...");
+      var deferred = Q.defer();
+      // get posts
+      if (owner.voting_power < configVars.MIN_VOTING_POWER) {
+        persistentLog(LOG_VERBOSE, " - voting power "+owner.voting_power+
+          " is less than config min of " + configVars.MIN_VOTING_POWER+
+          ", will not continue");
+      }
+      deferred.resolve(true);
+      return deferred.promise;
+    },
     // pre set up
     function () {
       numVoteOn = 0;
@@ -1288,7 +1305,7 @@ function runBot(callback, options) {
                 try {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
                         process.env.STEEM_USER, postsMetadata[i].author,
-                        postsMetadata[i].permlink, 10000);
+                        postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: "+JSON.stringify(upvoteResult));
                 } catch (err) {
                   persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: "+postsMetadata[i].permlink);
@@ -1799,6 +1816,7 @@ function getUserAccount(callback) {
         }
         // save some values about this user in owner object
         owner.voting_power = result[0].voting_power;
+        owner.last_vote_time = result[0].last_vote_time;
         owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
         steem.api.getDynamicGlobalProperties(function(err, properties) {
           //console.log(err, properties);
@@ -1809,22 +1827,43 @@ function getUserAccount(callback) {
             steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
-          // get followers
-          getFollowers_recursive(process.env.STEEM_USER, null, function(err, followersResult) {
-            console.log("getFollowing");
-            following = [];
-            if (err || followersResult === undefined) {
-              setError("init_error", false, "Can't get following accounts");
-              callback({message: "Fatal error in getUserAccount"});
+          // get latest blocktime
+          steem.api.getBlockHeader(properties.head_block_number, function(err, headBlock) {
+            //callback(err, result);
+            if (err) {
+              setError("init_error", false, "Can't get head block info");
             } else {
-              following = followersResult;
+              owner.latest_block_time = moment(headBlock.timestamp, moment.ISO_8601);
+              console.log("latest block time: "+owner.latest_block_time.toISOString());
+              // adjust voting power
+              var lastVoteTime = moment(owner.last_vote_time);
+              var secondsDiff = owner.latest_block_time.seconds() - lastVoteTime.seconds();
+              if (secondsDiff > 0) {
+                var vpRegenerated = secondsDiff * 10000 / 86400 / 5;
+                owner.voting_power += vpRegenerated;
+              }
+              if (owner.voting_power > 10000) {
+                owner.voting_power = 10000;
+              }
+              console.log(" - - new vp(corrected): "+owner.voting_power);
+              // get followers
+              getFollowers_recursive(process.env.STEEM_USER, null, function(err, followersResult) {
+                console.log("getFollowing");
+                following = [];
+                if (err || followersResult === undefined) {
+                  setError("init_error", false, "Can't get following accounts");
+                  callback({message: "Fatal error in getUserAccount"});
+                } else {
+                  following = followersResult;
+                }
+                console.log(""+process.env.STEEM_USER+" follows: "+following);
+                // final callback without error, all functions completed
+                callback();
+              });
+              // log owner object
+              console.log("owner: "+JSON.stringify(owner));
             }
-            console.log(""+process.env.STEEM_USER+" follows: "+following);
-            // final callback without error, all functions completed
-            callback();
           });
-          // log owner object
-          console.log("owner: "+JSON.stringify(owner));
         });
       }
     });

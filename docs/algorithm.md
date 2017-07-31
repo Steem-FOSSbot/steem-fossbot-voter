@@ -139,6 +139,8 @@ Most people will want to edit these
 4. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
     - for ```0```, email is sent for every bot run
     - for ```1```, digest email of the day is sent on the first run of the next day, so a little after midnight
+5. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on account is less than this value
+6. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
 
 #### Advanced
 

@@ -1158,6 +1158,14 @@ app.get("/edit-config", function(req, res) {
     configVars.MIN_KEYWORD_FREQ = atob(req.query.MIN_KEYWORD_FREQ);
     change = true;
     html_title += "Updated MIN_KEYWORD_FREQ";
+  } else if (req.qery.MIN_VOTING_POWER) {
+    configVars.MIN_VOTING_POWER = atob(req.query.MIN_VOTING_POWER);
+    change = true;
+    html_title += "Updated MIN_VOTING_POWER";
+  } else if (req.qery.VOTE_VOTING_POWER) {
+    configVars.VOTE_VOTING_POWER = atob(req.query.VOTE_VOTING_POWER);
+    change = true;
+    html_title += "Updated VOTE_VOTING_POWER";
   }
   html_title += "</h3>"
   if (change) {

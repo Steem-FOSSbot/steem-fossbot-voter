@@ -324,9 +324,10 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // get posts
       if (owner.voting_power < configVars.MIN_VOTING_POWER) {
-        persistentLog(LOG_VERBOSE, " - voting power "+owner.voting_power+
+        persistentLog(LOG_GENERAL, " - voting power "+owner.voting_power+
           " is less than config min of " + configVars.MIN_VOTING_POWER+
           ", will not continue");
+        throw {message: "Not enough voting power ("+owner.voting_power+" < "+configVars.MIN_VOTING_POWER+")"};
       }
       deferred.resolve(true);
       return deferred.promise;

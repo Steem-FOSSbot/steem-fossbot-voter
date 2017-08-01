@@ -1713,7 +1713,8 @@ initSteem():
 */
 function initSteem(callback) {
   // #50, fix Websocket address, server has migrated to new URL
-  steem.api.setWebSocket('wss://steemd.steemit.com');
+  //steem.api.setWebSocket('wss://steemd.steemit.com');
+  // #71, no longer need to set this
   var processes = [
     function() {
       var deferred = Q.defer();

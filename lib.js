@@ -186,7 +186,6 @@ var defaultConfigVars = {
   MIN_SCORE_THRESHOLD: 10,
   SCORE_THRESHOLD_INC_PC: 0.1,
   NUM_POSTS_FOR_AVG_WINDOW: 10,
-  MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
   DAYS_KEEP_LOGS: 2,
   MIN_POST_AGE_TO_CONSIDER: 21.22,
@@ -206,7 +205,6 @@ var configVars = {
   MIN_SCORE_THRESHOLD: 10,
   SCORE_THRESHOLD_INC_PC: 0.1,
   NUM_POSTS_FOR_AVG_WINDOW: 10,
-  MAX_VOTES_IN_24_HOURS: 50,
   MIN_WORDS_FOR_ARTICLE: 100,
   DAYS_KEEP_LOGS: 2,
   MIN_POST_AGE_TO_CONSIDER: 30,
@@ -1170,7 +1168,6 @@ function runBot(callback, options) {
           threshold = configVars.MIN_SCORE_THRESHOLD;
           // stats
           thresholdInfo.percentInc = 0;
-          thresholdInfo.voteAdjustmentInc = 0;
           thresholdInfo.total = threshold;
         } else {
           // first apply percentage increase on threshold,
@@ -1182,15 +1179,8 @@ function runBot(callback, options) {
             thresholdInfo.percentInc = threshold * configVars.SCORE_THRESHOLD_INC_PC;
           }
           threshold += thresholdInfo.percentInc;
-          // then add more (make more unlikely to vote on) proportional to how many votes already
-          //   cast today. if there are max or exceeding max voted, threshold will be too high for
-          //   vote and no post will be voted on, thus maintaining limit
-          // #27, removed square scaling of vote limit
-          thresholdInfo.voteAdjustmentInc = (maxScore - threshold) * ((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS);
-          if (thresholdInfo.voteAdjustmentInc < 0) {
-            thresholdInfo.voteAdjustmentInc = 0;
-          }
-          threshold += thresholdInfo.voteAdjustmentInc;
+          // #90, removed thresholdInfo.voteAdjustmentInc completely as
+          // is now obsolete due to removal of MAX_VOTES_IN_24_HOURS
           thresholdInfo.total = threshold;
           if (thresholdInfo.total < configVars.MIN_SCORE_THRESHOLD) {
             thresholdInfo.total = configVars.MIN_SCORE_THRESHOLD;

@@ -58,8 +58,6 @@ A holistic solution will include both aspects, cultural and strategy. They inter
 
 #### Reducing complexity
 
-_Note: voting power is always set to 100% at present in the app_
-
 When we visit at Steemit.com, we see new posts since our last visit. If we visit periodically we will have a collection of new posts which we could potentially vote for. We will only vote on posts that are at least 30 minutes old, since this is the period after which curation payout is at 100% (see [this article](https://steemit.com/steem/@abit/new-curation-reward-algorithm-huge-penalty-to-early-voters)), and it also gives us some data about what kind of attention the post has already attracted.
 
 We must reduce the complex question of whether or not to vote on a post to a simple yes or no for each post. To reduce it a little less, say we calculate a numeric score for each post, and choose the post to vote on based on some criteria. This scoring process will be multi-dimensional but we can make each dimension simple enough to calculate with a simple test, and then combine each individual score.
@@ -76,9 +74,14 @@ From the [Steem White Paper](https://steem.io/SteemWhitePaper.pdf), pg 18:
 
 > Through rate limiting, stakeholders who vote more frequently have each vote count for less than stakeholders who vote less frequently. [...] a user’s voting power decreases every time they vote and then regenerates as time passes without voting. [...] Note that voting power rapidly drops off during periods of continuous voting, and then slowly recovers.
 
-From a strategy point of view, it makes sense to restrict the number of votes cast. Too few and you cannot have an cultural impact nor get enough curation rewards; too many and you dilute your impact. This is clearly an optimisation problem (potentially solved by AI). But Steem posters have variously reported annecdotally that the sweet-spot is somewhere between 25 and 50 per day. So we can make sure to try to vote at least 25 times and no more than 50 per day.
+From a strategy point of view, it makes sense to restrict the number of 
+votes cast. Previously the algorithm limited votes to a maximum number 
+per day but now we vote and keep voting power above a certain percentage.
+ This is especially relevant since Hard Fork 19 which changed the 
+ effective number of votes one can make per day.
 
-Another strategy factor is that the earlier you vote for a post which _will be_ successful, the larger your curation reward. So clearly it is prudent to check for new posts often.
+If votes are too few  you cannot have an cultural impact nor get enough 
+curation rewards; too many and you dilute your impact. Another strategy factor is that the earlier you vote for a post which _will be_ successful, the larger your curation reward. So clearly it is prudent to check for new posts often.
 
 Though on average you should vote every 30 to 60 minutes, the best posts will most likely not be made so regularly. A potential solution to this dilemma is to use a **sliding window score average as a threshold** to determine if a post has a high enough score to vote on, and to sample N (i.e. see if there are new posts) often. This means that the likelihood of voting on a new post is related to the scores of the previous posts.
 

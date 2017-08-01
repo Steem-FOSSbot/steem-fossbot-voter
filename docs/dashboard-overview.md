@@ -89,8 +89,6 @@ _Bot run overview, first graph: overall post scores and threshold_
 The first graph shows the score of each post as a blue bar. It also shows the ```MIN_SCORE_THRESHOLD``` in gray and the current score threshold when that post was scored.
 
 As is explained in the [algorithm doc](/docs/algorithm.md), any post score equal to or above ```MIN_SCORE_THRESHOLD``` is included in the score threshold window, which uses an adjusted averaging formula. Thus if there are a lot of posts scored low at around ```MIN_SCORE_THRESHOLD```, the score threshold will drop, lowering the "standard" of post quality so that a moderately highly scored post is more likey to be voted on. Conversely, if the standard is very high, it is less likely a post will be voted on.
-
-This is intended to keep voting within the desired amount per day, specified as ```MAX_VOTES_IN_24_HOURS```. Additionally, the closer the number of posts today are to this number, the higher the score threshold, as this is added to it.
   
 This is moderately complex, and so it's very useful to see how it actually works in graph form.
 

@@ -67,11 +67,10 @@ We could potentially use this completely drop or maximise the score, by using ei
 
 The threshold is automatically calculated so that you don't have to worry about pulling a good value out of the air.
 
-The threshold is calculated in three steps:
+The threshold is calculated in two steps:
 
 1. Get average of post scores in the sliding window, i.e. up to the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts
 2. Increase this average by ```SCORE_THRESHOLD_INC_PC```
-3. Increase this average in proportion to how many votes were cast in the last 24 hours, relative to the maximum (target) post votes of ```MAX_VOTES_IN_24_HOURS```
 
 #### 1. Calculate average score
 
@@ -85,17 +84,9 @@ This feature is intended to raise the average so that we don't end up just votin
 
 Values of up to 0.6 or 60% can also work.
 
-#### 3. Increase in proportion to today's votes
-
-In order to maintain voting power, we must limit the amount we vote (see [the discussion doc](/docs/discussion.md) for more information on the rate-limited voting of Steem).
-
-The most usual way is to set a voting limit per 24 hour period. As this voter bot seeks to maximise curation reward, we should vote as often as possible, within these limits. Therefore the voting limit is also a voting _target_. So if you wish to leave room for yourself to vote manually without considering the bot, you should set ```MAX_VOTES_IN_24_HOURS``` lower than your actual target for the day. But also note that even if you go over this limit, the algorithm will respond to your manual voting so perhaps that's not necessary.
- 
-The amount to increase by uses this formula of proportionality, scaled to match the current highest post in the window:
-
-```increase amount = (max score in window - (average + percentage increase)) * (number of votes today / MAX_VOTES_IN_24_HOURS)```
-
-Note also that the effect is linear (as of change in issue #24). 
+_Note that a third step, "Increase in proportion to today's votes" was 
+taken out in v0.2.9 in order to simplify the algorithm and switch to 
+voting power limited voting instead of number of votes per day limiting.
 
 #### Summary of threshold calculation
 
@@ -111,18 +102,6 @@ Be warned against changing the post window size to be too small or too large. To
 
 Finally, most of this assumes that you have a somewhat complex algorithm, i.e. that a few metrics are used which make the score result complex. However if only one metric is used, the system becomes simple and some of these assumptions do not hold. Please read the next subsection if you use a simple algorithm.
 
-#### Exceptions
-
-##### Single metric algorithms
-
-There is also a special case for algorithms containing **only one metric**. In this case, only the average will be used **at 90%**, i.e. only _step 1_ from the above, until ```MAX_VOTES_IN_24_HOURS``` at which time the threshold becomes prohibitively high, stopping voting.
-
-Another detail is that the threshold is used at 90% for this case. This is combat the situation where all scores above ```MIN_SCORE_THRESHOLD``` are the same, and the average will approach and eventually equal this same score value, eventually disabling voting permanently for this algorithm.
-
-So we have two he threshold _does not_ slowly rise with the percentage of votes left for this 24 period; we found that when only one metric is used this effectively disables voting most of the time (thanks to (at)renzoarg and (at)taoteh for helping with this).
-     
-Bear this in mind when designing algorithms with just one metric.
-
 ### Settings and constants
  
 Most settings which effect the algorithm are editable. I have set sensible defaults, but these will not be appropriate for every situation.
@@ -133,17 +112,19 @@ The number in brackets is the default value:
 
 Most people will want to edit these
 
-1. **MAX_VOTES_IN_24_HOURS** (```50```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
-2. **MIN_POST_AGE_TO_CONSIDER** (```21.22```): Number of minutes minimum 
+1. **MIN_POST_AGE_TO_CONSIDER** (```21.22```): Number of minutes minimum 
 to consider voting on a post. Any post younger than this time will be 
 discarded for consideration at next run, if old enough then. For number 
 explanation see [the discussion doc](/docs/discussion.md).
-3. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
-4. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
+2. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in
+ tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
+3. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1
+ = on```.
     - for ```0```, email is sent for every bot run
     - for ```1```, digest email of the day is sent on the first run of the next day, so a little after midnight
-5. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on account is less than this value
-6. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
+4. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on 
+account is less than this value
+5. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
 
 #### Advanced
 

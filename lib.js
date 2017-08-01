@@ -325,7 +325,7 @@ function runBot(callback, options) {
       // get posts
       var percentageVp = owner.voting_power / 100;
       persistentLog(LOG_VERBOSE, "Enough voting power ("+percentageVp+" < "+configVars.MIN_VOTING_POWER+") ?");
-      if (ownerpercentageVp < configVars.MIN_VOTING_POWER) {
+      if (percentageVp < configVars.MIN_VOTING_POWER) {
         persistentLog(LOG_GENERAL, " - voting power "+percentageVp+
           " is less than config min of " + configVars.MIN_VOTING_POWER+
           ", will not continue");

@@ -86,7 +86,7 @@ Values of up to 0.6 or 60% can also work.
 
 _Note that a third step, "Increase in proportion to today's votes" was 
 taken out in v0.2.9 in order to simplify the algorithm and switch to 
-voting power limited voting instead of number of votes per day limiting.
+voting power limited voting instead of number of votes per day limiting._
 
 #### Summary of threshold calculation
 

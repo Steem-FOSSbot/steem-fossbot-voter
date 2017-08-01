@@ -323,12 +323,13 @@ function runBot(callback, options) {
       persistentLog(LOG_GENERAL, "checking we have enough voting power...");
       var deferred = Q.defer();
       // get posts
-      persistentLog(LOG_VERBOSE, "Enough voting power ("+owner.voting_power+" < "+configVars.MIN_VOTING_POWER+") ?");
-      if (owner.voting_power < configVars.MIN_VOTING_POWER) {
-        persistentLog(LOG_GENERAL, " - voting power "+owner.voting_power+
+      var percentageVp = owner.voting_power / 100;
+      persistentLog(LOG_VERBOSE, "Enough voting power ("+percentageVp+" < "+configVars.MIN_VOTING_POWER+") ?");
+      if (ownerpercentageVp < configVars.MIN_VOTING_POWER) {
+        persistentLog(LOG_GENERAL, " - voting power "+percentageVp+
           " is less than config min of " + configVars.MIN_VOTING_POWER+
           ", will not continue");
-        throw {message: "Not enough voting power ("+owner.voting_power+" < "+configVars.MIN_VOTING_POWER+")"};
+        throw {message: "Not enough voting power ("+percentageVp+" < "+configVars.MIN_VOTING_POWER+")"};
       }
       deferred.resolve(true);
       return deferred.promise;
@@ -1839,7 +1840,7 @@ function getUserAccount(callback) {
               console.log("latest block time: "+owner.latest_block_time.toISOString());
               // adjust voting power
               var lastVoteTime = moment(owner.last_vote_time);
-              var secondsDiff = owner.latest_block_time.seconds() - lastVoteTime.seconds();
+              var secondsDiff = (owner.latest_block_time.valueOf() - lastVoteTime.valueOf()) / 1000;
               if (secondsDiff > 0) {
                 var vpRegenerated = secondsDiff * 10000 / 86400 / 5;
                 owner.voting_power += vpRegenerated;

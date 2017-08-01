@@ -134,7 +134,10 @@ The number in brackets is the default value:
 Most people will want to edit these
 
 1. **MAX_VOTES_IN_24_HOURS** (```50```): Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today.
-2. **MIN_POST_AGE_TO_CONSIDER** (```30```): Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then
+2. **MIN_POST_AGE_TO_CONSIDER** (```21.22```): Number of minutes minimum 
+to consider voting on a post. Any post younger than this time will be 
+discarded for consideration at next run, if old enough then. For number 
+explanation see [the discussion doc](/docs/discussion.md).
 3. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
 4. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
     - for ```0```, email is sent for every bot run

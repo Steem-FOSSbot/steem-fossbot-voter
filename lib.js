@@ -1239,8 +1239,7 @@ function runBot(callback, options) {
                 } catch (err) {
                   persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink);
                 }
-                numVotedOn++;
-                persistentLog(LOG_GENERAL, " - - - - voted on vote " + numVotedOn + " of " + numToVoteOn);
+                persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
                 // wait 5 seconds
                 persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {

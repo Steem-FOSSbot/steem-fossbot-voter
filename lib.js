@@ -2000,7 +2000,8 @@ function persistJson(key, json, callback) {
     }
   });
   var str = JSON.stringify(json);
-  persistentLog(LOG_VERBOSE, "persistJson for key "+key+", has JSON as str: "+str);
+  //persistentLog(LOG_VERBOSE, "persistJson for key "+key+", has JSON as
+  // str: "+str);
   redisClient.set(key, str, function(err) {
     if (err) {
       setError(null, false, "persistJson redis error for key "+key+": "+err.message);

@@ -1099,9 +1099,7 @@ app.get("/edit-config", function(req, res) {
   var change = false;
   var html_title = "<h3 class=\"sub-header\">";
   if (req.query.MAX_VOTES_IN_24_HOURS) {
-    configVars.MAX_VOTES_IN_24_HOURS = Number(atob(req.query.MAX_VOTES_IN_24_HOURS));
-    change = true;
-    html_title += "Updated MAX_VOTES_IN_24_HOURS";
+    // nothing
   } else if (req.query.MIN_POST_AGE_TO_CONSIDER) {
     configVars.MIN_POST_AGE_TO_CONSIDER = Number(atob(req.query.MIN_POST_AGE_TO_CONSIDER));
     change = true;
@@ -1158,6 +1156,24 @@ app.get("/edit-config", function(req, res) {
     configVars.MIN_KEYWORD_FREQ = atob(req.query.MIN_KEYWORD_FREQ);
     change = true;
     html_title += "Updated MIN_KEYWORD_FREQ";
+  } else if (req.query.MIN_VOTING_POWER) {
+    configVars.MIN_VOTING_POWER = atob(req.query.MIN_VOTING_POWER);
+    if (configVars.MIN_VOTING_POWER < 0) {
+      configVars.MIN_VOTING_POWER = 0;
+    } else if (configVars.MIN_VOTING_POWER > 100) {
+      configVars.MIN_VOTING_POWER = 100;
+    }
+    change = true;
+    html_title += "Updated MIN_VOTING_POWER";
+  } else if (req.query.VOTE_VOTING_POWER) {
+    configVars.VOTE_VOTING_POWER = atob(req.query.VOTE_VOTING_POWER);
+    if (configVars.VOTE_VOTING_POWER < 0) {
+      configVars.VOTE_VOTING_POWER = 0;
+    } else if (configVars.VOTE_VOTING_POWER > 100) {
+      configVars.VOTE_VOTING_POWER = 100;
+    }
+    change = true;
+    html_title += "Updated VOTE_VOTING_POWER";
   }
   html_title += "</h3>"
   if (change) {
@@ -1196,8 +1212,7 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     return;
   }
   if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
-    configVars.MAX_VOTES_IN_24_HOURS = newConfigVars.MAX_VOTES_IN_24_HOURS;
-    change = true;
+    // nothing
   }
   if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
     configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;

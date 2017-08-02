@@ -74,7 +74,8 @@
                 <td></td>
                 <th></th>
             </tr>
-            <tr>
+            <!-- removed in #90, TODO : remove this -->
+            <!--tr>
                 <td>MAX_VOTES_IN_24_HOURS</td>
                 <td>Maximum number of votes in 24 hours. This is actually more like a target and works to increase the score threshold proportional to the number of votes already cast today</td>
                 <td>
@@ -83,7 +84,7 @@
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(0)" role="button">Update</a></p></th>
-            </tr>
+            </tr-->
             <tr>
                 <td>MIN_POST_AGE_TO_CONSIDER</td>
                 <td>Number of minutes minimum to consider voting on a post. Any post younger than this time will be discarded for consideration at next run, if old enough then</td>
@@ -113,6 +114,26 @@
                     </form>
                 </td>
                 <th><p><a class="btn btn-default" href="javascript:updateVar(3)" role="button">Update</a></p></th>
+            </tr>
+            <tr>
+                <td>MIN_VOTING_POWER</td>
+                <td>Do not vote if voting power left on account is less than this value</td>
+                <td>
+                    <form class="form-add">
+                        <input type="number" name="input_field_15" id="input_field_15" placeholder="0">
+                    </form>
+                </td>
+                <th><p><a class="btn btn-default" href="javascript:updateVar(15)" role="button">Update</a></p></th>
+            </tr>
+            <tr>
+                <td>VOTE_VOTING_POWER</td>
+                <td>Vote power used when casting votes</td>
+                <td>
+                    <form class="form-add">
+                        <input type="number" name="input_field_16" id="input_field_16" placeholder="0">
+                    </form>
+                </td>
+                <th><p><a class="btn btn-default" href="javascript:updateVar(16)" role="button">Update</a></p></th>
             </tr>
             <tr>
                 <th>Advanced</th>

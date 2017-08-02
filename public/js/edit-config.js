@@ -14,7 +14,9 @@ var fieldNames = [
   "MIN_KEYWORD_LEN",
   "DAYS_KEEP_LOGS",
   "MIN_LANGUAGE_USAGE_PC",
-  "MIN_KEYWORD_FREQ"
+  "MIN_KEYWORD_FREQ",
+  "MIN_VOTING_POWER",
+  "VOTE_VOTING_POWER"
 ];
 
 function updateVar(index) {

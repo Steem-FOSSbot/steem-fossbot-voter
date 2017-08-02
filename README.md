@@ -113,10 +113,14 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Note
 
-In the next version of Voter the Redis database will be changed for a MongoDB database.
+In the next minor version of Voter the Redis database will be changed for a 
+MongoDB database.
 
 ## Changelog
 
+- v0.2.9
+  - Swtich to voting power conservation instead of max votes per day
+  - Completed issues #7, #87, 25, #71, #90
 - v0.2.8
   - Bugfixes for issues #27, #1, #63, #41, #24, #69, #70, #54, #62, #74, #84, #77, #78
 - v0.2.7

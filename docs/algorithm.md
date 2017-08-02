@@ -71,6 +71,8 @@ The threshold is calculated in two steps:
 
 1. Get average of post scores in the sliding window, i.e. up to the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts
 2. Increase this average by ```SCORE_THRESHOLD_INC_PC```
+3. Increase this average approaching maximum threshold for vote as 
+account voting power approaches ```MIN_VOTING_POWER```
 
 #### 1. Calculate average score
 
@@ -84,9 +86,20 @@ This feature is intended to raise the average so that we don't end up just votin
 
 Values of up to 0.6 or 60% can also work.
 
-_Note that a third step, "Increase in proportion to today's votes" was 
-taken out in v0.2.9 in order to simplify the algorithm and switch to 
-voting power limited voting instead of number of votes per day limiting._
+#### 3. Increase in as voting power decreases to minimum
+
+In order to maintain voting power and spread votes over a longer period 
+of time (not vote all in one go and then have no voting power left), we 
+increase the threshold as voting power decreases after every vote, as 
+voting power approaches ```MIN_VOTING_POWER```
+
+Voting power will regenerate according to the blockchain algorithm (see 
+[the discussion doc](/docs/discussion.md) for more information on the 
+rate-limited voting of Steem).
+
+```increase amount = (max score in window - (average + percentage_increase)) * (difference_in_voting_power_from_100% / (100 - MIN_VOTING_POWER))```
+
+Note also that the effect is linear (as of change in issue #24). 
 
 #### Summary of threshold calculation
 
@@ -118,8 +131,7 @@ discarded for consideration at next run, if old enough then. For number
 explanation see [the discussion doc](/docs/discussion.md).
 2. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in
  tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
-3. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1
- = on```.
+3. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
     - for ```0```, email is sent for every bot run
     - for ```1```, digest email of the day is sent on the first run of the next day, so a little after midnight
 4. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on 
@@ -134,7 +146,7 @@ Edit with caution, setting these incorrectly can really break the bot
 2. **MIN_WORDS_FOR_ARTICLE** (```100```): Minimum number of words for a post to be considered as having article content.
 3. **NUM_POSTS_FOR_AVG_WINDOW** (```10```): Maximum number of posts used for averaging window used to determine baseline threshold score
 4. **MIN_SCORE_THRESHOLD** (```10```): Minimum score value for thresholding. Anything below this will not be added to averaging and so will be discarded. Also no post with score less than this will be voted on.
-5. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when caluclating threshold. See Threshold Calculation above.
+5. **SCORE_THRESHOLD_INC_PC** (```0.1``` i.e. ```10%```): Ratio / percentage increase on average when calculating threshold. See Threshold Calculation above.
 6. **CAPITAL_DOLPHIN_MIN** (```25000```): Minimum Steem Power to qualify as a _dolphin_
 7. **CAPITAL_WHALE_MIN** (```100000```): Minimum Steem Power to qualify as a _whale_
 8. **MIN_KEYWORD_LEN** (```4```): Minimum number of characters for a word to be considered a keyword

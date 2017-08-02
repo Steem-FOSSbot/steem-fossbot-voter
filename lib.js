@@ -1104,134 +1104,188 @@ function runBot(callback, options) {
     },
     // choose posts to vote on based on scores
     function () {
-      persistentLog(LOG_GENERAL, "choose posts to vote on based on scores...");
+      persistentLog(LOG_GENERAL, "choose posts to vote on based on" +
+        " scores and vote...");
       var deferred = Q.defer();
-      var upVotesProcessed = 0;
-      var isFirst = true;
-      var avgWindowInfo_copy = clone(avgWindowInfo);
-      // perform check, if this is the first time the bot is run, make the threshold window out of the first
-      //    NUM_POSTS_FOR_AVG_WINDOW number of posts, or less if not that many are equal to or above MIN_SCORE_THRESHOLD
-      if (avgWindowInfo.postScores.length == 0) {
-        persistentLog(LOG_VERBOSE, " - first bot run, looking ahead to create scores window");
-        var count = 0;
-        for (var i = 0 ; i < posts.length ; i++) {
+      wait.launchFiber(function() {
+        var upVotesProcessed = 0;
+        var isFirst = true;
+        var avgWindowInfo_copy = clone(avgWindowInfo);
+        // perform check, if this is the first time the bot is run, make the threshold window out of the first
+        //    NUM_POSTS_FOR_AVG_WINDOW number of posts, or less if not that many are equal to or above MIN_SCORE_THRESHOLD
+        if (avgWindowInfo.postScores.length == 0) {
+          persistentLog(LOG_VERBOSE, " - first bot run, looking ahead to create scores window");
+          var count = 0;
+          for (var i = 0; i < posts.length; i++) {
+            if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
+              avgWindowInfo.postScores.push(postsMetadata[i].score);
+              if (count++ >= configVars.NUM_POSTS_FOR_AVG_WINDOW) {
+                break;
+              }
+            }
+          }
+          persistentLog(LOG_VERBOSE, " - created window from " + count + " scores");
+        }
+        for (var i = 0; i < posts.length; i++) {
+          var thresholdInfo = {
+            min: configVars.MIN_SCORE_THRESHOLD
+          };
+          // add this score first, if meets minimum
           if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
             avgWindowInfo.postScores.push(postsMetadata[i].score);
-            if (count++ >= configVars.NUM_POSTS_FOR_AVG_WINDOW) {
-              break;
+          }
+          // recalculate avgerage based on window value
+          persistentLog(LOG_VERBOSE, " - - recalculating score threshold with window:" + JSON.stringify(avgWindowInfo.postScores));
+          // calculate average
+          var avg = 0;
+          var maxScore = configVars.MIN_SCORE_THRESHOLD;
+          var count = 0;
+          for (var j = 0; j < avgWindowInfo.postScores.length; j++) {
+            if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
+              avg += avgWindowInfo.postScores[j];
+              count++;
+              if (avgWindowInfo.postScores[j] > maxScore) {
+                maxScore = avgWindowInfo.postScores[j];
+              }
             }
           }
-        }
-        persistentLog(LOG_VERBOSE, " - created window from "+count+" scores");
-      }
-      for (var i = 0 ; i < posts.length ; i++) {
-        var thresholdInfo = {
-          min: configVars.MIN_SCORE_THRESHOLD
-        };
-        // add this score first, if meets minimum
-        if (postsMetadata[i].score >= configVars.MIN_SCORE_THRESHOLD) {
-        	avgWindowInfo.postScores.push(postsMetadata[i].score);
-        }
-        // recalculate avgerage based on window value
-        persistentLog(LOG_VERBOSE, " - - recalculating score threshold with window:"+JSON.stringify(avgWindowInfo.postScores));
-        // calculate average
-        var avg = 0;
-        var maxScore = configVars.MIN_SCORE_THRESHOLD;
-        var count = 0;
-        for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
-          if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
-            avg += avgWindowInfo.postScores[j];
-            count++;
-            if (avgWindowInfo.postScores[j] > maxScore) {
-              maxScore = avgWindowInfo.postScores[j];
+          if (count > 0) {
+            avg /= count;
+          }
+          thresholdInfo.average = avg;
+          // calculate variance
+          var variance = 0;
+          for (var j = 0; j < avgWindowInfo.postScores.length; j++) {
+            if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
+              variance += Math.pow(avgWindowInfo.postScores[j] - avg, 2);
             }
           }
-        }
-        if (count > 0) {
-          avg /= count;
-        }
-        thresholdInfo.average = avg;
-        // calculate variance
-        var variance = 0;
-        for (var j = 0 ; j < avgWindowInfo.postScores.length ; j++) {
-          if (avgWindowInfo.postScores[j] > configVars.MIN_SCORE_THRESHOLD) {
-            variance += Math.pow(avgWindowInfo.postScores[j] - avg, 2);
+          if (count > 0) {
+            variance /= count;
           }
-        }
-        if (count > 0) {
-          variance /= count;
-        }
-        thresholdInfo.variance = variance;
-        // calculate threshold
-        var threshold = avg;
-        if (threshold < configVars.MIN_SCORE_THRESHOLD) {
-          threshold = configVars.MIN_SCORE_THRESHOLD;
-          // stats
-          thresholdInfo.percentInc = 0;
-          thresholdInfo.total = threshold;
-        } else {
-          // first apply percentage increase on threshold,
-          //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
-          // #74, as of this ticket, use as percentage of variance, but cannot exceed same
-          //    percentage of threshold (average)
-          thresholdInfo.percentInc = variance * configVars.SCORE_THRESHOLD_INC_PC;
-          if (thresholdInfo.percentInc > (threshold * configVars.SCORE_THRESHOLD_INC_PC)) {
-            thresholdInfo.percentInc = threshold * configVars.SCORE_THRESHOLD_INC_PC;
-          }
-          threshold += thresholdInfo.percentInc;
-          // #90, removed thresholdInfo.voteAdjustmentInc completely as
-          // is now obsolete due to removal of MAX_VOTES_IN_24_HOURS
-          thresholdInfo.total = threshold;
-          if (thresholdInfo.total < configVars.MIN_SCORE_THRESHOLD) {
-            thresholdInfo.total = configVars.MIN_SCORE_THRESHOLD;
-          }
-        }
-        avgWindowInfo.scoreThreshold = thresholdInfo.total;
-        postsMetadata[i].thresholdInfo = thresholdInfo;
-        persistentLog(LOG_VERBOSE, " - - - new avg / score threshold: "+avgWindowInfo.scoreThreshold);
-        persistentLog(LOG_VERBOSE, " - - - - new threshold info: "+JSON.stringify(thresholdInfo));
-        // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
-        if ((avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
-          var newScoresWindow = [];
-          for (var j = avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW ; j < avgWindowInfo.postScores.length ; j++) {
-            newScoresWindow.push(avgWindowInfo.postScores[j]);
-          }
-          avgWindowInfo.postScores = newScoresWindow;
-        }
+          thresholdInfo.variance = variance;
+          // calculate threshold
+          var threshold = avg;
+          if (threshold < configVars.MIN_SCORE_THRESHOLD) {
+            threshold = configVars.MIN_SCORE_THRESHOLD;
+            // stats
+            thresholdInfo.percentInc = 0;
+            thresholdInfo.total = threshold;
+          } else {
+            // first apply percentage increase on threshold,
+            //   i.e. must be SCORE_THRESHOLD_INC_PC % better than average to be selected
+            // #74, as of this ticket, use as percentage of variance, but cannot exceed same
+            //    percentage of threshold (average)
+            thresholdInfo.percentInc = variance * configVars.SCORE_THRESHOLD_INC_PC;
+            if (thresholdInfo.percentInc > (threshold * configVars.SCORE_THRESHOLD_INC_PC)) {
+              thresholdInfo.percentInc = threshold * configVars.SCORE_THRESHOLD_INC_PC;
+            }
+            threshold += thresholdInfo.percentInc;
+            // #90, removed thresholdInfo.voteAdjustmentInc completely as
+            // is now obsolete due to removal of MAX_VOTES_IN_24_HOURS
 
-        // check if post score is above threshold, set to vote if is
-        if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
-          postsMetadata[i].vote = true;
-          upVotesProcessed++;
-          persistentLog(LOG_VERBOSE, " - - "+postsMetadata[i].score+" >= "+avgWindowInfo.scoreThreshold+", WILL vote on post ["+posts[i].permlink+"]");
-          if (options == null || !options.hasOwnProperty("test") || !options.test ) {
-            addDailyLikedPost(postsMetadata[i], isFirst);
-            isFirst = false;
+            // #7 : TODO add vote throttling based on voting power
+            // TODO - closeness to minimum
+            /*
+            thresholdInfo.voteAdjustmentInc = (maxScore - threshold)
+              * ((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS);
+            if (thresholdInfo.voteAdjustmentInc < 0) {
+              thresholdInfo.voteAdjustmentInc = 0;
+            }
+            threshold += thresholdInfo.voteAdjustmentInc;
+            */
+
+            thresholdInfo.total = threshold;
+            if (thresholdInfo.total < configVars.MIN_SCORE_THRESHOLD) {
+              thresholdInfo.total = configVars.MIN_SCORE_THRESHOLD;
+            }
           }
-        } else {
+          avgWindowInfo.scoreThreshold = thresholdInfo.total;
+          postsMetadata[i].thresholdInfo = thresholdInfo;
+          persistentLog(LOG_VERBOSE, " - - - new avg / score threshold: " + avgWindowInfo.scoreThreshold);
+          persistentLog(LOG_VERBOSE, " - - - - new threshold info: " + JSON.stringify(thresholdInfo));
+          // prune scores in window list to keep at NUM_POSTS_FOR_AVG_WINDOW size
+          if ((avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW) >= 0) {
+            var newScoresWindow = [];
+            for (var j = avgWindowInfo.postScores.length - configVars.NUM_POSTS_FOR_AVG_WINDOW; j < avgWindowInfo.postScores.length; j++) {
+              newScoresWindow.push(avgWindowInfo.postScores[j]);
+            }
+            avgWindowInfo.postScores = newScoresWindow;
+          }
+
+          // check if post score is above threshold, set to vote if is
           postsMetadata[i].vote = false;
-          persistentLog(LOG_VERBOSE, " - - "+postsMetadata[i].score+" < "+avgWindowInfo.scoreThreshold+", WILL NOT vote on post ["+posts[i].permlink+"]");
-        }
+          if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
+            if (options == null || !options.hasOwnProperty("test") || !options.test) {
+              // #7 first check if we have voting power
+              var percentageVp = owner.voting_power / 100;
+              persistentLog(LOG_VERBOSE, " - - - checking if enough" +
+                " voting power" +
+                " (" + percentageVp + " >= " + configVars.MIN_VOTING_POWER + ") ?");
+              if (percentageVp >= configVars.MIN_VOTING_POWER) {
+                // housekeeping
+                persistentLog(LOG_VERBOSE, " - - " + postsMetadata[i].score + " >= " + avgWindowInfo.scoreThreshold + ", WILL vote on post [" + posts[i].permlink + "]");
+                postsMetadata[i].vote = true;
+                upVotesProcessed++;
+                addDailyLikedPost(postsMetadata[i], isFirst);
+                isFirst = false;
+                // #7 now voting here
+                // vote!
+                try {
+                  var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
+                    process.env.STEEM_USER, postsMetadata[i].author,
+                    postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
+                  persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
+                } catch (err) {
+                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink);
+                }
+                numVotedOn++;
+                persistentLog(LOG_GENERAL, " - - - - voted on vote " + numVotedOn + " of " + numToVoteOn);
+                // wait 5 seconds
+                persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
+                var timeOutWrapper = function (delay, func) {
+                  setTimeout(function () {
+                    func(null, true);
+                  }, delay);
+                };
+                wait.for(timeOutWrapper, 5000);
+                persistentLog(LOG_VERBOSE, " - - - finished waiting");
+                // update accounts _after_ attempting vote
+                var account = wait.for(steem_getAccounts_wrapper)[0];
+                // don't do regeneration, will be up to date
+                owner.voting_power = account.voting_power;
+                persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
+              } else {
+                persistentLog(LOG_GENERAL, " - - - - NOT voting on " + postsMetadata[i].permlink + ", VP is " + percentageVp);
+              }
+            } else {
+              persistentLog(LOG_VERBOSE, " - - - not voting, this is a" +
+                " test");
+            }
+          } else {
+            persistentLog(LOG_VERBOSE, " - - " + postsMetadata[i].score + " < " + avgWindowInfo.scoreThreshold + ", WILL NOT vote on post [" + posts[i].permlink + "]");
+          }
 
-      }
-      // restore avgWindowInfo
-      if (options != null && options.test) {
-        avgWindowInfo = avgWindowInfo_copy;
-      }
-      // save updated avgWindowInfo
-      persistentLog(LOG_VERBOSE, " - saving avg_window_info");
-      persistJson("avg_window_info", avgWindowInfo, function(err) {
-        if (err) {
-          persistentLog(LOG_GENERAL, " - - ERROR SAVING avg_window_info");
         }
+        // restore avgWindowInfo
+        if (options != null && options.test) {
+          avgWindowInfo = avgWindowInfo_copy;
+        }
+        // save updated avgWindowInfo
+        persistentLog(LOG_VERBOSE, " - saving avg_window_info");
+        persistJson("avg_window_info", avgWindowInfo, function (err) {
+          if (err) {
+            persistentLog(LOG_GENERAL, " - - ERROR SAVING avg_window_info");
+          }
+        });
+        // finish
+        deferred.resolve(true);
       });
-      // finish
-      deferred.resolve(true);
       return deferred.promise;
     },
-    // return http before casting votes
+    // return http after casting votes
     function () {
-      persistentLog(LOG_GENERAL, "return http before casting votes...");
+      persistentLog(LOG_GENERAL, "return http after casting votes...");
       var deferred = Q.defer();
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
       if (options !== undefined && options.hasOwnProperty("local") && options.local) {
@@ -1257,75 +1311,6 @@ function runBot(callback, options) {
       } else {
         persistentLog(LOG_GENERAL, " - - NOT saving postsmetadata, this is a test run");
         // finish
-        deferred.resolve(true);
-      }
-      return deferred.promise;
-    },
-    // cast votes to steem
-    function () {
-      persistentLog(LOG_GENERAL, "cast votes to steem...");
-      var deferred = Q.defer();
-      var count = 0;
-      // cast vote
-      persistentLog(LOG_VERBOSE, " - voting");
-      if (postsMetadata.length > 0) {
-        wait.launchFiber(function() {
-          var numToVoteOn = 0;
-          for (var i = 0 ; i < postsMetadata.length ; i++) {
-            var doVote = true;
-            if (options !== undefined && options.test) {
-              doVote = false;
-            }
-            if (doVote) {
-              if (postsMetadata[i].vote) {
-                numToVoteOn++;
-              }
-            }
-          }
-          persistentLog(LOG_GENERAL, " - num posts to vote on: "+numToVoteOn);
-          numVoteOn = numToVoteOn;
-          var numVotedOn = 0;
-          for (var i = 0 ; i < postsMetadata.length ; i++) {
-            persistentLog(LOG_VERBOSE, " - - - "+(postsMetadata[i].vote ? "YES" : "NO")+" vote on post, score: "
-                +postsMetadata[i].score+", permlink: "+postsMetadata[i].permlink);
-            var doVote = true;
-            if (options !== undefined && options.test) {
-              doVote = false;
-            }
-            if (doVote) {
-              if (postsMetadata[i].vote) {
-                // vote!
-                try {
-                  var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
-                        process.env.STEEM_USER, postsMetadata[i].author,
-                        postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
-                  persistentLog(LOG_GENERAL, " - - - - upvoted with result: "+JSON.stringify(upvoteResult));
-                } catch (err) {
-                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: "+postsMetadata[i].permlink);
-                }
-                numVotedOn++;
-                persistentLog(LOG_GENERAL, " - - - - voted on vote " + numVotedOn + " of "+numToVoteOn);
-                // wait 5 seconds
-                persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
-                var timeOutWrapper = function (delay, func) {
-                  setTimeout(function() {
-                    func(null, true);
-                  }, delay);
-                }
-                var timeOutResult = wait.for(timeOutWrapper, 5000);
-                persistentLog(LOG_VERBOSE, " - - - finished waiting");
-              } else {
-                persistentLog(LOG_VERBOSE, " - - - - not voting on post: "+postsMetadata[i].permlink);
-              }
-            } else {
-              persistentLog(LOG_VERBOSE, " - - - - TEST, not voting on post: "+postsMetadata[i].permlink);
-            }
-          }
-          persistentLog(LOG_GENERAL, " - finished voting");
-          deferred.resolve(true);
-        });
-      } else {
-        persistentLog(LOG_GENERAL, " - - no post to vote on");
         deferred.resolve(true);
       }
       return deferred.promise;
@@ -1377,6 +1362,12 @@ function runBot(callback, options) {
         }, 10000);
       }
     });
+  });
+}
+
+function steem_getAccounts_wrapper(callback) {
+  steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
+    callback(err, result);
   });
 }
 

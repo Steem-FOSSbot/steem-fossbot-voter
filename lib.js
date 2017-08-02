@@ -1182,18 +1182,18 @@ function runBot(callback, options) {
             }
             threshold += thresholdInfo.percentInc;
             // #90, removed thresholdInfo.voteAdjustmentInc completely as
-            // is now obsolete due to removal of MAX_VOTES_IN_24_HOURS
-
-            // #7 : TODO add vote throttling based on voting power
-            // TODO - closeness to minimum
-            /*
-            thresholdInfo.voteAdjustmentInc = (maxScore - threshold)
-              * ((owner.num_votes_today + upVotesProcessed)/ configVars.MAX_VOTES_IN_24_HOURS);
-            if (thresholdInfo.voteAdjustmentInc < 0) {
-              thresholdInfo.voteAdjustmentInc = 0;
-            }
-            threshold += thresholdInfo.voteAdjustmentInc;
-            */
+            //   is now obsolete due to removal of MAX_VOTES_IN_24_HOURS
+            // #7 : add vote throttling based on voting power closeness
+            //   to minimum
+            var vpDiffFrom100 = (100 - (owner.voting_power / 100));
+            if (vpDiffFrom100 > 0) {
+              thresholdInfo.voteAdjustmentInc = (maxScore - threshold)
+                * (vpDiffFrom100 / (100 - configVars.MIN_VOTING_POWER));
+              if (thresholdInfo.voteAdjustmentInc < 0) {
+                thresholdInfo.voteAdjustmentInc = 0;
+              }
+              threshold += thresholdInfo.voteAdjustmentInc;
+            } // else nothing to add
 
             thresholdInfo.total = threshold;
             if (thresholdInfo.total < configVars.MIN_SCORE_THRESHOLD) {

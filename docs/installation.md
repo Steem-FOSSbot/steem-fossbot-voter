@@ -14,9 +14,19 @@ _Guide not available yet (will require some supporting changes) but you are free
 
 _Please be advised to read the Heroku [Terms of Service](https://www.heroku.com/policy/tos) and [Privacy Statement](https://www.heroku.com/policy/privacy) very carefully before creating an account._
 
-_Also be advised that you may have to verify your Heroku account to use the add-ons which provide auto bot scheduling and email sending. Verifying can involve a bank card but at time of writing does not require any transaction to be made._
+_There is a usage limit to the free account on Heroku which you should 
+familiarise yourself with._
 
-_Finally, there is a usage limit to the free account on Heroku which you should familiarise yourself with._
+#### Important - Heroku requires credit or bank card and person details for sign up
+
+Be advised that you may have to verify your Heroku account to use the 
+add-ons which provide auto bot scheduling and email sending. Verifying 
+involves a bank card but at time of writing does not require any transaction
+to be made.
+
+If you are not comfortable with this you can try a local install instead 
+or use a different service such as OpenShift. However at this time I do 
+not have installation instructions for any other platform.
 
 #### Generating a BOT_API_KEY
 

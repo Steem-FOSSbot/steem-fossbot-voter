@@ -18,6 +18,27 @@ _Also be advised that you may have to verify your Heroku account to use the add-
 
 _Finally, there is a usage limit to the free account on Heroku which you should familiarise yourself with._
 
+#### Generating a BOT_API_KEY
+
+Before continuing you will need to generate a ```BOT_API_KEY```. This can
+ be any kind of series of letters and numbers, e.g. ```asdliHSFH38fif8s```
+ 
+It is used to "log in" to your bot on the web app interface. It's 
+important because it is your way to change settings, etc. You could also 
+safely share it with a third party who can access it from the internet but 
+they would not able to access you private keys, just the bot, so it's 
+handy. 
+ 
+I advise you set a randomly generated key. If you are on Linux or Mac and
+ have OpenSSL installed you can use the following command.
+ 
+```openssl rand 24 -hex```
+
+Otherwise you can generate it with a password manager, etc. I would not 
+recommend using a website service though, you should generate it locally. 
+
+#### The steps
+
 1. Create a Heroku account
 2. Deploy this project to the Heroku using the Heroku Button above
 3. Choose a name for your Voter bot (if you want)

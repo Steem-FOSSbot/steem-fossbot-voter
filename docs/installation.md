@@ -89,6 +89,17 @@ The task has now been created.
 
 If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after an hour to confirm the script was run, as it shows the last time the scheduler was activated here.
 
+#### Note, Scheduler is "best effort"
+
+The Heroku Scheduler add-on is a "best effort" service and may not run every time it is supposed to.
+
+From their docs:
+
+> Scheduler is a “best effort” service, meaning that execution is expected but not guaranteed. Scheduler is known to occasionally (but rarely) miss the execution of scheduled jobs. If scheduled jobs are a critical component of your application, it is recommended to run a custom clock process instead for more reliability, control, and visibility.
+
+In my experience it is _quite_ reliable but it does miss the occasional 
+call or delay it.
+
 ### (Optional) Set up email notifications
 
 You can optionally use SendMail to send email notifications and summaries of your server and bot's activity. SendMail was chosen because it has a good add-on integration with Heroku, and seems respect data protection.

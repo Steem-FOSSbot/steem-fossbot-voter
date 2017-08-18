@@ -801,7 +801,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
 function editAlgoExec(res, message) {
   lib.getPersistentObj("algorithm", function(err, algorithmResult) {
     var algorithm = {};
-    if (err !== undefined || algorithmResult === undefined || algorithmResult === null) {
+    if (err || algorithmResult === undefined || algorithmResult === null) {
       console.log(" - no algorithm in db, USING DEFAULT");
       // TODO : remove this default algorithm setting
       algorithm = {

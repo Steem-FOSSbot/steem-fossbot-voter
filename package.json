@@ -28,7 +28,6 @@
     "cookies": "^0.6.2",
     "steem": "^0.4.7",
     "q": "1.4.1",
-    "redis": "2.6.3",
     "glossary": "0.1.1",
     "string": "3.3.3",
     "strip-markdown": "3.0.0",
@@ -39,6 +38,7 @@
     "languagedetect": "1.1.1",
     "moment": "2.17.1",
     "moment-timezone": "0.5.11",
-    "atob": "2.0.3"
+    "atob": "2.0.3",
+    "mongodb": "2.0.43"
   }
 }

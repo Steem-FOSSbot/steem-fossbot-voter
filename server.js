@@ -55,7 +55,10 @@ var
 
 var
   html_msg_api_err_body = "API key was not correct.<br/>If you are the owner, please check or re-issue your key.<br/>If you do not have access to this service, please contact the owner.<br/><br/>You might need to supply your API key again in at the <a href=\"/\">Dashboard</a>",
-  html_msg_run_bot_body = "Bot successfully run.<br/>The votes will take a few seconds to be cast and registered on Steemit because of cast limiting.<br/>You can check the logs in a few minutes or wait for the email if you have set that up.";
+  html_msg_run_bot_body = "The processing and votes will take a few" +
+    " minutes to be cast and registered on Steemit because of the" +
+    " processing time and Steemit vote cast limiting.<br/>You can check" +
+    " the stats and logs in a few minutes to see the results.";
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -690,35 +693,12 @@ app.get("/run-bot", function(req, res) {
         createMsgPageHTML("Run Bot", "Algorithm is not yet set!<br/>Go to <strong>Edit Algo</strong> from the dashboard to create it."));
       return;
     }
-    lib.runBot(function(obj) {
-      //console.log("lib.runBot returned: " + JSON.stringify(obj));
-      if (obj) {
-        if (req.query.json) {
-          // return json directly
-          res.status(obj.status).json(obj);
-        } else {
-          // default to show in logs (same as /stats endpoint)
-          lib.getPersistentString("last_log_html", function(err, logs) {
-            var html_logs = "<html><body><h1>No logs yet, please run bot for first time!</h1></body></html>";
-            if (logs != null) {
-              html_logs = logs;
-            }
-            saveStringToFile("public/tmp-stats.html", html_logs, function(err) {
-              if (err) {
-                handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
-              } else {
-                // #2, redirect to stats page instead
-                execStats(req, res);
-                //res.status(200).send(
-                //  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
-              }
-            });
-          });
-        }
-      } else {
-        handleError(res, "/run-bot Internal error", "Run bot: Bot run failed internally, consult logs", 500);
-      }
-    });
+    // #86, fork this process to start bot via bot.js, same as scheduled
+    // method
+    var fork = require('child_process').fork;
+    var child = fork('./bot.js');
+    res.status(200).send(
+      createMsgPageHTML("Bot script started.", html_msg_run_bot_body));
   });
 });
 

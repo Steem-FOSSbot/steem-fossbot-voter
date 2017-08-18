@@ -1755,7 +1755,7 @@ function getPersistentObj(key, callback) {
       setError(null, false, "getPersistentObj error for key "+key+": "+err);
       callback(err);
     } else {
-      callback(null, obj[0]);
+      callback(null, obj[0].obj);
     }
   });
 }

@@ -1795,10 +1795,14 @@ function updateWeightMetric(query, apiKey, callback) {
     if (!match) {
       algorithm.weights.push(query);
     }
-    persistObj("algorithm", algorithm);
-    if (callback !== undefined) {
-      callback({status: 200, message: "Added key to algorithm: "+query.key});
-    }
+    persistObj("algorithm", algorithm, function (err, result) {
+      if (err) {
+        callback({status: 200, message: "Failed to save updated" +
+        " algorithm: "+err});
+      } else {
+        callback({status: 200, message: "Added key to algorithm: "+query.key});
+      }
+    });
   });
 }
 

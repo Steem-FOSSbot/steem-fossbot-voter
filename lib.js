@@ -1727,11 +1727,18 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 persistObj(key, string):
 */
 function persistObj(key, obj, callback) {
-  db.collection(DB_GENERAL).save(
-    {
-      key: key,
-      obj: obj
-    }, function (err, data) {
+  db.collection(DB_GENERAL).find({key: key}, function (err, existing) {
+    var saveObj;
+    if (err || existing === undefined || existing === null) {
+      saveObj = {
+        key: key,
+        obj: obj
+      };
+    } else {
+      saveObj = existing;
+      saveObj.obj = obj;
+    }
+    db.collection(DB_GENERAL).save(saveObj, function (err, data) {
       if (err !== undefined && err !== null) {
         setError(null, false, "persistObj error for key "+key+": "+err);
         if (callback !== undefined) {
@@ -1744,6 +1751,7 @@ function persistObj(key, obj, callback) {
         }
       }
     });
+  });
 }
 
 /*

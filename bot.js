@@ -9,19 +9,17 @@ console.log("calling initSteem...");
 lib.initSteem(function() {
   if (lib.hasFatalError()) {
     console.log("initSteem failed!");
-    lib.sendEmail("Voter bot", "initSteem failed, please see logs");
+    process.exit();
   } else {
     console.log("calling runBot...");
-    lib.runBot(function(msg) {
-      if (process.env.VERBOSE_LOGGING !== undefined
-        && process.env.VERBOSE_LOGGING !== null
-        && process.env.VERBOSE_LOGGING.toLowerCase().localeCompare("true") === 0) {
-        console.log("(bot.js) runBot finished with message: "+JSON.stringify(msg));
+    lib.runBot(function(result) {
+      if (result !== undefined && result !== null) {
+        console.log("(bot.js) runBot finished successfully");
       } else {
-        console.log("(bot.js) runBot finished");
+        console.log("(bot.js) runBot finished with failure");
       }
       // #53, stop this process as it may stay alive indefinitely
       process.exit();
-    }, {local: true});
+    });
   }
 });

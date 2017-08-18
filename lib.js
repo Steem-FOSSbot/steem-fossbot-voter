@@ -191,7 +191,6 @@ var defaultConfigVars = {
   MIN_POST_AGE_TO_CONSIDER: 21.22,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
-  EMAIL_DIGEST: 0,
   MIN_KEYWORD_FREQ: 3,
   MIN_VOTING_POWER: 50,
   VOTE_VOTING_POWER: 100
@@ -210,7 +209,6 @@ var configVars = {
   MIN_POST_AGE_TO_CONSIDER: 30,
   MIN_LANGUAGE_USAGE_PC: 0.1,
   TIME_ZONE: "Etc/GMT+3",
-  EMAIL_DIGEST: 0,
   MIN_KEYWORD_FREQ: 3,
   MIN_VOTING_POWER: 50,
   VOTE_VOTING_POWER: 100
@@ -304,11 +302,9 @@ function runBot(callback, options) {
   persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
-    sendEmail("Voter bot", "Update: runBot could not run: [fatalError with state: "+serverState+"]", function () {
-      if (callback) {
-        callback({status: 500, message: "Server in unusable state, cannot run bot"});
-      }
-    });
+    if (callback) {
+      callback(null);
+    }
     return;
   }
   // begin bot logic, use promises with Q
@@ -1286,19 +1282,6 @@ function runBot(callback, options) {
     function () {
       persistentLog(LOG_GENERAL, "return http after casting votes...");
       var deferred = Q.defer();
-      // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (options !== undefined && options.hasOwnProperty("local") && options.local) {
-        // don't call back
-      } else if (callback) {
-        // finally, send good http response back
-        // back to http if not called locally
-        callback(
-          {
-            status: 200, 
-            message: "Scores calculated, votes will now be cast. Check log and / or email for full log and result.",
-            posts: postsMetadata
-          });
-      }
       // and save postsMetadata to persistent
       if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(LOG_VERBOSE, " - saving posts_metadata");
@@ -1326,41 +1309,20 @@ function runBot(callback, options) {
   .then(function(response) {
     if (response) {
       persistentLog(LOG_GENERAL, "runBot finished successfully!");
-      // send email
-      sendRunEmail(options, function () {
-        // #53, call callback when everything complete if local run, i.e. not called from web app directly
-        if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-          setTimeout(function () {
-            persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-            callback(
-              {
-                status: 200,
-                message: "Scores calculated, and votes cast for local run.",
-                posts: postsMetadata
-              });
-          }, 10000);
-        }
-      });
+      if (callback !== undefined && callback !== null) {
+        setTimeout(function () {
+          callback(postsMetadata);
+        }, 10000);
+      }
     }
   })
   .catch(function (err) {
     setError("stopped", false, err.message);
-    sendRunEmail(options, function () {
-      // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-        setTimeout(function () {
-          persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-          callback(
-            {
-              status: 200,
-              message: "Finished with error",
-              posts: postsMetadata
-            });
-        }, 10000);
-      }
-    });
+    if (callback !== undefined && callback !== null) {
+      setTimeout(function () {
+        callback(postsMetadata);
+      }, 10000);
+    }
   });
 }
 
@@ -1446,242 +1408,6 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   })
 }
 
-function sendRunEmail(options, callback) {
-  persistentLog(LOG_GENERAL, "check how to send email...");
-  if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
-    sendRunEmailNow(options, callback);
-    return;
-  } else {
-    if (dailyLikedPosts.length < 1) {
-      // do nothing, nothing saved
-      persistentLog(LOG_GENERAL, " - can't send digest email, nothing saved");
-      if (callback !== undefined) {
-        callback();
-      }
-      return
-    }
-    // check if first post of new day is made, the send digest of previous day
-    var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
-    persistentLog(LOG_VERBOSE, " - checking if latest bot run is of new day, if so then email digest of previous day");
-    for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-      persistentLog(LOG_VERBOSE, " - - checking date: "+dailyLikedPosts[i].date_str);
-      if (nowDate.format("MM-DD-YYYY").localeCompare(dailyLikedPosts[i].date_str) == 0) {
-        persistentLog(LOG_VERBOSE, " - - found today, number of runs: "+dailyLikedPosts[i].runs);
-        if (dailyLikedPosts[i].runs <= 1) {
-          //send digest of previous date
-          nowDate.subtract(1, 'day');
-          persistentLog(LOG_VERBOSE, " - - last run today was first run so sending digest email of date "+nowDate.format("MM-DD-YYYY")+", if exists");
-          sendRunEmailDigest(nowDate.format("MM-DD-YYYY"), options, callback);
-          return;
-        }
-        // else
-        persistentLog(LOG_GENERAL, " - more than one run today, wait until tomorrow to publish digest for today");
-        if (callback !== undefined) {
-          callback();
-        }
-        return;
-      }
-    }
-    persistentLog(LOG_GENERAL, " - didn't find match for today, this signifies an ERROR");
-  }
-  if (callback !== undefined) {
-    callback();
-  }
-}
-
-function sendRunEmailNow(options, callback) {
-  persistentLog(LOG_GENERAL, "send email now...");
-  var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
-  email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
-  //algorithmSet
-  if (!algorithmSet) {
-    email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
-  }
-  if (options && options.test) {
-    email += "<h3>TEST RUN - no votes will be cast</h3>";
-  }
-  email += "<h2>User stats</h2>";
-  email += "<p>User: "+process.env.STEEM_USER+"</p>";
-  var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
-  email += "<p>Voting power: "+votingPower+"</p>";
-  email += "<h2>Posts and scores:</h2>";
-  if (postsMetadata.length > 0) {
-    // first sort postsMetadata
-    var maxScore = Number.MAX_VALUE;
-    var sortedPostsMetadata = postsMetadata.sort(function(a, b) {
-      return b.score - a.score;
-    });
-    // add to email
-    for (var i = 0 ; i < sortedPostsMetadata.length ; i++) {
-      email += "<p><span style=\"color: "+(sortedPostsMetadata[i].vote ? "green" : "red")+";\">"
-        +"Score <strong>"+sortedPostsMetadata[i].score.toFixed(2)+"</strong> "
-        +"| <a href=\""+sortedPostsMetadata[i].url+"\"><strong>"+sortedPostsMetadata[i].title+"</strong></a> "
-        +"| author: "+sortedPostsMetadata[i].author + " "
-        +"| cur est $"+sortedPostsMetadata[i].cur_est_payout.toFixed(3)+" "
-        +"| upvotes: "+sortedPostsMetadata[i].upvotes+" "
-        +"| downvotes: "+sortedPostsMetadata[i].downvotes+" "
-        +"| age when scored: "+sortedPostsMetadata[i].alive_time.toFixed(2)+" mins "
-        +"</span></p>";
-    }
-  } else {
-    email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
-  }
-  email += "</hr>"
-  email += "<h2>User weights and config:</h2>";
-  email += "<h3>Weights</h3>";
-  if (algorithm.weights.length > 0) {
-    for (var i = 0 ; i < algorithm.weights.length ; i++) {
-      email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
-        +algorithm.weights[i].value+"</strong>";
-      if (algorithm.weights[i].hasOwnProperty("lower")) {
-        email += ", lower bound: "+algorithm.weights[i].lower;
-      }
-      if (algorithm.weights[i].hasOwnProperty("upper")) {
-        email += ", upper bound: "+algorithm.weights[i].upper;
-      }
-      email += "</p>";
-    }
-  } else {
-    email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
-  }
-  //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
-  //email += "<p>"+weightsHtml+"</p>";
-  email += "<h3>White and black lists</h3>";
-  email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
-  email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
-  email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
-  email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
-  email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
-  email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
-  email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
-  email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
-  email += "<h3>Averaging window</h3>";
-  email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
-  email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
-  email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
-  email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
-  //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
-  email += "<h3>Misc constant settings</h3>";
-  email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
-  email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
-  email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
-  email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
-  //email += "<h2>Raw results metadata:</h2>";
-  //var metadataHtml = JSON.stringify(postsMetadata, null, 4);
-  //email += "<p>"+metadataHtml+"</p>";
-  email += "<h3>Process logs:</h3>";
-  email += "<p>"+logHtml+"</p>";
-  email += "</body></html>";
-  sendEmail("Voter bot", email, true, function () {
-    persistString("last_log_html", email, function(err) {
-      if (err) {
-        persistentLog(LOG_GENERAL, "couldn't save last log html as persistent string");
-      }
-      if (callback !== undefined) {
-        callback();
-      }
-    });
-  });
-}
-
-function sendRunEmailDigest(dateStr, options, callback) {
-  persistentLog(LOG_GENERAL, "send digest email for "+dateStr+"...");
-  var posts = null;
-  for (var i = 0 ; i < dailyLikedPosts.length ; i++) {
-    if (dailyLikedPosts[i].date_str.localeCompare(dateStr) == 0) {
-      posts = dailyLikedPosts[i].posts;
-      break;
-    }
-  }
-  if (posts == null) {
-    persistentLog(LOG_GENERAL, " - can't send digest, can't find date in list: "+dateStr);
-    if (callback !== undefined) {
-      callback();
-    }
-    return;
-  }
-  var email = "<html><body><h1>Daily digest for Voter bot</h1>";
-  email += "<h3>at "+moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE).format("MMM Do YYYY HH:mm")+"</h3>";
-  //algorithmSet
-  if (!algorithmSet) {
-    email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
-  }
-  if (options && options.test) {
-    email += "<h3>TEST RUN - no votes will be cast</h3>";
-  }
-  email += "<h2>User stats</h2>";
-  email += "<p>User: "+process.env.STEEM_USER+"</p>";
-  var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
-  email += "<p>Voting power: "+votingPower+"</p>";
-  email += "<h2>Posts and scores:</h2>";
-  if (posts.length > 0) {
-    // add to email
-    for (var i = 0 ; i < posts.length ; i++) {
-      email += "<p><span style=\"color: "+(posts[i].vote ? "green" : "red")+";\">"
-        +"Score <strong>"+posts[i].score.toFixed(2)+"</strong> "
-        +"| <a href=\""+posts[i].url+"\"><strong>"+posts[i].title+"</strong></a> "
-        +"| author: "+posts[i].author + " "
-        +"| cur est $"+posts[i].cur_est_payout.toFixed(3)+" "
-        +"| upvotes: "+posts[i].upvotes+" "
-        +"| downvotes: "+posts[i].downvotes+" "
-        +"| age when scored: "+posts[i].alive_time.toFixed(2)+" mins "
-        +"</span></p>";
-    }
-  } else {
-    email += "<p><span style=\"color: red;\"><strong>No new posts found</strong></span></p>";
-  }
-  email += "</hr>"
-  email += "<h2>User weights and config:</h2>";
-  email += "<h3>Weights</h3>";
-  if (algorithm.weights.length > 0) {
-    for (var i = 0 ; i < algorithm.weights.length ; i++) {
-      email += "<p>Key: <strong>"+algorithm.weights[i].key+"</strong>, value: <strong>"
-        +algorithm.weights[i].value+"</strong>";
-      if (algorithm.weights[i].hasOwnProperty("lower")) {
-        email += ", lower bound: "+algorithm.weights[i].lower;
-      }
-      if (algorithm.weights[i].hasOwnProperty("upper")) {
-        email += ", upper bound: "+algorithm.weights[i].upper;
-      }
-      email += "</p>";
-    }
-  } else {
-    email += "<p><span style=\"color: red;\">No weights! Please set in algorithm</span></p>";
-  }
-  //var weightsHtml = JSON.stringify(algorithm.weights, null, 4);
-  //email += "<p>"+weightsHtml+"</p>";
-  email += "<h3>White and black lists</h3>";
-  email += "<p>Author whitelist: "+JSON.stringify(algorithm.authorWhitelist)+"</p>";
-  email += "<p>Author blacklist: "+JSON.stringify(algorithm.authorBlacklist)+"</p>";
-  email += "<p>Content category whitelist: "+JSON.stringify(algorithm.contentCategoryWhitelist)+"</p>";
-  email += "<p>Content category blacklist: "+JSON.stringify(algorithm.contentCategoryBlacklist)+"</p>";
-  email += "<p>Content word whitelist: "+JSON.stringify(algorithm.contentWordWhitelist)+"</p>";
-  email += "<p>Content word blacklist: "+JSON.stringify(algorithm.contentWordBlacklist)+"</p>";
-  email += "<p>Domain whitelist: "+JSON.stringify(algorithm.domainWhitelist)+"</p>";
-  email += "<p>Domain blacklist: "+JSON.stringify(algorithm.domainBlacklist)+"</p>";
-  email += "<h3>Averaging window</h3>";
-  email += "<p>Averaging window size (in posts): "+configVars.NUM_POSTS_FOR_AVG_WINDOW+"</p>";
-  email += "<p>Current score threshold: "+avgWindowInfo.scoreThreshold+"</p>";
-  email += "<p>Percentage add to threshold: "+(configVars.SCORE_THRESHOLD_INC_PC*100)+"%</p>";
-  email += "<p>Number of votes today: "+owner.num_votes_today+" + "+numVoteOn+" now = "+(owner.num_votes_today+numVoteOn)+"</p>";
-  //email += "<p>Added to threshold to adjust for todays votes: "+avgWindowInfo.lastThresholdUpAdjust+"</p>";
-  email += "<h3>Misc constant settings</h3>";
-  email += "<p>Max posts to get: "+configVars.MAX_POST_TO_READ+"</p>";
-  email += "<p>Dolpin min SP: "+configVars.CAPITAL_DOLPHIN_MIN+"</p>";
-  email += "<p>Whale min SP: "+configVars.CAPITAL_WHALE_MIN+"</p>";
-  email += "<p>Key detector, min keyword length: "+configVars.MIN_KEYWORD_LEN+"</p>";
-  email += "</body></html>";
-  sendEmail("Voter bot", email, true, function () {
-    persistString("last_log_html", email, function(err) {
-      if (err) {
-        persistentLog(LOG_GENERAL, "couldn't save last log html as persistent string");
-      }
-      if (callback !== undefined) {
-        callback();
-      }
-    });
-  });
-}
 
 /*
 * Steem access
@@ -2368,50 +2094,6 @@ function showFatalError() {
 }
 
 
-/*
-* Email
-*/
-
-/*
-sendEmail(subject, message)
-* Send email using SendGrid, if set up. Fails cleanly if not.
-*/
-function sendEmail(subject, message, isHtml, callback) {
-	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
-    || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
-		persistentLog(LOG_GENERAL, "Can't send email, config vars not set. Subject: "+subject);
-		callback();
-		return false;
-	}
-  persistentLog(LOG_VERBOSE, "sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);
-	var helper = require('sendgrid').mail;
-	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
-      && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
-		? process.env.EMAIL_ADDRESS_SENDER : 'bot@fossbot.org');
-	var to_email = new helper.Email(process.env.EMAIL_ADDRESS_TO);
-	var content = new helper.Content(isHtml ? 'text/html' : 'text/plain', message);
-	var mail = new helper.Mail(from_email, subject, to_email, content);
-
-	var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-	var request = sg.emptyRequest({
-		method: 'POST',
-		path: '/v3/mail/send',
-		body: mail.toJSON(),
-	});
-
-	persistentLog(LOG_VERBOSE, "sending email");
-	sg.API(request, function(err, response) {
-    if (err) {
-      persistentLog(LOG_VERBOSE, " - error sending email: "+err.message);
-    } else {
-      persistentLog(LOG_VERBOSE, " - send email, status: "+response.statusCode);
-    }
-    if (callback !== undefined) {
-      callback();
-    }
-	});
-}
-
 function clone(obj) {
   var copy;
 
@@ -2472,10 +2154,6 @@ function testEnvVars(callback) {
     setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
   }
 
-  console.log("SendGrid API key?: "+(process.env.SENDGRID_API_KEY ? "true" : "false"));
-  console.log("email address to: "+process.env.EMAIL_ADDRESS_TO);
-  console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
-
   if (!fatalError) {
     serverState = "started";
     callback();
@@ -2493,7 +2171,6 @@ module.exports.setError = setError;
 module.exports.hasFatalError = hasFatalError;
 module.exports.getServerState = getServerState;
 module.exports.showFatalError = showFatalError;
-module.exports.sendEmail = sendEmail;
 module.exports.persistJson = persistJson;
 module.exports.getPersistentJson = getPersistentJson;
 module.exports.getPersistentString = getPersistentString;

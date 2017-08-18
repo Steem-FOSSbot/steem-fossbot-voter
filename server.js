@@ -1051,10 +1051,12 @@ app.post("/test-algo", bodyParser.urlencoded({extended: false}), function(req, r
 
 function testAlgoExec(res, options) {
   lib.runBot(function(obj) {
-    console.log("lib.runBot returned: " + JSON.stringify(obj));
     var postsMetadata = [];
-    if (obj && obj.status == 200) {
-      postsMetadata = obj.posts;
+    if (obj !== undefined && obj !== null) {
+      postsMetadata = obj;
+      console.log("lib.runBot returned valid results");
+    } else {
+      console.log("lib.runBot returned invalid results");
     }
     // build list
     var html_list = "";
@@ -1086,10 +1088,6 @@ app.get("/edit-config", function(req, res) {
     html_title += "Updated MIN_POST_AGE_TO_CONSIDER";
   } else if (req.query.MAX_POST_TO_READ) {
     configVars.MAX_POST_TO_READ = Number(atob(req.query.MAX_POST_TO_READ));
-    change = true;
-    html_title += "Updated MAX_POST_TO_READ";
-  } else if (req.query.EMAIL_DIGEST) {
-    configVars.EMAIL_DIGEST = Number(atob(req.query.EMAIL_DIGEST));
     change = true;
     html_title += "Updated MAX_POST_TO_READ";
   } else if (req.query.MIN_WORDS_FOR_ARTICLE) {
@@ -1200,10 +1198,6 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   }
   if (newConfigVars.MAX_POST_TO_READ !== undefined) {
     configVars.MAX_POST_TO_READ = newConfigVars.MAX_POST_TO_READ;
-    change = true;
-  }
-  if (newConfigVars.EMAIL_DIGEST !== undefined) {
-    configVars.EMAIL_DIGEST = newConfigVars.EMAIL_DIGEST;
     change = true;
   }
   if (newConfigVars.MIN_WORDS_FOR_ARTICLE !== undefined) {

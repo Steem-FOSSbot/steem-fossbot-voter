@@ -27,7 +27,6 @@
     "cookie-parser": "^1.4.3",
     "cookies": "^0.6.2",
     "steem": "^0.4.7",
-    "sendgrid": "^4.2.0",
     "q": "1.4.1",
     "redis": "2.6.3",
     "glossary": "0.1.1",

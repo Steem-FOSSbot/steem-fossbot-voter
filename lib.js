@@ -1518,7 +1518,7 @@ function initSteem(callback) {
     function() {
       var deferred = Q.defer();
       getPersistentObj("config_vars", function(err, configVarsResult) {
-        if (configVarsResult !== null) {
+        if ((err === undefined || err == null) && configVarsResult !== undefined && configVarsResult !== null) {
           updateConfigVars(configVarsResult, function(err) {
             if (err) {
               throw err;

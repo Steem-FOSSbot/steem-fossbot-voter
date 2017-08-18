@@ -47,7 +47,7 @@ The operations you can perform are:
 - Edit curation algorithm weights and white / black lists
 - Edit configuration and settings of bot
 - Run algorithm test (does not actually vote)
-- View last log (same as email log)
+- View last log
 
 For more detail on the dashboard (and more screen shots!), see the [dashboard overview doc](/docs/dashboard-overview.md)
 
@@ -90,7 +90,6 @@ The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is cen
 Several other Node NPM libraries are used as dependencies. Their source is not included in this repo, but is downloaded when the server is built. Thanks to their creators!
 
 - [express](https://www.npmjs.com/package/express), [express-session](https://www.npmjs.com/package/express-session), [body-parser](https://www.npmjs.com/package/body-parser), [cookie](https://www.npmjs.com/package/cookie) and [cookie-parser](https://www.npmjs.com/package/cookie-parser) by dougwilson, as widely used glue, used by nearly many Node.js apps
-- [sendgrid](https://www.npmjs.com/package/sendgrid) by thinkingserious, to send email notifications
 - [Q](https://www.npmjs.com/package/q) by kriskowal, to promise-ify and de-callback-hell-ify the long process of running a bot iteration
 - [redis](https://www.npmjs.com/package/redis) by bridgear, to access a redis simple database
 - [glossary](https://www.npmjs.com/package/glossary) by harth, for keyword extraction from Steem post body contents using NLP

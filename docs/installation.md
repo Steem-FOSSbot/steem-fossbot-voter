@@ -20,7 +20,7 @@ familiarise yourself with._
 #### Important - Heroku requires credit or bank card and person details for sign up
 
 Be advised that you may have to verify your Heroku account to use the 
-add-ons which provide auto bot scheduling and email sending. Verifying 
+add-ons which provide auto bot scheduling. Verifying 
 involves a bank card but at time of writing does not require any transaction
 to be made.
 
@@ -56,11 +56,8 @@ recommend using a website service though, you should generate it locally.
 	1. **STEEM_USER**, set to your user name, without a preceding "@" symbol.
 	2. **POSTING_KEY_PRV**, set to your private Steemit posting key, used to cast votes
 	3. **BOT_API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
-	4. **EMAIL_ADDRESS_TO** (optional), set to your email address for notifications
-	5. **EMAIL_ADDRESS_SENDER** (optional), set spoof email address for notification sender. Has no effect if EMAIL_ADDRESS_TO is not set
-	6. **SENDGRID_API_KEY** (optional), set to SendGrid API key, _which you will set up later_ if you want email notifications, so leave as default 'none' for now
-	7. **COOKIE_SECRET** Change this to a random string to secure your sessions cookies, where your BOT_API_KEY will be stored in the browser. It doesn't matter what it is but make it **unique**.
-	8. **VERBOSE_LOGGING** sets console logging to verbose if true, but is false by default as this will speed the bot run up somewhat. Leave off unless you are checking out an error or developing this software.
+	4. **COOKIE_SECRET** Change this to a random string to secure your sessions cookies, where your BOT_API_KEY will be stored in the browser. It doesn't matter what it is but make it **unique**.
+	5. **VERBOSE_LOGGING** sets console logging to verbose if true, but is false by default as this will speed the bot run up somewhat. Leave off unless you are checking out an error or developing this software.
 5. Click the _Deploy_ button
 6. **Wait**, this process can take up to five minutes, do not refresh your browser.
 
@@ -87,8 +84,6 @@ The **Heroku Scheduler** add-on was created with the app (if you had a verified 
 
 The task has now been created.
 
-If you set an email address, when the bot runs for the first time after server restart, it you will get a notification. Otherwise, you can visit this settings page again after an hour to confirm the script was run, as it shows the last time the scheduler was activated here.
-
 #### Note, Scheduler is "best effort"
 
 The Heroku Scheduler add-on is a "best effort" service and may not run every time it is supposed to.
@@ -99,32 +94,6 @@ From their docs:
 
 In my experience it is _quite_ reliable but it does miss the occasional 
 call or delay it.
-
-### (Optional) Set up email notifications
-
-You can optionally use SendMail to send email notifications and summaries of your server and bot's activity. SendMail was chosen because it has a good add-on integration with Heroku, and seems respect data protection.
-
-#### Email set up
-
-If you set up the optional EMAIL_ADDRESS_TO at least, and EMAIL_ADDRESS_SENDER if you want to also, you can set up email notifications. There are few more steps to get notifications fully set up.
-
-You'll need an API key for SendGrid. Follow [this guide](https://devcenter.heroku.com/articles/sendgrid#obtaining-an-api-key) to set it up. You will access the add-on settings in the _Resources_ tab on the Heroku Dashboard, and click on the SendGrid add-on to do this.
-
-After you have obtained an API key for SendGrid, copy it and go to the _Settings_ tab and click on _Reveal Config Vars_ button. Create a new variable called **SENDGRID_API_KEY** and set the SendGrid API key as the value.
-
-##### Note on SendGrid service integration security and privacy
-
-From their [Terms of Service](https://sendgrid.com/policies/tos/), section 13.2 (Content, Your Content)
-
-> You retain all of Your rights in and to Your Content and do not convey any proprietary interest therein to SendGrid other than the licenses set forth herein.  You represent and warrant that none of Your Content violates this Agreement or the Email Policy or Privacy Policy.
-
-And while the [Privacy Policy](https://sendgrid.com/policies/privacy/) does admit the usage of personally idenitfiable information, surrender is optional and advised thusly:
-
-> YOU SHOULD NOT PROVIDE SENDGRID WITH ANY PERSONALLY IDENTIFIABLE INFORMATION [...] UNLESS YOU WOULD LIKE THAT INFORMATION TO BE USED IN ACCORDANCE WITH THIS POLICY.
-
-> If you register for the Site or Services through a third-party, the personally identifiable information you have provided in connection with your registration may be imported into your account on for the Services. The personally identifiable information we may collect from you will also include any information imported from any such third-party.
-
-We recommend you do not supply personal information to SendGrid (or any other service) and use email aliases, anonymous remailers or dead drops where possible. You should assume that any personally identifiable information supplied to Heroku is also shared with SendGrid.
 
 ## Updates and version migration
 

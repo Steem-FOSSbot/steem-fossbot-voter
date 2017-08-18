@@ -130,13 +130,10 @@ to consider voting on a post. Any post younger than this time will be
 discarded for consideration at next run, if old enough then. For number 
 explanation see [the discussion doc](/docs/discussion.md).
 2. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in
- tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, emails, etc.
-3. **EMAIL_DIGEST** (```0```): Sets email digest on or off. ```0 = off, 1 = on```.
-    - for ```0```, email is sent for every bot run
-    - for ```1```, digest email of the day is sent on the first run of the next day, so a little after midnight
-4. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on 
+ tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, etc.
+3. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on 
 account is less than this value
-5. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
+4. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
 
 #### Advanced
 

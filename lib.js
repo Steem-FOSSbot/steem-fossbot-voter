@@ -1732,7 +1732,7 @@ function persistObj(key, obj, callback) {
       key: key,
       obj: obj
     }, function (err, data) {
-      if (err) {
+      if (err !== undefined && err !== null) {
         setError(null, false, "persistObj error for key "+key+": "+err);
         if (callback !== undefined) {
           callback(err);

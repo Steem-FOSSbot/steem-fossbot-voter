@@ -801,10 +801,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
 function editAlgoExec(res, message) {
   lib.getPersistentObj("algorithm", function(err, algorithmResult) {
     var algorithm = {};
-    if (algorithmResult != null) {
-      algorithm = algorithmResult;
-      console.log(" - got algorithm from db: "+JSON.stringify(algorithm));
-    } else if (err !== undefined || algorithmResult === undefined || algorithmResult == null) {
+    if (err !== undefined || algorithmResult === undefined || algorithmResult === null) {
       console.log(" - no algorithm in db, USING DEFAULT");
       // TODO : remove this default algorithm setting
       algorithm = {
@@ -818,6 +815,9 @@ function editAlgoExec(res, message) {
         domainWhitelist: [],
         domainBlacklist: []
       };
+    } else {
+      algorithm = algorithmResult;
+      console.log(" - got algorithm from db: "+JSON.stringify(algorithm));
     }
     var html_whiteblacklists = "";
     //author_whitelist

@@ -65,7 +65,7 @@ _Stats for post metrics breakdown_
 
 See the [installation guide](/docs/installation.md), but if you want to jump right in then you can deploy this server to Heroku with one click.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/Steem-FOSSbot/steem-fossbot-voter)
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/Steem-FOSSbot/steem-fossbot-voter/tree/deploy-test)
 
 Make sure to read the instructions though! Heroku has a basic free plan but if not familiar with their service you will want to read their terms, privacy policy, etc.
 

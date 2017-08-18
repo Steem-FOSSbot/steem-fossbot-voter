@@ -1518,7 +1518,7 @@ function initSteem(callback) {
     function() {
       var deferred = Q.defer();
       getPersistentObj("config_vars", function(err, configVarsResult) {
-        if ((err === undefined || err == null) && configVarsResult !== undefined && configVarsResult !== null) {
+        if (err !== undefined && err !== null && configVarsResult !== undefined && configVarsResult !== null) {
           updateConfigVars(configVarsResult, function(err) {
             if (err) {
               throw err;
@@ -1751,7 +1751,7 @@ getPersistentObj(key):
 */
 function getPersistentObj(key, callback) {
   db.collection(DB_GENERAL).find({key: key}).toArray(function(err, obj) {
-    if (err === undefined || err === null || obj === null) {
+    if (err !== undefined || err !== null || obj === null) {
       setError(null, false, "getPersistentObj error for key "+key+": "+err);
       if (callback !== undefined) {
         callback(err);

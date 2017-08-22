@@ -14,7 +14,7 @@ For more information, see the [discussion doc page](/docs/discussion.md).
 
 ## What is this?
 
-_Voter_ is a bot for Steem which decides which posts to vote for and casts vote on behalf of a registered user. It is built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
+_Voter_ is a bot for Steem which decides which posts to vote for and casts votes on behalf of a registered user. It is built as a Node.js server and intended for deployment on Heroku, with other installation options planned.
 
 This means _you own the server_ and control it completely. There are no fees or catches, the software is free to use. You create a unique API key for your own access, and for granting access to others if you wish.
 
@@ -26,13 +26,13 @@ Lastly, check out [our ethos](/docs/ethos.md). Bots can be a divisive subject an
 
 ## How it works
 
-The bot works by scoring each new post using a collection of rules which are set by you. If a post scores above a threshold, it is voted for. The threshold is automatically adjusted based on a raised average of recent posts, and is also proportional to the number of votes in last 24 hours, to keep votes per day at around a max of 40 (by default).
+The bot works by scoring each new post using a collection of rules which are set by you. If a post scores above a threshold, it is voted for. The threshold is automatically adjusted based on a raised average of recent posts, and is also proportional to the number of votes in the last 24 hours, to keep votes per day at around a max of 40 (by default).
 
 Rules are based on a collection of metrics which this app interprets from raw Steem data. For example, you could add 10 score points for every image, or deduct 2 points for every minute since the post was created.
 
 These rules, called an algorithm, are editable through the server app Dashboard, and you can also view run statistics, logs and tests here.
 
-The server is designed to be triggered periodically for a bot run iteration, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually on the dashboard provided, or even by a HTTP GET method to ```/run-bot?json=true&api_key=BOT_API_KEY``` endpoint, which is used internally and can be used externally by a seperate app.
+The server is designed to be triggered periodically for a bot run iteration, for example every 30 or 60 minutes. This can be done on Heroku with an add-on, or manually on the dashboard provided, or even by a HTTP GET method to ```/run-bot?json=true&api_key=BOT_API_KEY``` endpoint, which is used internally and can be used externally by a separate app.
 
 Please see the [discussion doc page](/docs/discussion.md) for in depth details on the curation algorithm and how to use it to create a custom bot, as well as a discussion on bots on Steem in general. For technical details see the [algorithm and metrics doc page](/docs/algorithm.md).
 
@@ -75,7 +75,7 @@ Please see also the [installation guide](/docs/installation.md) for instructions
 
 ## License and acknowledgements
 
-All original programming is under the CC0 license and so it completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
+All original programming is under the CC0 license and thus completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
 
 Included in this repo are the following libraries, and all licenses are in the root folder of the project, except where stated:
 
@@ -89,24 +89,24 @@ The [steem Node.js package](https://www.npmjs.com/package/steem) by adcpm is cen
 
 Several other Node NPM libraries are used as dependencies. Their source is not included in this repo, but is downloaded when the server is built. Thanks to their creators!
 
-- [express](https://www.npmjs.com/package/express), [express-session](https://www.npmjs.com/package/express-session), [body-parser](https://www.npmjs.com/package/body-parser), [cookie](https://www.npmjs.com/package/cookie) and [cookie-parser](https://www.npmjs.com/package/cookie-parser) by dougwilson, as widely used glue, used by nearly many Node.js apps
+- [express](https://www.npmjs.com/package/express), [express-session](https://www.npmjs.com/package/express-session), [body-parser](https://www.npmjs.com/package/body-parser), [cookie](https://www.npmjs.com/package/cookie) and [cookie-parser](https://www.npmjs.com/package/cookie-parser) by dougwilson, as widely used glue, used by many Node.js apps
 - [Q](https://www.npmjs.com/package/q) by kriskowal, to promise-ify and de-callback-hell-ify the long process of running a bot iteration
 - [redis](https://www.npmjs.com/package/redis) by bridgear, to access a redis simple database
 - [glossary](https://www.npmjs.com/package/glossary) by harth, for keyword extraction from Steem post body contents using NLP
 - [string](https://www.npmjs.com/package/string) by az7arul, for misc super powered string manipulation
 - [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
-- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written langauge of the content (latin script only) 
+- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written language of the content (latin script only) 
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
 - [moment](https://www.npmjs.com/package/moment) by ichernev and [moment-timezone](https://www.npmjs.com/package/moment-timezone) by maggiepint, for better date handling, formatting and time zone adjustment
 
 ## Disclaimer
 
-We are not required to supply terms because we are not running a service. However obviously you are at your own liability if you use this software. See [the license](/LICENSE) for full legal text.
+We are not required to supply terms because we are not running a service. However, obviously you are at your own liability if you use this software. See [the license](/LICENSE) for full legal text.
 
-Contributions via pull request are very welcome, as is issues logged via the GitHub issue tracker. You can also suggest features, such as metrics you'd like to see, UI upgrades, etc.
+Contributions via pull request are very welcome, as are issues logged via the GitHub issue tracker. You can also suggest features, such as metrics you'd like to see, UI upgrades, etc.
 
-Also please note that development of this project was done piece-wise, and there are many commits with very little added as a commit was required in order to test any code change.
+Also, please note that development of this project was done piece-wise, and there are many commits with very little added, as a commit was required in order to test any code change.
 
 Finally, as mentioned in the [discussion](/docs/discussion.md), this project is not intended as a customer ready solution, it is a kind of "hobby grade" project. As such, **do not expect consumer level support**.
 
@@ -118,14 +118,14 @@ MongoDB database.
 ## Changelog
 
 - v0.2.9
-  - Swtich to voting power conservation instead of max votes per day
-  - Completed issues #7, #87, 25, #71, #90
+  - switch to voting power conservation instead of max votes per day
+  - completed issues #7, #87, 25, #71, #90
 - v0.2.8
-  - Bugfixes for issues #27, #1, #63, #41, #24, #69, #70, #54, #62, #74, #84, #77, #78
+  - bug fixes for issues #27, #1, #63, #41, #24, #69, #70, #54, #62, #74, #84, #77, #78
 - v0.2.7
-  - Some additional bug fixes
+  - some additional bug fixes
 - v0.2.6
-  - First main round of bug fixes for milestone [Public beta bug fixes and minor improvements](https://github.com/Steem-FOSSbot/steem-fossbot-voter/milestone/1)
+  - first main round of bug fixes for milestone [Public beta bug fixes and minor improvements](https://github.com/Steem-FOSSbot/steem-fossbot-voter/milestone/1)
   - #2, #56, #31, #25, #26, #49, #52, #44, #10, #53
 - v0.2.1 to v0.2.5
   - v0.2.5, updated patch to fix bot.js not exiting when finished if run locally
@@ -133,14 +133,14 @@ MongoDB database.
   - v0.2.3, patch to fix bot.js not exiting when finished if run locally
   - v0.2.2, patch to fix express warnings as they prevent correct operation on some local instances
   - v0.2.1
-    - Emergency bug fix for steem.js secure WebSocket URL incorrect, steem have migrated their server access URL
+    - Emergency bug fix for steem.js secure WebSocket URL incorrect, Steem have migrated their server access URL
     - Add indication to look for newest steem.js library
 - v0.2.0 - **First public release!** No appreciable change from v0.1.5, release versioning up only
 - v0.1.5
-  - Update docs for release, fill in missing parts and check for completeness
-  - Add logo to dashboard and docs
-  - Fix daily digest email
-  - Fix many small bugs holding up release
+  - update docs for release, fill in missing parts and check for completeness
+  - add logo to dashboard and docs
+  - fix daily digest email
+  - fix many small bugs holding up release
 - v0.1.4
   - improve start session to use POST on dashboard, improve UI feedback for session state
   - add edit configuration page and backend support
@@ -151,7 +151,7 @@ MongoDB database.
 - v0.1.3, add language detection (some European languages only), remove jQuery CDN dependency, add minimum threshold to score chart, some bug fixes and docs updates
 - v0.1.2
   - add first version of stats, with pretty charts
-  - upgrade session management to be more secure and have better user experience. now only enter key once and some 'service' endpoints use temporary key to get data
+  - upgrade session management to be more secure and have better user experience. Now only enter key once and some 'service' endpoints use temporary key to get data
   - misc bug fixes and updates to docs, etc.
 - v0.1.1
   - break out vote counting to up and down votes; if metric bounds calculation
@@ -160,9 +160,9 @@ MongoDB database.
   - add algorithm direct export and import, for backup and algorithm sharing
 - **v0.1.0**, minor version 1, soft release as app now works fully in all basic functionality
 - v0.0.11, add actual voting, update all UI to reuse API key so only have to enter once in dashboard per section, add test specific post in test algorithm section; this is a release candidate for minor version 1
-- v0.0.10, add bot API key wall to all areas of front end UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes
+- v0.0.10, add bot API key wall to all areas of frontend UI except dashboard, add stats page (currently only shows last log), add auto threshold adjust based on todays votes, some bug fixes
 - v0.0.9, add white / black list editing in UI and supported in backend
-- v0.0.8, basic front end UI set up, several improvements and changes to support it and knock-on bug fixing
+- v0.0.8, basic frontend UI set up, several improvements and changes to support it and knock-on bug fixing
 - v0.0.7, improve successful run bot reporting to http (via callback) and email with nice format
 - v0.0.6, basic metrics finished, score calculation confirmed working
 - v0.0.5, basic strategic post metrics complete

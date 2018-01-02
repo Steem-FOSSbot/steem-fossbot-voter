@@ -561,7 +561,7 @@ app.get("/stats-data-json", function(req, res) {
               num_votes: numVotes
             });
           }
-          console.log("Sending summary: "+JSON.stringify(summary));
+          // console.log("Sending summary: "+JSON.stringify(summary));
           res.json({summary: summary});
         } else {
           res.json({postsMetadataList: postsMetadataList});

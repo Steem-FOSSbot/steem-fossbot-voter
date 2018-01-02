@@ -1278,7 +1278,7 @@ function runBot(callback, options) {
                   }, delay);
                 };
 		// MTH #2: Make the delay between votes a config var.
-		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
+		wait.for(timeOutWrapper, 5000);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
                 var account = wait.for(steem_getAccounts_wrapper)[0];

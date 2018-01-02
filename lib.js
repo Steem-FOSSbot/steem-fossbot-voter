@@ -704,7 +704,12 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
-          if (voter.localeCompare(process.env.STEEM_USER) != 0
+          // mth #1: modify to get steem userid from options instead of environment
+          var steemUser=process.env.STEEM_USER;
+          if (options && options.steemUser) {
+	    steemUser=options.steemUser;
+          }
+          if (voter.localeCompare(steemUser) != 0
             && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -1261,12 +1266,17 @@ function runBot(callback, options) {
                 // #7 now voting here
                 // vote!
                 try {
+          	   // mth #1: modify to get steem userid from options instead of environment
+          	   var steemUser=process.env.STEEM_USER;
+          	   if (options && options.steemUser) {
+	    	      steemUser=options.steemUser;
+          	   }
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
-                    process.env.STEEM_USER, postsMetadata[i].author,
+                    steemUser, postsMetadata[i].author,
                     postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
                 } catch (err) {
-                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink + " by " + process.env.STEEM_USER +"using "+process.env.POSTING_KEY_PRV) ;
+                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink) ;
 		  persistentLog(LOG_GENERAL,err);
 		}
                 persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
@@ -1396,8 +1406,13 @@ function runBot(callback, options) {
 }
 
 function steem_getAccounts_wrapper(callback) {
-  steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-    callback(err, result);
+   // mth #1: modify to get steem userid from options instead of environment
+   var steemUser=process.env.STEEM_USER;
+   if (options && options.steemUser) {
+      steemUser=options.steemUser;
+   }
+   steem.api.getAccounts([steemUser], function(err, result) {
+     callback(err, result);
   });
 }
 

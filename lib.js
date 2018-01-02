@@ -1255,7 +1255,7 @@ function runBot(callback, options) {
 		}
                 persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
                 // wait VOTING_DELAY seconds
-                persistentLog(LOG_GENERAL, " - - - waiting VOTING_DELAY seconds...");
+                persistentLog(LOG_GENERAL, " - - - waiting "+process.env.VOTING_DELAY+" milliseconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function () {
                     func(null, true);

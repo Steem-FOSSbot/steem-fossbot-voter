@@ -1291,7 +1291,8 @@ function runBot(callback, options) {
 		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
-                var account = wait.for(steem_getAccounts_wrapper)[0];
+   		// mth #1: modify to get steem userid from options instead of environment
+                var account = wait.for(steem_getAccounts_wrapper(options))[0];
                 // don't do regeneration, will be up to date
                 owner.voting_power = account.voting_power;
                 persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
@@ -1405,7 +1406,7 @@ function runBot(callback, options) {
   });
 }
 
-function steem_getAccounts_wrapper(callback) {
+function steem_getAccounts_wrapper(options,callback) {
    // mth #1: modify to get steem userid from options instead of environment
    var steemUser=process.env.STEEM_USER;
    if (options && options.steemUser) {

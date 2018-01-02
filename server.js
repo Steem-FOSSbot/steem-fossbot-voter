@@ -219,6 +219,15 @@ function loadFiles() {
     html_edit_config2 = str;
     console.log("got /html/edit-config-2.html from file");
   });
+  // mth #4: add ability to load users from JSON
+  loadFileToString("/html/edit-users-1.html", function(str) {
+    html_edit_users1 = str;
+    console.log("got /html/edit-users-1.html from file");
+  });
+  loadFileToString("/html/edit-users-2.html", function(str) {
+    html_edit_users2 = str;
+    console.log("got /html/edit-users-2.html from file");
+  }); 
   // JSON
   loadFileToString("/package.json", function(str) {
     try {

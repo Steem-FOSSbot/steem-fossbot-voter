@@ -660,7 +660,7 @@ function runBot(callback, options) {
           if (options && options.steemUser) {
 	    steemUser=options.steemUser;
           }
-          if (voter.localeComparesteemUser) != 0
+          if (voter.localeCompare(steemUser) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count

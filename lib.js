@@ -1150,7 +1150,12 @@ function runBot(callback, options) {
           }
           persistentLog(LOG_VERBOSE, " - created window from " + count + " scores");
         }
-        for (var i = 0; i < posts.length; i++) {
+	//MTH #3:Parameterize the maximum number of votes per run
+	var nVotes=posts.length;
+	if (process.env.MAX_VOTES_PER_RUN) {
+	    nVotes=process.env.MAX_VOTES_PER_RUN;
+	}
+        for (var i = 0; i < nVotes; i++) {
           var thresholdInfo = {
             min: configVars.MIN_SCORE_THRESHOLD
           };

@@ -22,6 +22,13 @@ lib.initSteem(function() {
       }
       // #53, stop this process as it may stay alive indefinitely
       process.exit();
-    }, {local: true});
+    // modify call to include environment parameters
+    //}, {local: true});
+    }, 
+    {local: true,
+     steemUser:process.env.STEEM_USER,
+     postingKeyPrv:process.env.POSTING_KEY_PRV,
+     botApiKey:process.env.BOT_API_KEY
+     });
   }
 });

@@ -312,6 +312,12 @@ function runBot(callback, options) {
     return;
   }
   // begin bot logic, use promises with Q
+	
+ // mth #1: modify to get steem parameters from options instead of environment
+  if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
+  if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
+  if (options && options.botApiKey) process.env['BOT_API_KEY']=options.botApiKey;
+
   // some general vars
   var timeNow = new Date();
   // define steps processes
@@ -481,19 +487,12 @@ function runBot(callback, options) {
               timeDiff /= (60 * 1000);
             }
             // #1, if author is this user, remove post, i.e. disallow vote on own post
-            // mth #1: modify to get steem userid from options instead of environment
-            if (options && options.steemUser) {
-	    var isByThisUser = posts[i].author !== undefined
-                && posts[i].author !== null
-                && posts[i].author.localeCompare(options.steemUser) === 0;
-            }
-            else {
  	    var isByThisUser = process.env.STEEM_USER !== undefined
                 && process.env.STEEM_USER !== null
                 && posts[i].author !== undefined
                 && posts[i].author !== null
                 && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
-           }
+     
             if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
                 && !isByThisUser) {
               cleanedPosts.push(posts[i]);
@@ -528,12 +527,7 @@ function runBot(callback, options) {
       // get this user's votes
       persistentLog(LOG_VERBOSE, " - count this user's votes today");
 	    
-      // mth #1: modify to get steem userid from options instead of environment
-      var steemUser=process.env.STEEM_USER;
-      if (options && options.steemUser) {
-	steemUser=options.steemUser;
-      }
-      steem.api.getAccountVotes(steemUser, function(err, votes) {
+      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
         var num_votes_today = 0;
         if (err) {
           persistentLog(LOG_GENERAL, " - error, can't get steem users votes: "+err.message);
@@ -1266,13 +1260,8 @@ function runBot(callback, options) {
                 // #7 now voting here
                 // vote!
                 try {
-          	   // mth #1: modify to get steem userid from options instead of environment
-          	   var steemUser=process.env.STEEM_USER;
-          	   if (options && options.steemUser) {
-	    	      steemUser=options.steemUser;
-          	   }
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
-                    steemUser, postsMetadata[i].author,
+                    process.env.STEEM_USER, postsMetadata[i].author,
                     postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
                 } catch (err) {

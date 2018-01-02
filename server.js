@@ -49,6 +49,9 @@ var
   html_stats_daily_likes_4 = "",
   html_edit_config1 = "",
   html_edit_config2 = "";
+  // mth #4: add ability to load users from JSON
+  html_edit_users1 = "",
+  html_edit_users2 = "";
 
 var
   json_package = "";
@@ -1294,6 +1297,63 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     + html_edit_config2
   );
 });
+
+app.get("/edit-users", function(req, res) {
+  var Users = lib.getUsers();
+  var change = false;
+  var html_title = "<h3 class=\"sub-header\">";
+    html_title += "</h3>"
+  if (change) {
+    lib.updateUsers(Users, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
+  }
+  res.status(200).send(
+    html_edit_users1
+    + html_title
+    + html_edit_users2
+  );
+});
+
+app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, res) {
+  if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "edit-users: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "edit-users: session is invalid (out of date session key), please restart from Dashboard", 401);
+    return;
+  }
+  console.log("req.session.api_key = "+req.session.api_key);
+  // update users
+  var Users = lib.getUsers();
+  var change = false;
+  var newUsers;
+  try {
+    newUsers = JSON.parse(req.body.users);
+  } catch (err) {
+    console.log("POST /edit-users error: "+err.message);
+    handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);
+    return;
+  }
+  var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated Users" : "Nothing to update!") + "</h3>";
+  if (change) {
+    lib.updateUsers(newUsers, function(err) {  
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
+  }
+  res.status(200).send(
+    html_edit_users1
+    + html_title
+    + html_edit_users2
+  );
+});
+
 
 app.get("/api-error", function(req, res) {
   var title = "Api Error";

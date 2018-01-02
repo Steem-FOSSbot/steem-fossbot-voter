@@ -587,12 +587,7 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
-          // mth #1: modify to get steem userid from options instead of environment
-          var steemUser=process.env.STEEM_USER;
-          if (options && options.steemUser) {
-	    steemUser=options.steemUser;
-          }
-          if (voter.localeCompare(steemUser) != 0) {
+          if (voter.localeCompare(process.env.STEEM_USER) != 0) {
             if (!users[voter]) {
               fetchUsers.push(voter);
             }
@@ -649,12 +644,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
-          // mth #1: modify to get steem userid from options instead of environment
-          var steemUser=process.env.STEEM_USER;
-          if (options && options.steemUser) {
-	    steemUser=options.steemUser;
-          }
-          if (voter.localeCompare(steemUser) != 0
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -698,12 +688,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
-          // mth #1: modify to get steem userid from options instead of environment
-          var steemUser=process.env.STEEM_USER;
-          if (options && options.steemUser) {
-	    steemUser=options.steemUser;
-          }
-          if (voter.localeCompare(steemUser) != 0
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
             && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -1280,12 +1265,7 @@ function runBot(callback, options) {
 		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
-   		// mth #1: modify to get steem userid from options instead of environment
-           	var steemUser=process.env.STEEM_USER;
-          	if (options && options.steemUser) {
-	    	   process.env['STEEM_USER']=options.steemUser;
-         	} 
-		 var account = wait.for(steem_getAccounts_wrapper)[0];
+		var account = wait.for(steem_getAccounts_wrapper)[0];
                 // don't do regeneration, will be up to date
                 owner.voting_power = account.voting_power;
                 persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);

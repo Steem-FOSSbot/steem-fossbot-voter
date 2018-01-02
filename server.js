@@ -511,7 +511,7 @@ app.get("/stats-data-json", function(req, res) {
       handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no data in store, no keys", 500);
       return;
     }
-    console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
+    // console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
     if (req.query.count_only) {
       res.json({num_keys: keys.length});
       return;

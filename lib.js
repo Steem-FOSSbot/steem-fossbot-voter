@@ -1407,12 +1407,7 @@ function runBot(callback, options) {
 }
 
 function steem_getAccounts_wrapper(callback) {
-   // mth #1: modify to get steem userid from options instead of environment
-   var steemUser=process.env.STEEM_USER;
-   if (options && options.steemUser) {
-      steemUser=options.steemUser;
-   }
-   steem.api.getAccounts([steemUser], function(err, result) {
+   steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
      callback(err, result);
   });
 }

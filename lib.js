@@ -1237,8 +1237,9 @@ function runBot(callback, options) {
                     postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
                 } catch (err) {
-                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink);
-                }
+                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink + " by " + process.env.STEEM_USER +"using "+process.env.POSTING_KEY_PRV) ;
+		  persistentLog(LOG_GENERAL,err);
+		}
                 persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
                 // wait 5 seconds
                 persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");

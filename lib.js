@@ -481,11 +481,19 @@ function runBot(callback, options) {
               timeDiff /= (60 * 1000);
             }
             // #1, if author is this user, remove post, i.e. disallow vote on own post
-            var isByThisUser = process.env.STEEM_USER !== undefined
+            // mth #1: modify to get steem userid from options instead of environment
+            if (options && options.steemUser) {
+	    var isByThisUser = posts[i].author !== undefined
+                && posts[i].author !== null
+                && posts[i].author.localeCompare(options.steemUser) === 0;
+            }
+            else {
+ 	    var isByThisUser = process.env.STEEM_USER !== undefined
                 && process.env.STEEM_USER !== null
                 && posts[i].author !== undefined
                 && posts[i].author !== null
                 && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+           }
             if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
                 && !isByThisUser) {
               cleanedPosts.push(posts[i]);
@@ -519,10 +527,16 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // get this user's votes
       persistentLog(LOG_VERBOSE, " - count this user's votes today");
-      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
+	    
+      // mth #1: modify to get steem userid from options instead of environment
+      var steemUser=process.env.STEEM_USER;
+      if (options && options.steemUser) {
+	steemUser=options.steemUser;
+      }
+      steem.api.getAccountVotes(steemUser, function(err, votes) {
         var num_votes_today = 0;
         if (err) {
-          persistentLog(LOG_GENERAL, " - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
+          persistentLog(LOG_GENERAL, " - error, can't get steem users votes: "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
@@ -579,7 +593,12 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
-          if (voter.localeCompare(process.env.STEEM_USER) != 0) {
+          // mth #1: modify to get steem userid from options instead of environment
+          var steemUser=process.env.STEEM_USER;
+          if (options && options.steemUser) {
+	    steemUser=options.steemUser;
+          }
+          if (voter.localeCompare(steemUser) != 0) {
             if (!users[voter]) {
               fetchUsers.push(voter);
             }
@@ -636,7 +655,12 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
-          if (voter.localeCompare(process.env.STEEM_USER) != 0
+          // mth #1: modify to get steem userid from options instead of environment
+          var steemUser=process.env.STEEM_USER;
+          if (options && options.steemUser) {
+	    steemUser=options.steemUser;
+          }
+          if (voter.localeComparesteemUser) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -1503,7 +1527,7 @@ function sendRunEmailNow(options, callback) {
   }
   email += "<h2>User stats</h2>";
 	
-  // modify to get steem userid from options instead of environment
+  // mth #1: modify to get steem userid from options instead of environment
  if (options && options.steemUser) {
     email += "<p>User: "+options.steemUser+"</p>";
   }

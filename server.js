@@ -47,11 +47,11 @@ var
   html_stats_run4 = "",
   html_stats_daily_likes_3 = "",
   html_stats_daily_likes_4 = "",
-  html_edit_config1 = "",
-  html_edit_config2 = "";
   // mth #4: add ability to load users from JSON
   html_edit_users1 = "",
-  html_edit_users2 = "";
+  html_edit_users2 = "",
+  html_edit_config1 = "",
+  html_edit_config2 = "";
 
 var
   json_package = "";

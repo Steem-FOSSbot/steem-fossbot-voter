@@ -1265,14 +1265,15 @@ function runBot(callback, options) {
 		  persistentLog(LOG_GENERAL,err);
 		}
                 persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
-                // wait 5 seconds
-                persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
+                // wait VOTING_DELAY seconds
+                persistentLog(LOG_GENERAL, " - - - waiting VOTING_DELAY seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function () {
                     func(null, true);
                   }, delay);
                 };
-                wait.for(timeOutWrapper, 5000);
+		// MTH #2: Make the delay between votes a config var.
+		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
                 var account = wait.for(steem_getAccounts_wrapper)[0];

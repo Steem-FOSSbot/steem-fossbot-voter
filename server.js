@@ -536,7 +536,7 @@ app.get("/stats-data-json", function(req, res) {
               limit = resultList.length;
             }
           }
-          console.log("get num keys: "+limit+" of "+resultList.length);
+          // console.log("get num keys: "+limit+" of "+resultList.length);
           for (var i = 0 ; i < limit ; i++) {
             postsMetadataList.push(JSON.parse(resultList[i]));
           }

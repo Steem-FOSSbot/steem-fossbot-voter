@@ -1501,7 +1501,15 @@ function sendRunEmailNow(options, callback) {
     email += "<h3>TEST RUN - no votes will be cast</h3>";
   }
   email += "<h2>User stats</h2>";
-  email += "<p>User: "+process.env.STEEM_USER+"</p>";
+	
+  // modify to get steem userid from options instead of environment
+ if (options && options.steemUser) {
+    email += "<p>User: "+options.steemUser+"</p>";
+  }
+  else {
+    email += "<p>User: "+process.env.STEEM_USER+"</p>";
+  }
+	
   var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
   email += "<p>Voting power: "+votingPower+"</p>";
   email += "<h2>Posts and scores:</h2>";

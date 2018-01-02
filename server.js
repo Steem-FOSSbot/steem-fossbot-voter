@@ -1333,6 +1333,7 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   var newUsers;
   try {
     newUsers = JSON.parse(req.body.users);
+    change = true;
   } catch (err) {
     console.log("POST /edit-users error: "+err.message);
     handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);

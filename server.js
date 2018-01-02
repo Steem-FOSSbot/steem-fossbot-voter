@@ -296,8 +296,8 @@ function dashboardExec(req, res) {
   } else {
     html += "<div class=\"jumbotron jumbotron_col jumbotron_smaller\"><p>Session is valid, dashboard active</p></div>";
     if (process.env.STEEM_USER && process.env.STEEM_USER.length > 0) {
-      html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
-      html_usercontent += "<a href=\"http://steemd.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" detailed data</a>";
+      html_usercontent = "Administrative user <a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
+      html_usercontent += "Administrative user <a href=\"http://steemd.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" detailed data</a>";
     }
   }
   res.status(200).send(

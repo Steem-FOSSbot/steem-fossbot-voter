@@ -1294,8 +1294,8 @@ function runBot(callback, options) {
    		// mth #1: modify to get steem userid from options instead of environment
            	var steemUser=process.env.STEEM_USER;
           	if (options && options.steemUser) {
-	    	   process.env.STEEM_USER=options.steemUser;
-          	} 
+	    	   process.env['STEEM_USER']=options.steemUser;
+         	} 
 		 var account = wait.for(steem_getAccounts_wrapper)[0];
                 // don't do regeneration, will be up to date
                 owner.voting_power = account.voting_power;

@@ -300,7 +300,7 @@ runBot(messageCallback):
 */
 function runBot(callback, options) {
   setupLogging();
-  persistentLog(LOG_GENERAL, "runBot started...");
+  persistentLog(LOG_GENERAL, "multiuser runBot started...");
   persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {

@@ -216,6 +216,9 @@ var configVars = {
   VOTE_VOTING_POWER: 100
 };
 
+// mth #4: add ability to load users from JSON
+var Users = {};
+
 /* Private variables */
 var fatalError = false;
 var serverState = "stopped";
@@ -1760,6 +1763,25 @@ function initSteem(callback) {
       });
       return deferred.promise;
     },
+   // mth #4:add ability to load users from JSON
+   function() {
+      var deferred = Q.defer();
+      getPersistentJson("users", function(err, configUsersResult) {
+        if (configUsersResult !== null) {
+          updateUsers(configUsersResult, function(err) {
+            if (err) {
+              throw err;
+            } else {
+              deferred.resolve(true);
+            }
+          });
+        } else {
+          // use default, already set
+          deferred.resolve(true);
+        }
+      });
+      return deferred.promise;
+    },
     function() {
       var deferred = Q.defer();
       getPersistentJson("config_vars", function(err, configVarsResult) {
@@ -2348,6 +2370,23 @@ function updateConfigVars(newConfigVars, callback) {
   })
 }
 
+function getUsers() {
+  return Users;
+}
+
+function updateUsers(newUsers, callback) {
+ 
+  persistentLog(LOG_VERBOSE, "updateUsers: "+JSON.stringify(newUsers));
+  persistJson("users", newUsers, function(err) {
+    if (err) {
+      persistentLog(LOG_VERBOSE, "Error updating users: "+err.message);
+      callback({message: "Fatal error in updateUsers"});
+    } else {
+      callback();
+    }
+  })
+}
+
 /*
 * Manage internal state
 */
@@ -2527,3 +2566,6 @@ module.exports.getPostsMetadataKeys = getPostsMetadataKeys;
 module.exports.getEpochMillis = getEpochMillis;
 module.exports.getConfigVars = getConfigVars;
 module.exports.updateConfigVars = updateConfigVars;
+// mth #4: add ability to load users from JSON
+module.exports.getUsers = getUsers;
+module.exports.updateUsers = updateUsers;

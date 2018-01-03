@@ -1329,11 +1329,10 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   }
   console.log("req.session.api_key = "+req.session.api_key);
   // update users
-    var newUsers;
   try {
-     console.log(req.body);
-     console.log(req.body.users);
-    newUsers = JSON.parse(req.body.users);
+    console.log(req.body);
+    console.log(req.body.users);
+    var newUsers = JSON.parse(req.body.users);
     console.log("number of user parameters: "+ newUsers.length);
      if (newUsers.length>0) change = true;
   } catch (err) {

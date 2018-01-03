@@ -1768,7 +1768,7 @@ function initSteem(callback) {
       var deferred = Q.defer();
       getPersistentJson("users", function(err, configUsersResult) {
         if (configUsersResult !== null) {
-	    console.log(lib.js: getPersistentJson returned: "+JSON.stringify(configUsersResult));
+	    console.log("lib.js: getPersistentJson returned: "+JSON.stringify(configUsersResult));
 	    updateUsers(configUsersResult, function(err) {
             if (err) {
               throw err;

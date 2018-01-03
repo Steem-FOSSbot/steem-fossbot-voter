@@ -1327,16 +1327,13 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
     handleError(res, "/stats Unauthorized", "edit-users: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
-  console.log("req.session.api_key = "+req.session.api_key);
+  
   // update users
+  var change=false;
   try {
-    var change;
-    console.log(req.body);
-    console.log(req.body.users);
     var newUsers = JSON.parse(req.body.users);
-    console.log("newUsers: "+ newUsers);
-    console.log("number of user parameters: "+ newUsers.length);
-     if (newUsers.clength>0) change = true;
+    console.log("number of imported users: "+ newUsers.length);
+     if (newUsers.length>0) change = true;
   } catch (err) {
     console.log("POST /edit-users error: "+err.message);
     handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);

@@ -2378,11 +2378,13 @@ function getUsers() {
 function updateUsers(newUsers, callback) {
  
   persistentLog(LOG_VERBOSE, "updateUsers: "+JSON.stringify(newUsers));
-  persistJson("users", newUsers, function(err) {
+    console.log("lib.js updateUsers received: "+JSON.stringify(newUsers));
+    persistJson("users", newUsers, function(err) {
     if (err) {
       persistentLog(LOG_VERBOSE, "Error updating users: "+err.message);
       callback({message: "Fatal error in updateUsers"});
     } else {
+    console.log("lib.js updateUsers persisted: "+JSON.stringify(newUsers));
       callback();
     }
   })

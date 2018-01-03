@@ -1109,7 +1109,6 @@ function testAlgoExec(res, options) {
 app.get("/edit-config", function(req, res) {
   var configVars = lib.getConfigVars();
   var change = false;
-  console.log(req.query);
   var html_title = "<h3 class=\"sub-header\">";
   if (req.query.MAX_VOTES_IN_24_HOURS) {
     // nothing
@@ -1218,6 +1217,8 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   var change = false;
   var newConfigVars;
   try {
+    console.log(req.body);
+  console.log(req.body.config_vars);
     newConfigVars = JSON.parse(req.body.config_vars);
   } catch (err) {
     console.log("POST /edit-config error: "+err.message);

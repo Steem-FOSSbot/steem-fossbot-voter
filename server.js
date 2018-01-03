@@ -1329,15 +1329,13 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   }
   console.log("req.session.api_key = "+req.session.api_key);
   // update users
-  var Users = lib.getUsers();
-  console.log("POST /edit-users: getUsers returned: "+JSON.stringify(Users));
-  var change = false;
-  var newUsers;
+    var newUsers;
   try {
      console.log(req.body);
      console.log(req.body.users);
     newUsers = JSON.parse(req.body.users);
-    change = true;
+    console.log("number of user parameters: "+ newUsers.length);
+     if (newUsers.length>0) change = true;
   } catch (err) {
     console.log("POST /edit-users error: "+err.message);
     handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);
@@ -1345,7 +1343,7 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated Users" : "Nothing to update!") + "</h3>";
   if (change) {
-  console.log("POST /edit-users: sending  updateUsers: "+JSON.stringify(newUsers));
+  console.log("POST /edit-users: sending users: "+JSON.stringify(newUsers));
     lib.updateUsers(newUsers, function(err) {  
       //just log it
       if (err) {

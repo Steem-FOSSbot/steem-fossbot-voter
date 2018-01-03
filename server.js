@@ -1109,6 +1109,7 @@ function testAlgoExec(res, options) {
 app.get("/edit-config", function(req, res) {
   var configVars = lib.getConfigVars();
   var change = false;
+  console.log(req.query);
   var html_title = "<h3 class=\"sub-header\">";
   if (req.query.MAX_VOTES_IN_24_HOURS) {
     // nothing

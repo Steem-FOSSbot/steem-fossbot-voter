@@ -1334,8 +1334,9 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
     console.log(req.body);
     console.log(req.body.users);
     var newUsers = JSON.parse(req.body.users);
-    console.log("number of user parameters: "+ newUsers.counters.length);
-     if (newUsers.counters.length>0) change = true;
+    console.log("newUsers: "+ newUsers);
+    console.log("number of user parameters: "+ newUsers.length);
+     if (newUsers.clength>0) change = true;
   } catch (err) {
     console.log("POST /edit-users error: "+err.message);
     handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);

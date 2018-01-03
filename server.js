@@ -1329,7 +1329,7 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   console.log("req.session.api_key = "+req.session.api_key);
   // update users
   var Users = lib.getUsers();
-  console.log("POST /edit-users: getUsers returned: "++JSON.stringify(Users);
+  console.log("POST /edit-users: getUsers returned: "+JSON.stringify(Users);
   var change = false;
   var newUsers;
   try {

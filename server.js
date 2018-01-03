@@ -1329,7 +1329,7 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   console.log("req.session.api_key = "+req.session.api_key);
   // update users
   var Users = lib.getUsers();
-  console.log("POST /edit-users: getUsers returned: "+JSON.stringify(Users);
+  console.log("POST /edit-users: getUsers returned: "+JSON.stringify(Users));
   var change = false;
   var newUsers;
   try {
@@ -1342,7 +1342,7 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated Users" : "Nothing to update!") + "</h3>";
   if (change) {
-  console.log("POST /edit-users: sending  updateUsers: "+JSON.stringify(newUsers);
+  console.log("POST /edit-users: sending  updateUsers: "+JSON.stringify(newUsers));
     lib.updateUsers(newUsers, function(err) {  
       //just log it
       if (err) {

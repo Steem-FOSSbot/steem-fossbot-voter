@@ -1217,8 +1217,6 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   var change = false;
   var newConfigVars;
   try {
-    console.log(req.body);
-  console.log(req.body.config_vars);
     newConfigVars = JSON.parse(req.body.config_vars);
   } catch (err) {
     console.log("POST /edit-config error: "+err.message);
@@ -1301,6 +1299,7 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
 });
 
 app.get("/edit-users", function(req, res) {
+// left here in case wewant to handle users individually someday.
   var Users = lib.getUsers();
   var change = false;
   var html_title = "<h3 class=\"sub-header\">";
@@ -1335,6 +1334,8 @@ app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, 
   var change = false;
   var newUsers;
   try {
+     console.log(req.body);
+     console.log(req.body.users);
     newUsers = JSON.parse(req.body.users);
     change = true;
   } catch (err) {

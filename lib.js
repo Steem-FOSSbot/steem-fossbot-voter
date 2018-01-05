@@ -1391,15 +1391,13 @@ if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.pos
 getPersistentJson("users", function(err, usersResult) {
    if (usersResult !== null) {     
      for (var j = 0; j < usersResult.length; j++){
-  //      process.env['STEEM_USER']=usersResult[j].substr(0,indexOf(":"));
-  //      process.env['POSTING_KEY_PRV']=usersResult[j].substr(indexOf(":"));
+	var temp=usersResult[j];
+        process.env['STEEM_USER']=temp.substr(0,indexOf(":"));
+        process.env['POSTING_KEY_PRV']=temp.substr(indexOf(":"));
 	console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
      }
   }
 });
-	
-if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
-if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
   
   /**********************************************************************************************************
   /* run the bot for a user

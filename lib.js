@@ -1414,7 +1414,7 @@ getPersistentJson("users", function(err, usersResult) {
            setError("stopped", false, err.message);
         });
       console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
-      wait.for(timeOutWrapper, process.env.BETWEEN_USER_DELAY);
+      // wait.for(timeOutWrapper, process.env.BETWEEN_USER_DELAY);
      }
    }
  });

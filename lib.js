@@ -1418,7 +1418,7 @@ getPersistentJson("users", function(err, usersResult) {
         var d=process.env['BETWEEN_USER_DELAY'];
         var start = new Date().getTime();
         for (var i = 0; i < 1e7; i++) {
-          if ((new Date().getTime() - start) > d){
+          if ((new Date().getTime() - start) > d*10){
             break;
           }
         }

@@ -1389,7 +1389,7 @@ function runBot(callback, options) {
         if (usersResult !== null) {
 	    console.log("Running multiuser bot for:");
   	    for (var j = 0; j < usersResult.length; j++){
-                console.log(usersResult[j])
+                console.log(usersResult[j]);
             }
 	}
   });

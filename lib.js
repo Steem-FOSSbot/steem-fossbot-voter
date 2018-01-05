@@ -1385,11 +1385,14 @@ function runBot(callback, options) {
   /**********************************************************************************************************
   /*  run through the users and set the environment variables used by the bot
   /*********************************************************************************************************/
-  console.log("Running multiuser bot for:");
-  for (var j = 0; j < getUsers().length; j++){
-    console.log(Users[j]);
+  getPersistentJson("users", function(err, usersResult) {
+        if (usersResult !== null) {
+	    console.log("Running multiuser bot for:");
+  	    for (var j = 0; j < usersResult.length; j++){
+                console.log(usersResult[j])
+            }
+	}
   }
-  
   if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
   if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
   

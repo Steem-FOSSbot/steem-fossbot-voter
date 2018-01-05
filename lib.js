@@ -1382,70 +1382,58 @@ function runBot(callback, options) {
     }, Q());
   };
 
-  /**********************************************************************************************************
-  /*  run through the users and set the environment variables used by the bot
-  /*********************************************************************************************************/
-  getPersistentJson("users", function(err, usersResult) {
-        if (usersResult !== null) {
-	    console.log("Running multiuser bot for:");
-  	    for (var j = 0; j < usersResult.length; j++){
-                console.log(usersResult[j]);
-            }
-	}
-  });
+/**********************************************************************************************************
+/*  run through the users and set the environment variables used by the bot
+/*********************************************************************************************************/
+getPersistentJson("users", function(err, usersResult) {
+   if (usersResult !== null) {     
+     for (var j = 0; j < usersResult.length; j++){
+        process.env['STEEM_USER']=usersResult[j].substr(0,indexOf(":"));
+        process.env['POSTING_KEY_PRV']=usersResult[j].substr(indexOf(":"));
+	console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
+     }
+  }
+});
 	
   if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
   if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
   
   /**********************************************************************************************************
-  /* run the bot 
+  /* run the bot for a user
   /*********************************************************************************************************/
   overallResult()
-  .then(function(response) {
-    if (response) {
-      persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
-      // send email
-      sendRunEmail(options, function () {
-        // #53, call callback when everything complete if local run, i.e. not called from web app directly
-        if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-          setTimeout(function () {
-            persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-            callback(
-              {
-                status: 200,
-                message: "Scores calculated, and votes cast for local run.",
-                posts: postsMetadata
-              });
-          }, 10000);
-        }
-      });
-    }
-  })
-  .catch(function (err) {
-    setError("stopped", false, err.message);
-    sendRunEmail(options, function () {
-      // #53, call callback when everything complete if local run, i.e. not called from web app directly
-      if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-        setTimeout(function () {
-          persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-          callback(
-            {
-              status: 200,
-              message: "Finished with error",
-              posts: postsMetadata
-            });
-        }, 10000);
+    .then(function(response) {
+      if (response) {
+        persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
       }
-    });
+    })
+    .catch(function (err) {
+      setError("stopped", false, err.message);
+    }
   });
-}
 console.log("finished multiuser bot for:");
+	
 /**********************************************************************************************************
 /*  end of bot execution
 /*********************************************************************************************************/
-
+// send email
+sendRunEmail(options, function () {
+   // #53, call callback when everything complete if local run, i.e. not called from web app directly
+   if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+     // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+     setTimeout(function () {
+        persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
+        callback(
+        {
+           status: 200,
+           message: "Scores calculated, and votes cast for local run.",
+           posts: postsMetadata
+         });
+     }, 10000);
+   }
+  });
+)	
+	
 /**********************************************************************************************************
 /*  helper functions
 /*********************************************************************************************************/

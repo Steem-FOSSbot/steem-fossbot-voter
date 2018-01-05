@@ -1421,7 +1421,7 @@ getPersistentJson("users", function(err, usersResult) {
                     func(null, true);
                   }, delay);
                 };
-      // wait.for(timeOutWrapper, d);
+      wait.for(timeOutWrapper, 10000);
       }
    }
  });

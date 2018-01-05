@@ -720,9 +720,9 @@ app.get("/run-bot", function(req, res) {
                 handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
               } else {
                 // #2, redirect to stats page instead
-                execStats(req, res);
-                //res.status(200).send(
-                //  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+                // execStats(req, res);
+                res.status(200).send(
+                  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
               }
             });
           });

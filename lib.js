@@ -1391,7 +1391,7 @@ if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.pos
 getPersistentJson("users", function(err, usersResult) {
    if (usersResult !== null) {     
      for (var j = 0; j < usersResult.length; j++){
-	console.log("COUNT="usersResult.length);
+	console.log("COUNT="+usersResult.length);
 	console.log(usersResult[j]);
    //     process.env['STEEM_USER']=temp.substr(0,indexOf(":"));
    //     process.env['POSTING_KEY_PRV']=temp.substr(indexOf(":"));

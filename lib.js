@@ -156,7 +156,7 @@ const
   ];
 
 const
-	steem = require("steem"),
+  steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
@@ -299,7 +299,7 @@ function persistentLog(level, msg) {
 }
 
 /**********************************************************************************************************
-/* runBot(messageCallback):
+/* runBot(callback,options):
 /* Process a bot iteration
 **********************************************************************************************************/
 
@@ -316,13 +316,10 @@ function runBot(callback, options) {
     });
     return;
   }
-  // begin bot logic, use promises with Q
-	
- // mth #1: modify to get steem parameters from options instead of environment
-  if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
-  if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
+ // mth #1: modify to get api key from options instead of environment
   if (options && options.botApiKey) process.env['BOT_API_KEY']=options.botApiKey;
 
+  // begin bot logic, use promises with Q
   // some general vars
   var timeNow = new Date();
   
@@ -1376,7 +1373,7 @@ function runBot(callback, options) {
   ];
 
   /**********************************************************************************************************
-  /* run the processes 
+  /* master function to run all of the processes 
   /*********************************************************************************************************/
 
   var overallResult = function() {
@@ -1385,10 +1382,21 @@ function runBot(callback, options) {
     }, Q());
   };
 
+  /**********************************************************************************************************
+  /*  run through the users and set the environment variables used by the bot
+  /*********************************************************************************************************/
+
+  // mth #1: modify to get steem parameters from options instead of environment
+  if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
+  if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
+  
+  /**********************************************************************************************************
+  /* run the bot 
+  /*********************************************************************************************************/
   overallResult()
   .then(function(response) {
     if (response) {
-      persistentLog(LOG_GENERAL, "runBot finished successfully!");
+      persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
       // send email
       sendRunEmail(options, function () {
         // #53, call callback when everything complete if local run, i.e. not called from web app directly

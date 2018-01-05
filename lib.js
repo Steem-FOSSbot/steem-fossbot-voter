@@ -331,10 +331,6 @@ function runBot(callback, options) {
   /**********************************************************************************************************/
 
   var processes = [
-  
-   /********************************************************************************************
-   /* function to perform initial vote power check
-   /********************************************************************************************/
       persistentLog(LOG_GENERAL, "checking we have enough voting power...");
       var deferred = Q.defer();
       // get posts

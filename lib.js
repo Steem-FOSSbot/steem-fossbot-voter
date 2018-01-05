@@ -1336,10 +1336,11 @@ function runBot(callback, options) {
       return deferred.promise;
     },
 
+ 
     /********************************************************************************************
     /* function to return http after casting votes
-    /*******************************************************************************************/
-    function () {
+    /*******************************************************************************************
+  commented out for now, until multi-user support for statistics    function () {
       persistentLog(LOG_GENERAL, "return http after casting votes...");
       var deferred = Q.defer();
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
@@ -1394,7 +1395,6 @@ var savedKey=process.env['POSTING_KEY_PRV'];
 getPersistentJson("users", function(err, usersResult) {
    if (usersResult !== null) {     
      for (var j = 0; j < usersResult.length; j++){
-	console.log(usersResult[j]);
 	var temp=usersResult[j];
         var u=temp.indexOf(":");
   	process.env['STEEM_USER']=temp.substr(0,u);
@@ -1412,7 +1412,8 @@ getPersistentJson("users", function(err, usersResult) {
          .catch(function (err) {
            setError("stopped", false, err.message);
         });
-      console.log("finished multiuser bot for:");
+      console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
+      wait.for(timeOutWrapper, process.env.BETWEEN_USER_DELAY);
      }
    }
  });
@@ -1837,7 +1838,6 @@ function initSteem(callback) {
       var deferred = Q.defer();
       getPersistentJson("users", function(err, configUsersResult) {
         if (configUsersResult !== null) {
-	    console.log("lib.js: getPersistentJson returned: "+JSON.stringify(configUsersResult));
 	    updateUsers(configUsersResult, function(err) {
             if (err) {
               throw err;

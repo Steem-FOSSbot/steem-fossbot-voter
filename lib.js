@@ -1409,7 +1409,7 @@ getPersistentJson("users", function(err, usersResult) {
     })
     .catch(function (err) {
       setError("stopped", false, err.message);
-    }
+    })
   });
 console.log("finished multiuser bot for:");
 	

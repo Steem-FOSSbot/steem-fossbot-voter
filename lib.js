@@ -1393,31 +1393,27 @@ getPersistentJson("users", function(err, usersResult) {
      for (var j = 0; j < usersResult.length; j++){
 	console.log(usersResult[j]);
 	var temp=usersResult[j];
-	     console.log("temp="+temp);
         var u=temp.indexOf(":");
-	     console.log("u="+u);
   	process.env['STEEM_USER']=temp.substr(0,u);
-	// process.env['POSTING_KEY_PRV']=temp.substr(indexOf(":"));
+	process.env['POSTING_KEY_PRV']=temp.substr(u);
 	console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
+       /**********************************************************************************************************
+       /* run the bot for a user
+       /*********************************************************************************************************/
+       overallResult()
+          .then(function(response) {
+            if (response) {
+              persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
+            }
+          })
+         .catch(function (err) {
+           setError("stopped", false, err.message);
+        });
+      console.log("finished multiuser bot for:");
      }
-  }
-});
-  
-  /**********************************************************************************************************
-  /* run the bot for a user
-  /*********************************************************************************************************/
-  overallResult()
-    .then(function(response) {
-      if (response) {
-        persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
-      }
-    })
-    .catch(function (err) {
-      setError("stopped", false, err.message);
-    });
- 
-console.log("finished multiuser bot for:");
-	
+   }
+ });
+
 /**********************************************************************************************************
 /*  end of bot execution
 /*********************************************************************************************************/

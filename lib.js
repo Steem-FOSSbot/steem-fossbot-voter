@@ -1386,13 +1386,9 @@ function runBot(callback, options) {
   /*  run through the users and set the environment variables used by the bot
   /*********************************************************************************************************/
 
-  Users.foreach( function (arrayItem)
-  {
-    var x = arrayItem[0];
-    console.log("STEEM_USER: "+x);
-    var y = arrayItem[1];
-    console.log("POSTING_KEY_PRV: "+y);
-  });
+  for (var j = 0; j < Users.length; j++){
+    console.log(Users[j]);
+  }
   
   if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
   if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;

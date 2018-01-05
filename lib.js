@@ -1392,7 +1392,8 @@ function runBot(callback, options) {
                 console.log(usersResult[j])
             }
 	}
-  }
+  });
+	
   if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
   if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
   

@@ -1416,10 +1416,13 @@ getPersistentJson("users", function(err, usersResult) {
       console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
       console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
       var d=process.env['BETWEEN_USER_DELAY'];
-      setTimeout(function () {
-        func(null, true);
-        }, d);
-     }
+      var timeOutWrapper = function (delay, func) {
+                  setTimeout(function () {
+                    func(null, true);
+                  }, delay);
+                };
+      wait.for(timeOutWrapper, d);
+      }
    }
  });
 

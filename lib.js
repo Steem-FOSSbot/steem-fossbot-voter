@@ -1388,6 +1388,9 @@ function runBot(callback, options) {
 if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
 if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
 
+var savedUser=process.env['STEEM_USER'];
+var savedKey=process.env['POSTING_KEY_PRV'];
+	
 getPersistentJson("users", function(err, usersResult) {
    if (usersResult !== null) {     
      for (var j = 0; j < usersResult.length; j++){
@@ -1413,6 +1416,9 @@ getPersistentJson("users", function(err, usersResult) {
      }
    }
  });
+
+process.env['STEEM_USER']=savedUser;
+process.env['POSTING_KEY_PRV']=savedKey;
 
 /**********************************************************************************************************
 /*  end of bot execution

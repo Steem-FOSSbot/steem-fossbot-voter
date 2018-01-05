@@ -1385,8 +1385,8 @@ function runBot(callback, options) {
   /**********************************************************************************************************
   /*  run through the users and set the environment variables used by the bot
   /*********************************************************************************************************/
-
-  for (var j = 0; j < Users.length; j++){
+  console.log("Running multiuser bot for:");
+  for (var j = 0; j < getUsers().length; j++){
     console.log(Users[j]);
   }
   
@@ -1437,7 +1437,7 @@ function runBot(callback, options) {
     });
   });
 }
-
+console.log("finished multiuser bot for:");
 /**********************************************************************************************************
 /*  end of bot execution
 /*********************************************************************************************************/

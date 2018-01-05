@@ -1413,15 +1413,15 @@ getPersistentJson("users", function(err, usersResult) {
          .catch(function (err) {
            setError("stopped", false, err.message);
         });
-      console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
-      console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
-      var d=process.env['BETWEEN_USER_DELAY'];
-      var timeOutWrapper = function (delay, func) {
-                  setTimeout(function () {
-                    func(null, true);
-                  }, delay);
-                };
-      wait.for(timeOutWrapper, 10000);
+        console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
+        console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
+        var d=process.env['BETWEEN_USER_DELAY'];
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+          if ((new Date().getTime() - start) > d){
+            break;
+          }
+        }
       }
    }
  });

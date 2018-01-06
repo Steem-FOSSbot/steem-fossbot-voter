@@ -1375,7 +1375,7 @@ function runBot(callback, options) {
   ];
 
   /**********************************************************************************************************
-  /* master function to run all of the processes 
+  /* master function to run all of the processes for a single user
   /*********************************************************************************************************/
 
   var overallResult = function() {
@@ -1384,27 +1384,15 @@ function runBot(callback, options) {
     }, Q());
   };
 
-/**********************************************************************************************************
-/*  run through the users and set the environment variables used by the bot
-/*********************************************************************************************************/
-if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
-if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
-
-var savedUser=process.env['STEEM_USER'];
-var savedKey=process.env['POSTING_KEY_PRV'];
-	
-getPersistentJson("users", function(err, usersResult) {
-   if (usersResult !== null) {     
-     for (var j = 0; j < usersResult.length; j++){
-	var temp=usersResult[j];
-        var u=temp.indexOf(":");
-  	process.env['STEEM_USER']=temp.substr(0,u);
-	process.env['POSTING_KEY_PRV']=temp.substr(u);
-	console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
-       /**********************************************************************************************************
-       /* run the bot for a user
-       /*********************************************************************************************************/
-       overallResult()
+  /**********************************************************************************************************
+  /* master function to run for a single user
+  /*********************************************************************************************************/
+  function asyncRunUser(temp) {
+     var u=temp.indexOf(":");
+     process.env['STEEM_USER']=temp.substr(0,u);
+     process.env['POSTING_KEY_PRV']=temp.substr(u);
+     console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
+     overallResult()
           .then(function(response) {
             if (response) {
               persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
@@ -1423,33 +1411,58 @@ getPersistentJson("users", function(err, usersResult) {
            setError("stopped", false, err.message);
         });
       }
+  }
+
+/**********************************************************************************************************
+/*  run through the users and set the environment variables used by the bot and then run the bot
+/*********************************************************************************************************/
+if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
+if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
+
+var savedUser=process.env['STEEM_USER'];
+var savedKey=process.env['POSTING_KEY_PRV'];
+	
+var promises = [];
+
+getPersistentJson("users", function(err, usersResult) {
+   if (usersResult !== null) {     
+     for (var j = 0; j < usersResult.length; j++){
+	var temp=usersResult[j];
+ 	promises.push(asyncRunUser(temp));
+     }
    }
  });
 
-process.env['STEEM_USER']=savedUser;
-process.env['POSTING_KEY_PRV']=savedKey;
+Promise.all(promises)
+    .then(() => {
+	console.log("finished all users.");
+        process.env['STEEM_USER']=savedUser;
+        process.env['POSTING_KEY_PRV']=savedKey;
+        // send email
+        console.log("sending email....");
+        sendRunEmail(options, function () {
+           // #53, call callback when everything complete if local run, i.e. not called from web app directly
+           if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+              // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+              setTimeout(function () {
+                 persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
+                 callback(
+                 {
+                    status: 200,
+                    message: "Scores calculated, and votes cast for local run.",
+                    posts: postsMetadata
+                 });
+              }, 10000);
+           }
+        });
+    console.log("Ending all processes.");
+    })
+);
+
 
 /**********************************************************************************************************
 /*  end of bot execution
 /*********************************************************************************************************/
-// send email
-console.log("sending email....");
-sendRunEmail(options, function () {
-   // #53, call callback when everything complete if local run, i.e. not called from web app directly
-   if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-     // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-     setTimeout(function () {
-        persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-        callback(
-        {
-           status: 200,
-           message: "Scores calculated, and votes cast for local run.",
-           posts: postsMetadata
-         });
-     }, 10000);
-   }
-  });
-console.log("Ending all processes.");
 }	
 	
 /**********************************************************************************************************

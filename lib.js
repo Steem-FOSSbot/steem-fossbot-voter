@@ -1425,7 +1425,7 @@ getPersistentJson("users", function(err, usersResult) {
    if (usersResult !== null) {     
      for (var j = 0; j < usersResult.length; j++){
 	var temp=usersResult[j];
- 	wait.for(asyncRunUser,temp);
+ 	promises.push(asyncRunUser(temp));
         console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
         var d=process.env['BETWEEN_USER_DELAY'];
         var start = new Date().getTime();
@@ -1435,9 +1435,38 @@ getPersistentJson("users", function(err, usersResult) {
           }
         }
      }
-     console.log("All users processed.");
+     Promise.all(promises)
+       .then(() => {
+	 console.log("finished all users.");
+         process.env['STEEM_USER']=savedUser;
+         process.env['POSTING_KEY_PRV']=savedKey;    
+ 
+	 // send email
+         console.log("sending email....");
+         sendRunEmail(options, function () {
+           // #53, call callback when everything complete if local run, i.e. not called from web app directly
+           if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+              // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+              setTimeout(function () {
+                 persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
+                 callback(
+                 {
+                    status: 200,
+                    message: "Scores calculated, and votes cast for local run.",
+                    posts: postsMetadata
+                 });
+                 }, 10000);
+             }
+          });
+       
+	 console.log("Ending all processes.");
+      })
+       .catch((e) => {
+        console.log("An error happened.");
+     });   
    }
  });	
+	
 }
 
 /**********************************************************************************************************

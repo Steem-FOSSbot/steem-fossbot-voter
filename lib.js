@@ -1408,20 +1408,20 @@ getPersistentJson("users", function(err, usersResult) {
           .then(function(response) {
             if (response) {
               persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
+              console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
+              console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
+              var d=process.env['BETWEEN_USER_DELAY'];
+              var start = new Date().getTime();
+              for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > d*10){
+                 break;
+                }
+              }
             }
           })
          .catch(function (err) {
            setError("stopped", false, err.message);
         });
-        console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
-        console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
-        var d=process.env['BETWEEN_USER_DELAY'];
-        var start = new Date().getTime();
-        for (var i = 0; i < 1e7; i++) {
-          if ((new Date().getTime() - start) > d*10){
-            break;
-          }
-        }
       }
    }
  });
@@ -1433,6 +1433,7 @@ process.env['POSTING_KEY_PRV']=savedKey;
 /*  end of bot execution
 /*********************************************************************************************************/
 // send email
+console.log("sending email....)";
 sendRunEmail(options, function () {
    // #53, call callback when everything complete if local run, i.e. not called from web app directly
    if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
@@ -1448,6 +1449,7 @@ sendRunEmail(options, function () {
      }, 10000);
    }
   });
+console.log("Ending all processes.");
 }	
 	
 /**********************************************************************************************************

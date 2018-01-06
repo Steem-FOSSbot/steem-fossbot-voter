@@ -1430,17 +1430,14 @@ getPersistentJson("users", function(err, usersResult) {
 	var temp=usersResult[j];
  	promises.push(asyncRunUser(temp));
      }
-   }
- });
-
-Promise.all(promises)
-    .then(() => {
-	console.log("finished all users.");
-        process.env['STEEM_USER']=savedUser;
-        process.env['POSTING_KEY_PRV']=savedKey;
-        // send email
-        console.log("sending email....");
-        sendRunEmail(options, function () {
+     Promise.all(promises)
+       .then(() => {
+	 console.log("finished all users.");
+         process.env['STEEM_USER']=savedUser;
+         process.env['POSTING_KEY_PRV']=savedKey;
+         // send email
+         console.log("sending email....");
+         sendRunEmail(options, function () {
            // #53, call callback when everything complete if local run, i.e. not called from web app directly
            if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
               // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
@@ -1452,12 +1449,13 @@ Promise.all(promises)
                     message: "Scores calculated, and votes cast for local run.",
                     posts: postsMetadata
                  });
-              }, 10000);
-           }
+                 }, 10000);
+             }
+          });
+        console.log("Ending all processes.");
         });
-    console.log("Ending all processes.");
-    });
-  }	
+     }
+ });	
 }
 
 /**********************************************************************************************************

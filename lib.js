@@ -322,7 +322,9 @@ function runBot(callback, options) {
   // begin bot logic, use promises with Q
   // some general vars
   var timeNow = new Date();
-  
+  var steem_user=process.env['STEEM_USER'];
+  var posting_key=process.env['POSTING_KEY_PRV'];
+	
   /**********************************************************************************************************
   /* define steps processes as a set of functions
   /**********************************************************************************************************/
@@ -1391,9 +1393,9 @@ function runBot(callback, options) {
     return new Promise(
     function (resolve, reject) {
        var u=temp.indexOf(":");
-       var steem_user=temp.substr(0,u);
+       steem_user=temp.substr(0,u);
        process.env['STEEM_USER']=steem_user;
-       var posting_key=temp.substr(u);
+       posting_key=temp.substr(u);
        process.env['POSTING_KEY_PRV']=posting_key;
        console.log("Running multiuser bot for "+steem_user+" using key of "+posting_key);
        overallResult()

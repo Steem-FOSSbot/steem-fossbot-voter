@@ -1433,7 +1433,7 @@ process.env['POSTING_KEY_PRV']=savedKey;
 /*  end of bot execution
 /*********************************************************************************************************/
 // send email
-console.log("sending email....)";
+console.log("sending email....");
 sendRunEmail(options, function () {
    // #53, call callback when everything complete if local run, i.e. not called from web app directly
    if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {

@@ -1397,14 +1397,6 @@ function runBot(callback, options) {
             if (response) {
               persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
               console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
-              console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
-              var d=process.env['BETWEEN_USER_DELAY'];
-              var start = new Date().getTime();
-              for (var i = 0; i < 1e7; i++) {
-                if ((new Date().getTime() - start) > d*10){
-                 break;
-                }
-              }
             }
           })
          .catch(function (err) {
@@ -1428,6 +1420,14 @@ getPersistentJson("users", function(err, usersResult) {
      for (var j = 0; j < usersResult.length; j++){
 	var temp=usersResult[j];
  	promises.push(asyncRunUser(temp));
+        console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
+        var d=process.env['BETWEEN_USER_DELAY'];
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+          if ((new Date().getTime() - start) > d){
+            break;
+          }
+        }
      }
      Promise.all(promises)
        .then(() => {

@@ -334,7 +334,7 @@ function runBot(callback, options) {
     /* function to check for voting power
     /**********************************************************************************************************/
     function () {
-      persistentLog(LOG_GENERAL, "checking we have enough voting power...");
+      persistentLog(LOG_GENERAL, "checking that "+steem_user+" has enough voting power...");
       var deferred = Q.defer();
       // get posts
       var percentageVp = owner.voting_power / 100;

@@ -1429,7 +1429,15 @@ getPersistentJson("users", function(err, usersResult) {
 	var temp=usersResult[j];
  	promises.push(asyncRunUser(temp));
      }
-     
+     Promise.all(promises)
+       .then(() => {
+	 console.log("finished all users.");
+         process.env['STEEM_USER']=savedUser;
+         process.env['POSTING_KEY_PRV']=savedKey;    
+       })
+       .catch((e) => {
+        console.log("An error happened.");
+     });   
    }
  });	
 }

@@ -1391,14 +1391,16 @@ function runBot(callback, options) {
     return new Promise(
     function (resolve, reject) {
        var u=temp.indexOf(":");
-       process.env['STEEM_USER']=temp.substr(0,u);
-       process.env['POSTING_KEY_PRV']=temp.substr(u);
-       console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
+       var steem_user=temp.substr(0,u);
+       process.env['STEEM_USER']=steem_user;
+       var posting_key=temp.substr(u);
+       process.env['POSTING_KEY_PRV']=posting_key;
+       console.log("Running multiuser bot for "+steem_user+" using key of "+posting_key);
        overallResult()
           .then(function(response) {
             if (response) {
-              persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
-              console.log("finished multiuser bot for:"+process.env['STEEM_USER']);
+              persistentLog(LOG_GENERAL, "runBot finished successfully for user "+steem_user);
+              console.log("finished multiuser bot for:"+steem_user);
             }
           })
          .catch(function (err) {

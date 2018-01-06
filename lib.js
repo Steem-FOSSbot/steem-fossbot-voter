@@ -1388,11 +1388,13 @@ function runBot(callback, options) {
   /* master function to run for a single user
   /*********************************************************************************************************/
   function asyncRunUser(temp) {
-     var u=temp.indexOf(":");
-     process.env['STEEM_USER']=temp.substr(0,u);
-     process.env['POSTING_KEY_PRV']=temp.substr(u);
-     console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
-     overallResult()
+    return new Promise(
+    function (resolve, reject) {
+       var u=temp.indexOf(":");
+       process.env['STEEM_USER']=temp.substr(0,u);
+       process.env['POSTING_KEY_PRV']=temp.substr(u);
+       console.log("Running multiuser bot for "+process.env['STEEM_USER']+" using key of "+process.env['POSTING_KEY_PRV']);
+       overallResult()
           .then(function(response) {
             if (response) {
               persistentLog(LOG_GENERAL, "runBot finished successfully for user "+process.env['STEEM_USER']);
@@ -1401,8 +1403,10 @@ function runBot(callback, options) {
           })
          .catch(function (err) {
            setError("stopped", false, err.message);
-        });
-      }
+       });
+       resolve();
+    });
+  }
 
 /**********************************************************************************************************
 /*  run through the users and set the environment variables used by the bot and then run the bot

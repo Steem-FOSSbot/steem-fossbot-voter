@@ -1411,7 +1411,6 @@ function runBot(callback, options) {
            setError("stopped", false, err.message);
         });
       }
-  }
 
 /**********************************************************************************************************
 /*  run through the users and set the environment variables used by the bot and then run the bot
@@ -1433,7 +1432,7 @@ getPersistentJson("users", function(err, usersResult) {
      
    }
  });	
-
+}
 
 /**********************************************************************************************************
 /*  helper functions

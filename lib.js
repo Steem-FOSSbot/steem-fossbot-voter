@@ -1964,13 +1964,17 @@ function getUserAccount(callback) {
         owner.voting_power = result[0].voting_power;
         owner.last_vote_time = result[0].last_vote_time;
         owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
-        steem.api.getDynamicGlobalProperties(function(err, properties) {
-          //console.log(err, properties);
+        console.log("calling  steem.api.getDynamicGlobalProperties");
+	steem.api.getDynamicGlobalProperties(function(err, properties) {
+          console.log(err, properties);
           if (err) {
+            console.log("Can't get DynamicGlobalProperties, can't calculate user's Steem Powes");
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             callback({message: "Fatal error in getUserAccount"});
           } else {
-            steemGlobalProperties = properties;
+            console.log("Retrieved DynamicGlobalProperties");
+            setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
+            callback({message: "Fatal error in getUserAccount"});steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get latest blocktime

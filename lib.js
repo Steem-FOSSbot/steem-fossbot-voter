@@ -1826,7 +1826,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
 
 /****************************************************************************************************
 /* initSteem():
-* Initialize steem, test API connection and get minimal required data
+/* Initialize steem, test API connection and get minimal required data
 /***************************************************************************************************/
 function initSteem(callback) {
   // #50, fix Websocket address, server has migrated to new URL

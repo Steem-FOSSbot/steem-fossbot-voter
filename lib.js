@@ -1835,7 +1835,8 @@ function initSteem(callback) {
   var processes = [
     function() {
       var deferred = Q.defer();
-      testEnvVars(function(err) {
+        console.log ("calling testEnvVars");
+	testEnvVars(function(err) {
         if (err) {
           console.log ("error from testEnvVars");
 	  throw err;

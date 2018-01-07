@@ -2659,7 +2659,7 @@ function clone(obj) {
 /***************************************************************************************************/
 function testEnvVars(callback) {
   if (showFatalError()) {
-    console.log(Fatal error in testEnvVars");
+    console.log("Fatal error in testEnvVars");
     callback({message: "Fatal error in testEnvVars"});
     return;
   }

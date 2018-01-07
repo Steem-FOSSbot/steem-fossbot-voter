@@ -1968,13 +1968,12 @@ function getUserAccount(callback) {
 	steem.api.getDynamicGlobalProperties(function(err, properties) {
           console.log(err, properties);
           if (err) {
-            console.log("Can't get DynamicGlobalProperties, can't calculate user's Steem Powes");
+            console.log("Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             callback({message: "Fatal error in getUserAccount"});
           } else {
             console.log("Retrieved DynamicGlobalProperties");
-            setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
-            callback({message: "Fatal error in getUserAccount"});steemGlobalProperties = properties;
+	    steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get latest blocktime

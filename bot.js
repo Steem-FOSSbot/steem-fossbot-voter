@@ -70,5 +70,5 @@ lib.initSteem(function() {
      postingKeyPrv:process.env.POSTING_KEY_PRV,
      botApiKey:process.env.BOT_API_KEY
      });
-}
-},{steemUser:process.env.STEEM_USER});
+  }
+});

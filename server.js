@@ -84,7 +84,7 @@ app.listen(app.get('port'), function() {
       // giving any information away
       process.exit();
     }
-  },{steemUser:process.env.STEEM_USER});
+  });
 });
 
 module.exports = app;

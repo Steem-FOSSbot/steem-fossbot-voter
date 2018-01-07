@@ -1948,15 +1948,17 @@ function getUserAccount(callback) {
     callback({message: "Fatal error in getUserAccount"});
     return;
   }
-  console.log("Calling steem.api.getAccounts for process.env.STEEM_USER");
+  console.log("Calling steem.api.getAccounts for "+process.env.STEEM_USER");
   if (process.env.STEEM_USER) {
-      console.log("Calling steem.api.getAccounts for process.env.STEEM_USER");
+      console.log("Calling steem.api.getAccounts for "+ process.env.STEEM_USER");
       steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
       console.log(err, result);
       if (err || result.length < 1) {
+        console.log("error returned from steem.api.getAccounts");
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
         callback({message: "Fatal error in getUserAccount"});
       } else {
+        console.log("return from steem.api.getAccounts");
         // check if user can vote, if not this app is useless
         if (!result[0].can_vote) {
           setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");

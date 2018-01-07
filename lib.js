@@ -1481,6 +1481,7 @@ getPersistentJson("users", function(err, usersResult) {
 /*********************************************************************************************************/
 
 function steem_getAccounts_wrapper(steem_user,callback) {
+   console.log("Getting account for "+steem_user);
    steem.api.getAccounts([steem_user], function(err, result) {
      callback(err, result);
   });
@@ -1736,11 +1737,17 @@ function sendRunEmailDigest(dateStr, options, callback) {
   if (!algorithmSet) {
     email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
   }
-  if (options && options.test) {
+    if (options && options.test) {
     email += "<h3>TEST RUN - no votes will be cast</h3>";
   }
   email += "<h2>User stats</h2>";
-  email += "<p>User: "+process.env.STEEM_USER+"</p>";
+  // mth #1: modify to get steem userid from options instead of environment
+  if (options && options.steemUser) {
+    email += "<p>User: "+options.steemUser+"</p>";
+  }
+  else {
+    email += "<p>User: "+process.env.STEEM_USER+"</p>";
+  }
   var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
   email += "<p>Voting power: "+votingPower+"</p>";
   email += "<h2>Posts and scores:</h2>";
@@ -1821,7 +1828,7 @@ function sendRunEmailDigest(dateStr, options, callback) {
 /* initSteem():
 * Initialize steem, test API connection and get minimal required data
 /***************************************************************************************************/
-function initSteem(callback) {
+function initSteem(callback,options) {
   // #50, fix Websocket address, server has migrated to new URL
   //steem.api.setWebSocket('wss://steemd.steemit.com');
   // #71, no longer need to set this

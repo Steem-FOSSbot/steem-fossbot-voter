@@ -1944,11 +1944,13 @@ function initSteem(callback) {
 /***************************************************************************************************/
 function getUserAccount(callback) {
   if (showFatalError()) {
+    console.log("Fatal error in getUserAccount");
     callback({message: "Fatal error in getUserAccount"});
     return;
   }
   if (process.env.STEEM_USER) {
-    steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
+      console.log("Calling steem.api.getAccounts for process.env.STEEM_USER");
+      steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
       console.log(err, result);
       if (err || result.length < 1) {
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));

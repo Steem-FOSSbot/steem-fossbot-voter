@@ -21,7 +21,7 @@ lib.initSteem(function() {
         console.log("(bot.js) runBot finished");
       }
       // #53, stop this process as it may stay alive indefinitely
-      process.exit();
+      // process.exit();
     // modify call to include environment parameters
     //}, {local: true});
     }, 
@@ -41,7 +41,7 @@ lib.initSteem(function() {
         console.log("(bot.js) runBot finished");
       }
       // #53, stop this process as it may stay alive indefinitely
-      process.exit();
+      // process.exit();
     // modify call to include environment parameters
     //}, {local: true});
     }, 
@@ -61,7 +61,7 @@ lib.initSteem(function() {
         console.log("(bot.js) runBot finished");
       }
       // #53, stop this process as it may stay alive indefinitely
-      process.exit();
+      // process.exit();
     // modify call to include environment parameters
     //}, {local: true});
     }, 

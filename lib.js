@@ -2655,6 +2655,7 @@ function clone(obj) {
 /***************************************************************************************************/
 function testEnvVars(callback) {
   if (showFatalError()) {
+    console.log(Fatal error in testEnvVars");
     callback({message: "Fatal error in testEnvVars"});
     return;
   }
@@ -2676,10 +2677,12 @@ function testEnvVars(callback) {
   console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 
   if (!fatalError) {
+    console.log("Server state started in testEnvVars");
     serverState = "started";
     callback();
   } else {
-    callback({message: "Error in testEnvVars"});
+      console.log("Error in testEnvVars");
+      callback({message: "Error in testEnvVars"});
   }
 }
 

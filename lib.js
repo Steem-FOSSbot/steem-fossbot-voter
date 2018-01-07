@@ -156,7 +156,7 @@ const
   ];
 
 const
-  steem = require("steem"),
+	steem = require("steem"),
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
@@ -215,9 +215,6 @@ var configVars = {
   MIN_VOTING_POWER: 50,
   VOTE_VOTING_POWER: 100
 };
-
-// mth #4: add ability to load users from JSON
-var Users = {};
 
 /* Private variables */
 var fatalError = false;
@@ -285,11 +282,10 @@ function setupLogging() {
         && process.env.VERBOSE_LOGGING.toLowerCase().localeCompare("true") === 0;
 }
 
-/**********************************************************************************************************
-/* persistentLog(msg):
-/* Logs to console and appends to log var
-**********************************************************************************************************/
-
+/*
+persistentLog(msg):
+* Logs to console and appends to log var
+*/
 function persistentLog(level, msg) {
   if (verboseLoggingEnabled || level === LOG_GENERAL) {
     console.log(msg);
@@ -298,14 +294,13 @@ function persistentLog(level, msg) {
   logHtml += ((logHtml.length > 0) ? "<br/>" : "") + msg;
 }
 
-/**********************************************************************************************************
-/* runBot(callback,options):
-/* Process a bot iteration
-**********************************************************************************************************/
-
+/*
+runBot(messageCallback):
+* Process a bot iteration
+*/
 function runBot(callback, options) {
   setupLogging();
-  
+  persistentLog(LOG_GENERAL, "runBot started...");
   persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
@@ -316,30 +311,14 @@ function runBot(callback, options) {
     });
     return;
   }
- // mth #1: modify to get api key from options instead of environment
- var steem_user=process.env['STEEM_USER'];
- var posting_key=process.env['POSTING_KEY_PRV'];
- if (options && options.steemUser) steem_user=options.steemUser;
- if (options && options.postingKeyPrv) posting_key=options.postingKeyPrv;
-
- if (options && options.botApiKey) process.env['BOT_API_KEY']=options.botApiKey;
-
- persistentLog(LOG_GENERAL, "multiuser runBot started for " + steem_user);
-	
   // begin bot logic, use promises with Q
   // some general vars
   var timeNow = new Date();
-  	
-  /**********************************************************************************************************
-  /* define steps processes as a set of functions
-  /**********************************************************************************************************/
-
+  // define steps processes
   var processes = [
-    /**********************************************************************************************************
-    /* function to check for voting power
-    /**********************************************************************************************************/
+    // initial vote power check
     function () {
-      persistentLog(LOG_GENERAL, "checking that "+steem_user+" has enough voting power...");
+      persistentLog(LOG_GENERAL, "checking we have enough voting power...");
       var deferred = Q.defer();
       // get posts
       var percentageVp = owner.voting_power / 100;
@@ -353,11 +332,8 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
- 
-    /********************************************************************************************
-    /* function to internalize the algorithm
-    /********************************************************************************************/
-     function () {
+    // pre set up
+    function () {
       numVoteOn = 0;
       log = "";
       persistentLog(LOG_GENERAL, "pre set up...");
@@ -449,10 +425,7 @@ function runBot(callback, options) {
       });
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to get posts
-    /*******************************************************************************************/
+    // get posts
     function () {
       persistentLog(LOG_GENERAL, "getting recent posts...");
       var deferred = Q.defer();
@@ -481,10 +454,7 @@ function runBot(callback, options) {
       }
       return deferred.promise;
     },
-    
-    /********************************************************************************************
     // clean posts and update last fetched post
-    /*******************************************************************************************/
     function () {
       persistentLog(LOG_GENERAL, "filter posts...");
       var deferred = Q.defer();
@@ -511,12 +481,11 @@ function runBot(callback, options) {
               timeDiff /= (60 * 1000);
             }
             // #1, if author is this user, remove post, i.e. disallow vote on own post
- 	    var isByThisUser = steem_user !== undefined
-                && steem_user !== null
+            var isByThisUser = process.env.STEEM_USER !== undefined
+                && process.env.STEEM_USER !== null
                 && posts[i].author !== undefined
                 && posts[i].author !== null
-                && posts[i].author.localeCompare(steem_user) === 0;
-     
+                && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
             if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
                 && !isByThisUser) {
               cleanedPosts.push(posts[i]);
@@ -550,11 +519,10 @@ function runBot(callback, options) {
       var deferred = Q.defer();
       // get this user's votes
       persistentLog(LOG_VERBOSE, " - count this user's votes today");
-	    
-      steem.api.getAccountVotes(steem_user, function(err, votes) {
+      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
         var num_votes_today = 0;
         if (err) {
-          persistentLog(LOG_GENERAL, " - error, can't get steem users votes for "+steem_user+": "+err.message);
+          persistentLog(LOG_GENERAL, " - error, can't get "+process.env.STEEM_USER+" votes: "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
@@ -569,10 +537,7 @@ function runBot(callback, options) {
       });
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to transform post data to metrics, step 2, basic post metrics
-    /*******************************************************************************************/
+    // transform post data to metrics 2, basic post metrics
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 2, basic post metrics...");
       var deferred = Q.defer();
@@ -614,7 +579,7 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
-          if (voter.localeCompare(steem_user) != 0) {
+          if (voter.localeCompare(process.env.STEEM_USER) != 0) {
             if (!users[voter]) {
               fetchUsers.push(voter);
             }
@@ -646,10 +611,7 @@ function runBot(callback, options) {
       // return promise
       return deferred.promise;
     },
- 
-    /********************************************************************************************
-    /* function to transform post data to metrics, step 3, analyse votes
-    /*******************************************************************************************/
+    // transform post data to metrics 3, analyse votes
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 3, analyse votes...");
       var deferred = Q.defer();
@@ -674,7 +636,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
-          if (voter.localeCompare(steem_user) != 0
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -718,7 +680,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
-          if (voter.localeCompare(steem_user) != 0
+          if (voter.localeCompare(process.env.STEEM_USER) != 0
             && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -758,10 +720,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to transform post data to metrics, step 4, post author metrics
-    /*******************************************************************************************/
+    // transform post data to metrics 4, post author metrics
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 4, post author metrics...");
       var deferred = Q.defer();
@@ -822,10 +781,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to transform post data to metrics, step 5, do natural language processing
-    /*******************************************************************************************/
+    // transform post data to metrics 5, do NLP processing
     function () {
       persistentLog(LOG_VERBOSE, "metrics generation 5, do NLP processing");
       var deferred = Q.defer();
@@ -904,10 +860,7 @@ function runBot(callback, options) {
       }
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to transform post data to metrics, step 6, calculate cultural metrics, content
-    /*******************************************************************************************/
+    // transform post data to metrics 6, calc cultural metrics, content
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 6, calc cultural metrics, content - textpost...");
       var deferred = Q.defer();
@@ -1074,10 +1027,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-  
-    /********************************************************************************************
-    /* function to calculate scores for each post
-    /*******************************************************************************************/
+    // calculate scores for each post
     function () {
       persistentLog(LOG_GENERAL, "calculate scores for each post...");
       var deferred = Q.defer();
@@ -1152,10 +1102,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-
-    /********************************************************************************************
-    /* function to choose posts to vote on based on scores
-    /*******************************************************************************************/
+    // choose posts to vote on based on scores
     function () {
       persistentLog(LOG_GENERAL, "choose posts to vote on based on" +
         " scores and vote...");
@@ -1179,12 +1126,7 @@ function runBot(callback, options) {
           }
           persistentLog(LOG_VERBOSE, " - created window from " + count + " scores");
         }
-	//MTH #3:Parameterize the maximum number of votes per run
-	var nVotes=posts.length;
-	if (process.env.MAX_VOTES_PER_RUN) {
-	    nVotes=process.env.MAX_VOTES_PER_RUN;
-	}
-        for (var i = 0; i < nVotes; i++) {
+        for (var i = 0; i < posts.length; i++) {
           var thresholdInfo = {
             min: configVars.MIN_SCORE_THRESHOLD
           };
@@ -1290,27 +1232,25 @@ function runBot(callback, options) {
                 // #7 now voting here
                 // vote!
                 try {
-                  var upvoteResult = wait.for(steem.broadcast.vote, posting_key,
-                    steem_user, postsMetadata[i].author,
+                  var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
+                    process.env.STEEM_USER, postsMetadata[i].author,
                     postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
                 } catch (err) {
-                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink) ;
-		  persistentLog(LOG_GENERAL,err);
-		}
+                  persistentLog(LOG_GENERAL, " - - - - ERROR voting on post: " + postsMetadata[i].permlink);
+                }
                 persistentLog(LOG_GENERAL, " - - - - voted on " + upVotesProcessed + " posts");
-                // wait VOTING_DELAY seconds
-                persistentLog(LOG_GENERAL, " - - - waiting "+process.env.VOTING_DELAY+" milliseconds...");
+                // wait 5 seconds
+                persistentLog(LOG_GENERAL, " - - - waiting 3 seconds...");
                 var timeOutWrapper = function (delay, func) {
                   setTimeout(function () {
                     func(null, true);
                   }, delay);
                 };
-		// MTH #2: Make the delay between votes a config var.
-		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
+                wait.for(timeOutWrapper, 5000);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
-		var account = wait.for(steem_getAccounts_wrapper,steem_user)[0];
+                var account = wait.for(steem_getAccounts_wrapper)[0];
                 // don't do regeneration, will be up to date
                 owner.voting_power = account.voting_power;
                 persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
@@ -1342,12 +1282,8 @@ function runBot(callback, options) {
       });
       return deferred.promise;
     },
-
- 
-    /********************************************************************************************
-    /* function to return http after casting votes
-    /*******************************************************************************************
-  commented out for now, until multi-user support for statistics    function () {
+    // return http after casting votes
+    function () {
       persistentLog(LOG_GENERAL, "return http after casting votes...");
       var deferred = Q.defer();
       // #53, call callback when everything complete if local run, i.e. not called from web app directly
@@ -1378,12 +1314,7 @@ function runBot(callback, options) {
       }
       return deferred.promise;
     }
-    */
   ];
-
-  /**********************************************************************************************************
-  /* master function to run all of the processes for a single user
-  /*********************************************************************************************************/
 
   var overallResult = function() {
     return processes.reduce(function(nextProcess, f) {
@@ -1391,103 +1322,54 @@ function runBot(callback, options) {
     }, Q());
   };
 
-  /**********************************************************************************************************
-  /* master function to run for a single user
-  /*********************************************************************************************************/
-  function asyncRunUser(temp) {
-    return new Promise(
-    function (resolve, reject) {
-       var u=temp.indexOf(":");
-       steem_user=temp.substr(0,u);
-       process.env['STEEM_USER']=steem_user;
-       posting_key=temp.substr(u);
-       process.env['POSTING_KEY_PRV']=posting_key;
-       console.log("Running multiuser bot for "+steem_user+" using key of "+posting_key);
-       overallResult()
-          .then(function(response) {
-            if (response) {
-              persistentLog(LOG_GENERAL, "runBot finished successfully for user "+steem_user);
-              console.log("finished multiuser bot for:"+steem_user);
-            }
-          })
-         .catch(function (err) {
-           setError("stopped", false, err.message);
-       });
-       resolve();
-    });
-  }
-
-/**********************************************************************************************************
-/*  run through the users and set the environment variables used by the bot and then run the bot
-/*********************************************************************************************************/
-if (options && options.steemUser) process.env['STEEM_USER']=options.steemUser;
-if (options && options.postingKeyPrv) process.env['POSTING_KEY_PRV']=options.postingKeyPrv;
-
-var savedUser=process.env['STEEM_USER'];
-var savedKey=process.env['POSTING_KEY_PRV'];
-	
-var promises = [];
-
-getPersistentJson("users", function(err, usersResult) {
-   if (usersResult !== null) {     
-     for (var j = 0; j < usersResult.length; j++){
-	var temp=usersResult[j];
- 	promises.push(asyncRunUser(temp));
-        console.log("delay for:"+process.env['BETWEEN_USER_DELAY']);
-        var d=process.env['BETWEEN_USER_DELAY'];
-        var start = new Date().getTime();
-        for (var i = 0; i < 1e7; i++) {
-          if ((new Date().getTime() - start) > d){
-            break;
-          }
+  overallResult()
+  .then(function(response) {
+    if (response) {
+      persistentLog(LOG_GENERAL, "runBot finished successfully!");
+      // send email
+      sendRunEmail(options, function () {
+        // #53, call callback when everything complete if local run, i.e. not called from web app directly
+        if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+          // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+          setTimeout(function () {
+            persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
+            callback(
+              {
+                status: 200,
+                message: "Scores calculated, and votes cast for local run.",
+                posts: postsMetadata
+              });
+          }, 10000);
         }
-     }
-     Promise.all(promises)
-       .then(() => {
-	 console.log("finished all users.");
-         process.env['STEEM_USER']=savedUser;
-         process.env['POSTING_KEY_PRV']=savedKey;    
- 
-	 // send email
-         console.log("sending email....");
-         sendRunEmail(options, function () {
-           // #53, call callback when everything complete if local run, i.e. not called from web app directly
-           if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
-              // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
-              setTimeout(function () {
-                 persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
-                 callback(
-                 {
-                    status: 200,
-                    message: "Scores calculated, and votes cast for local run.",
-                    posts: postsMetadata
-                 });
-                 }, 10000);
-             }
-          });
-       
-	 console.log("Ending all processes.");
-      })
-       .catch((e) => {
-        console.log("An error happened.");
-     });   
-   }
- });	
-	
-}
-
-/**********************************************************************************************************
-/*  helper functions
-/*********************************************************************************************************/
-
-function steem_getAccounts_wrapper(steem_user,callback) {
-   console.log("Getting account for "+steem_user);
-   steem.api.getAccounts([steem_user], function(err, result) {
-     callback(err, result);
+      });
+    }
+  })
+  .catch(function (err) {
+    setError("stopped", false, err.message);
+    sendRunEmail(options, function () {
+      // #53, call callback when everything complete if local run, i.e. not called from web app directly
+      if (callback && options !== undefined && options.hasOwnProperty("local") && options.local) {
+        // #53, additionally, give 10 seconds to complete in case there are loose anonymous processes to finish
+        setTimeout(function () {
+          persistentLog(LOG_GENERAL, "Finally let process know to quit if local");
+          callback(
+            {
+              status: 200,
+              message: "Finished with error",
+              posts: postsMetadata
+            });
+        }, 10000);
+      }
+    });
   });
 }
 
-/*********************************************************************************************************/
+function steem_getAccounts_wrapper(callback) {
+  steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
+    callback(err, result);
+  });
+}
+
 function stringListToLowerCase(strList) {
   if (strList == null || strList.length < 1) {
     return [];
@@ -1498,7 +1380,6 @@ function stringListToLowerCase(strList) {
   return strList;
 }
 
-/*********************************************************************************************************/
 function countWordsFromRetext(obj) {
   if (obj != null) {
     if (obj.type.localeCompare("WordNode") == 0) {
@@ -1514,7 +1395,6 @@ function countWordsFromRetext(obj) {
   return 0;
 }
 
-/*********************************************************************************************************/
 function addDailyLikedPost(postsMetadataObj, isFirst) {
   persistentLog(LOG_VERBOSE, "addDailyLikedPost for ["+postsMetadataObj.permlink+"]");
   var nowDate = moment_tz.tz((new Date()).getTime(), configVars.TIME_ZONE);
@@ -1566,7 +1446,6 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
   })
 }
 
-/*********************************************************************************************************/
 function sendRunEmail(options, callback) {
   persistentLog(LOG_GENERAL, "check how to send email...");
   if ((options && options.test) || configVars.EMAIL_DIGEST == 0) {
@@ -1610,7 +1489,6 @@ function sendRunEmail(options, callback) {
   }
 }
 
-/*********************************************************************************************************/
 function sendRunEmailNow(options, callback) {
   persistentLog(LOG_GENERAL, "send email now...");
   var email = "<html><body><h1>Update: runBot iteration finished successfully</h1>";
@@ -1623,15 +1501,7 @@ function sendRunEmailNow(options, callback) {
     email += "<h3>TEST RUN - no votes will be cast</h3>";
   }
   email += "<h2>User stats</h2>";
-	
-  // mth #1: modify to get steem userid from options instead of environment
- if (options && options.steemUser) {
-    email += "<p>User: "+options.steemUser+"</p>";
-  }
-  else {
-    email += "<p>User: "+process.env.STEEM_USER+"</p>";
-  }
-	
+  email += "<p>User: "+process.env.STEEM_USER+"</p>";
   var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
   email += "<p>Voting power: "+votingPower+"</p>";
   email += "<h2>Posts and scores:</h2>";
@@ -1714,7 +1584,6 @@ function sendRunEmailNow(options, callback) {
   });
 }
 
-/*********************************************************************************************************/
 function sendRunEmailDigest(dateStr, options, callback) {
   persistentLog(LOG_GENERAL, "send digest email for "+dateStr+"...");
   var posts = null;
@@ -1737,17 +1606,11 @@ function sendRunEmailDigest(dateStr, options, callback) {
   if (!algorithmSet) {
     email += "<h3>Note, using default algorithm, no algorithm set! See below for details</h3>";
   }
-    if (options && options.test) {
+  if (options && options.test) {
     email += "<h3>TEST RUN - no votes will be cast</h3>";
   }
   email += "<h2>User stats</h2>";
-  // mth #1: modify to get steem userid from options instead of environment
-  if (options && options.steemUser) {
-    email += "<p>User: "+options.steemUser+"</p>";
-  }
-  else {
-    email += "<p>User: "+process.env.STEEM_USER+"</p>";
-  }
+  email += "<p>User: "+process.env.STEEM_USER+"</p>";
   var votingPower = (owner.voting_power > 0 ? owner.voting_power / 100 : 0).toFixed(2);
   email += "<p>Voting power: "+votingPower+"</p>";
   email += "<h2>Posts and scores:</h2>";
@@ -1820,14 +1683,14 @@ function sendRunEmailDigest(dateStr, options, callback) {
   });
 }
 
-/**********************************************************************************************************
-/* Functions to access the Steem blockchain data
-/*********************************************************************************************************/
+/*
+* Steem access
+*/
 
-/****************************************************************************************************
-/* initSteem():
-/* Initialize steem, test API connection and get minimal required data
-/***************************************************************************************************/
+/*
+initSteem():
+* Initialize steem, test API connection and get minimal required data
+*/
 function initSteem(callback) {
   // #50, fix Websocket address, server has migrated to new URL
   //steem.api.setWebSocket('wss://steemd.steemit.com');
@@ -1835,28 +1698,22 @@ function initSteem(callback) {
   var processes = [
     function() {
       var deferred = Q.defer();
-        console.log ("calling testEnvVars");
-	testEnvVars(function(err) {
+      testEnvVars(function(err) {
         if (err) {
-          console.log ("error from testEnvVars");
-	  throw err;
+          throw err;
         } else {
-          console.log ("return from testEnvVars");
-	  deferred.resolve(true);
+          deferred.resolve(true);
         }
       });
       return deferred.promise;
     },
     function() {
       var deferred = Q.defer();
-      console.log ("calling getUserAccount");
       getUserAccount(function(err) {
         if (err) {
-	  console.log ("error from getUserAccount");
           throw err;
         } else {
-	  console.log ("return from getUserAccount");
-	  deferred.resolve(true);
+          deferred.resolve(true);
         }
       });
       return deferred.promise;
@@ -1875,25 +1732,6 @@ function initSteem(callback) {
           } else {
             console.log("no last post recorded yet");
           }
-          deferred.resolve(true);
-        }
-      });
-      return deferred.promise;
-    },
-   // mth #4:add ability to load users from JSON
-   function() {
-      var deferred = Q.defer();
-      getPersistentJson("users", function(err, configUsersResult) {
-        if (configUsersResult !== null) {
-	    updateUsers(configUsersResult, function(err) {
-            if (err) {
-              throw err;
-            } else {
-              deferred.resolve(true);
-            }
-          });
-        } else {
-          // use default, already set
           deferred.resolve(true);
         }
       });
@@ -1939,9 +1777,9 @@ function initSteem(callback) {
     });
 }
 
-/****************************************************************************************************
-/* getUserAccount():
-/***************************************************************************************************/
+/*
+getUserAccount():
+*/
 function getUserAccount(callback) {
   if (showFatalError()) {
     callback({message: "Fatal error in getUserAccount"});
@@ -2016,9 +1854,6 @@ function getUserAccount(callback) {
   }
 }
 
-/****************************************************************************************************
-/* getFollowers_recursive(username, followers, callback)
-/***************************************************************************************************/
 function getFollowers_recursive(username, followers, callback) {
   var followers_;
   if (followers == null || followers === undefined) {
@@ -2055,9 +1890,6 @@ function getFollowers_recursive(username, followers, callback) {
   });
 }
 
-/****************************************************************************************************
-/* getPosts_recursive(posts, stopAtPost, limit, callback)
-/***************************************************************************************************/
 function getPosts_recursive(posts, stopAtPost, limit, callback) {
   persistentLog(LOG_VERBOSE, "getPosts_recursive");
   var posts_;
@@ -2113,10 +1945,9 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
   });
 }
 
-
-/****************************************************************************************************
-/* persistString(key, string): use redis to save a key,data pair
-/***************************************************************************************************/
+/*
+persistString(key, string):
+*/
 function persistString(key, string, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "persistString redis error for key "+key+": "+err);
@@ -2132,9 +1963,9 @@ function persistString(key, string, callback) {
   });
 }
 
-/****************************************************************************************************
-/* getPersistentString(key, callback): return data from redis for a particular key
-/***************************************************************************************************/
+/*
+getPersistentString(key):
+*/
 function getPersistentString(key, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentString redis _on_ error for key "+key+": "+err);
@@ -2158,9 +1989,9 @@ function getPersistentString(key, callback) {
   });
 }
 
-/****************************************************************************************************
-/* persistJson(key, json, callback): use redis to save a key,data pair where the data is a JSON structure
-/***************************************************************************************************/
+/*
+persistJson(key, json):
+*/
 function persistJson(key, json, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "persistJson redis error for key "+key+": "+err);
@@ -2186,9 +2017,9 @@ function persistJson(key, json, callback) {
   });
 }
 
-/****************************************************************************************************
-/* getPersistentJson(key, callback): return a JSON structure from redis for a particular key
-/***************************************************************************************************/
+/*
+getPersistentJson(key):
+*/
 function getPersistentJson(key, callback) {
   redisClient.on("error", function (err) {
     setError(null, false, "getPersistentJson redis _on_ error for key "+key+": "+err);
@@ -2217,9 +2048,10 @@ function getPersistentJson(key, callback) {
   });
 }
 
-/****************************************************************************************************
-/* updateWeightMetric(query, apiKey, callback): update a particular weight metric in the algorithm in redis store
-/***************************************************************************************************/
+/*
+updateWeightMetric(query, apiKey, callback):
+* update weight metric
+*/
 function updateWeightMetric(query, apiKey, callback) {
   persistentLog(LOG_VERBOSE, "updateWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
@@ -2257,9 +2089,10 @@ function updateWeightMetric(query, apiKey, callback) {
   });
 }
 
-/****************************************************************************************************
-/* deleteWeightMetric(query, apiKey, callback): delete a particular weight metric from the algorithm in redis store
-/***************************************************************************************************/
+/*
+deleteWeightMetric(index, apiKey, callback):
+* update weight metric
+*/
 function deleteWeightMetric(key, apiKey, callback) {
   persistentLog(LOG_VERBOSE, "deleteWeightMetric call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
@@ -2289,9 +2122,10 @@ function deleteWeightMetric(key, apiKey, callback) {
   });
 }
 
-/****************************************************************************************************
-/* updateMetricList(list, contents, apiKey, callback): update a particular list metric in the algorithm in redis store
-/***************************************************************************************************/
+/*
+updateMetricList(list, contents, apiKey, callback):
+* update weight metric
+*/
 function updateMetricList(list, contents, apiKey, callback) {
   persistentLog(LOG_VERBOSE, "updateMetricList call");
   if (apiKey.localeCompare(process.env.BOT_API_KEY) != 0) {
@@ -2330,9 +2164,6 @@ function updateMetricList(list, contents, apiKey, callback) {
   });
 }
 
-/****************************************************************************************************
-/* savePostsMetadata(postsMetadataObj, callback): save the metadata for posts in redis store for use by graphics
-/***************************************************************************************************/
 function savePostsMetadata(postsMetadataObj, callback) {
   persistentLog(LOG_VERBOSE, "savePostsMetadata");
   redisClient.get("postsMetadata_keys", function(err, keys) {
@@ -2400,9 +2231,6 @@ function savePostsMetadata(postsMetadataObj, callback) {
   });
 }
 
-/****************************************************************************************************
-/* removePostsMetadataKeys(toRemove, idx, callback): delete the metadata for a post from the redis store
-/***************************************************************************************************/
 function removePostsMetadataKeys(toRemove, idx, callback) {
   if (idx < toRemove.length) {
     redisClient.del(toRemove[idx], function(err, result) {
@@ -2417,9 +2245,6 @@ function removePostsMetadataKeys(toRemove, idx, callback) {
   }
 }
 
-/****************************************************************************************************
-/* getPostsMetadataKeys(callback) : get the metadata for posts in redis store for use by graphics
-/***************************************************************************************************/
 function getPostsMetadataKeys(callback) {
   persistentLog(LOG_VERBOSE, "getPostsMetadataKeys");
   persistentLog(LOG_VERBOSE, " - getting keys");
@@ -2439,13 +2264,14 @@ function getPostsMetadataKeys(callback) {
   });
 }
 
-/****************************************************************************************************
-/* Steem Utilities
-/***************************************************************************************************/
+/*
+* Steem Utils
+*/
 
-/****************************************************************************************************
-/* getSteemPowerFromVest(vest): convert vesting steem (from get user query) to Steem Power (as on Steemit.com website)
-/***************************************************************************************************/
+/*
+getSteemPowerFromVest(vest):
+* converts vesting steem (from get user query) to Steem Power (as on Steemit.com website)
+*/
 function getSteemPowerFromVest(vest) {
   try {
     return steem.formatter.vestToSteem(
@@ -2459,25 +2285,20 @@ function getSteemPowerFromVest(vest) {
   return 0;
 }
 
-/****************************************************************************************************
-/* getEpochMillis(dateStr): convert steem format date string to epoch millis (unix) format
-/***************************************************************************************************/
+/*
+getEpochMillis(dateStr):
+* convert steem format date string to epoch millis (unix) format
+*/
 function getEpochMillis(dateStr) {
   var r = /^\s*(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)\s*$/
     , m = (""+dateStr).match(r);
   return (m) ? Date.UTC(m[1], m[2]-1, m[3], m[4], m[5], m[6]) : undefined;
 };
 
-/****************************************************************************************************
-/* getConfigVars
-/***************************************************************************************************/
 function getConfigVars() {
   return configVars;
 }
 
-/****************************************************************************************************
-/* updateConfigVars(newConfigVars, callback)
-/***************************************************************************************************/
 function updateConfigVars(newConfigVars, callback) {
   // migrate old config vars if needed
   // add missing vars
@@ -2504,35 +2325,14 @@ function updateConfigVars(newConfigVars, callback) {
   })
 }
 
-/****************************************************************************************************
-/* getUsers
-/***************************************************************************************************/
-function getUsers() {
-  return Users;
-}
+/*
+* Manage internal state
+*/
 
-/****************************************************************************************************
-/* updateUsers(newUsers, callback)
-/***************************************************************************************************/
-function updateUsers(newUsers, callback) {
- persistentLog(LOG_VERBOSE, "updateUsers: "+JSON.stringify(newUsers));
- persistJson("users", newUsers, function(err) {
-   if (err) {
-     persistentLog(LOG_VERBOSE, "Error updating users: "+err.message);
-     callback({message: "Fatal error in updateUsers"});
-   } else {
-     callback();
-   }
- })
-}
-
-/****************************************************************************************************
-/* functions to Manage internal state
-/***************************************************************************************************/
-
-/****************************************************************************************************
-/* setError(status, isFatal, message): Set general error for server
-/***************************************************************************************************/
+/*
+setError(status, isFatal, message):
+* Set general error for server
+*/
 function setError(status, isFatal, message) {
 	if (status) {
     serverState = status;
@@ -2541,23 +2341,25 @@ function setError(status, isFatal, message) {
   console.log("setError to \""+serverState+"\" "+(isFatal ? "(FATAL) " : "")+(message ? ", "+message : ""));
 }
 
-/****************************************************************************************************
-/* hasFatalError
-/***************************************************************************************************/
+/*
+hasFatalError():
+*/
 function hasFatalError() {
 	return fatalError;
 }
 
-/****************************************************************************************************
-/* getServerState
-/***************************************************************************************************/
+/*
+getServerState():
+*/
 function getServerState() {
 	return serverState;
 }
 
-/****************************************************************************************************
-/* hasFatalError: Show message for fatal error check
-/***************************************************************************************************/
+/*
+showFatalError()
+* Show message for fatal error check.
+* return: true if fatal error
+*/
 function showFatalError() {
   if (fatalError) {
     console.log("cannot process initSteem function, fatal error has already occured. Please fix and restart server");
@@ -2566,13 +2368,14 @@ function showFatalError() {
 }
 
 
-/****************************************************************************************************
-/* Email functions
-/***************************************************************************************************/
+/*
+* Email
+*/
 
-/****************************************************************************************************
-/* sendEmail(subject, message):  Send email using SendGrid, if set up. Fails cleanly if not.
-/***************************************************************************************************/
+/*
+sendEmail(subject, message)
+* Send email using SendGrid, if set up. Fails cleanly if not.
+*/
 function sendEmail(subject, message, isHtml, callback) {
 	if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_ADDRESS_TO
     || process.env.EMAIL_ADDRESS_TO.localeCompare("none") == 0) {
@@ -2609,9 +2412,6 @@ function sendEmail(subject, message, isHtml, callback) {
 	});
 }
 
-/****************************************************************************************************
-/* basic utility functions
-/***************************************************************************************************/
 function clone(obj) {
   var copy;
 
@@ -2646,16 +2446,16 @@ function clone(obj) {
   throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-/****************************************************************************************************
-/* Test functions
-/***************************************************************************************************/
+/*
+* Test functions
+*/
 
-/****************************************************************************************************
-/* testEnvVars(): Test environment variables and log results
-/***************************************************************************************************/
+/*
+testEnvVars():
+* Test environment variables and log results
+*/
 function testEnvVars(callback) {
   if (showFatalError()) {
-    console.log("Fatal error in testEnvVars");
     callback({message: "Fatal error in testEnvVars"});
     return;
   }
@@ -2677,18 +2477,15 @@ function testEnvVars(callback) {
   console.log("email address sender: "+process.env.EMAIL_ADDRESS_SENDER);
 
   if (!fatalError) {
-    console.log("Server state started in testEnvVars");
     serverState = "started";
     callback();
   } else {
-      console.log("Error in testEnvVars");
-      callback({message: "Error in testEnvVars"});
+    callback({message: "Error in testEnvVars"});
   }
 }
 
-/****************************************************************************************************
-/* Set public API
-/***************************************************************************************************/
+
+/* Set public API */
 module.exports.runBot = runBot;
 module.exports.testEnvVars = testEnvVars;
 module.exports.initSteem = initSteem;
@@ -2707,6 +2504,3 @@ module.exports.getPostsMetadataKeys = getPostsMetadataKeys;
 module.exports.getEpochMillis = getEpochMillis;
 module.exports.getConfigVars = getConfigVars;
 module.exports.updateConfigVars = updateConfigVars;
-// mth #4: add ability to load users from JSON
-module.exports.getUsers = getUsers;
-module.exports.updateUsers = updateUsers;

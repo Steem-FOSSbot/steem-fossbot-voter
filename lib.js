@@ -1944,21 +1944,16 @@ function initSteem(callback) {
 /***************************************************************************************************/
 function getUserAccount(callback) {
   if (showFatalError()) {
-    console.log("Fatal error in getUserAccount");
     callback({message: "Fatal error in getUserAccount"});
     return;
   }
-  console.log("Calling steem.api.getAccounts for "+process.env.STEEM_USER);
   if (process.env.STEEM_USER) {
-      console.log("Calling steem.api.getAccounts for "+ process.env.STEEM_USER);
-      steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
+    steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
       console.log(err, result);
       if (err || result.length < 1) {
-        console.log("error returned from steem.api.getAccounts");
         setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
         callback({message: "Fatal error in getUserAccount"});
       } else {
-        console.log("return from steem.api.getAccounts");
         // check if user can vote, if not this app is useless
         if (!result[0].can_vote) {
           setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");
@@ -1969,16 +1964,13 @@ function getUserAccount(callback) {
         owner.voting_power = result[0].voting_power;
         owner.last_vote_time = result[0].last_vote_time;
         owner.last_post_time = (new Date() - getEpochMillis(result[0].last_root_post)) / 60000; // convert ms to mins
-        console.log("calling  steem.api.getDynamicGlobalProperties");
-	steem.api.getDynamicGlobalProperties(function(err, properties) {
-          console.log(err, properties);
+        steem.api.getDynamicGlobalProperties(function(err, properties) {
+          //console.log(err, properties);
           if (err) {
-            console.log("Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             callback({message: "Fatal error in getUserAccount"});
           } else {
-            console.log("Retrieved DynamicGlobalProperties");
-	    steemGlobalProperties = properties;
+            steemGlobalProperties = properties;
             owner.steem_power = getSteemPowerFromVest(result[0].vesting_shares);
           }
           // get latest blocktime

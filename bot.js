@@ -71,4 +71,4 @@ lib.initSteem(function() {
      botApiKey:process.env.BOT_API_KEY
      });
 }
-});
+},{steemUser:process.env.STEEM_USER});

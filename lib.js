@@ -305,7 +305,7 @@ function persistentLog(level, msg) {
 
 function runBot(callback, options) {
   setupLogging();
-  persistentLog(LOG_GENERAL, "multiuser runBot started...");
+  
   persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
   // first, check bot can run
   if (fatalError) {
@@ -317,14 +317,19 @@ function runBot(callback, options) {
     return;
   }
  // mth #1: modify to get api key from options instead of environment
-  if (options && options.botApiKey) process.env['BOT_API_KEY']=options.botApiKey;
+ var steem_user=process.env['STEEM_USER'];
+ var posting_key=process.env['POSTING_KEY_PRV'];
+ if (options && options.steemUser) steem_user=options.steemUser;
+ if (options && options.postingKeyPrv) posting_key=options.postingKeyPrv;
 
+ if (options && options.botApiKey) process.env['BOT_API_KEY']=options.botApiKey;
+
+ persistentLog(LOG_GENERAL, "multiuser runBot started for " + steem_user);
+	
   // begin bot logic, use promises with Q
   // some general vars
   var timeNow = new Date();
-  var steem_user=process.env['STEEM_USER'];
-  var posting_key=process.env['POSTING_KEY_PRV'];
-	
+  	
   /**********************************************************************************************************
   /* define steps processes as a set of functions
   /**********************************************************************************************************/
@@ -506,11 +511,11 @@ function runBot(callback, options) {
               timeDiff /= (60 * 1000);
             }
             // #1, if author is this user, remove post, i.e. disallow vote on own post
- 	    var isByThisUser = process.env.STEEM_USER !== undefined
-                && process.env.STEEM_USER !== null
+ 	    var isByThisUser = steem_user !== undefined
+                && steem_user !== null
                 && posts[i].author !== undefined
                 && posts[i].author !== null
-                && posts[i].author.localeCompare(process.env.STEEM_USER) === 0;
+                && posts[i].author.localeCompare(steem_user) === 0;
      
             if (timeDiff >= configVars.MIN_POST_AGE_TO_CONSIDER
                 && !isByThisUser) {
@@ -546,10 +551,10 @@ function runBot(callback, options) {
       // get this user's votes
       persistentLog(LOG_VERBOSE, " - count this user's votes today");
 	    
-      steem.api.getAccountVotes(process.env.STEEM_USER, function(err, votes) {
+      steem.api.getAccountVotes(steem_user, function(err, votes) {
         var num_votes_today = 0;
         if (err) {
-          persistentLog(LOG_GENERAL, " - error, can't get steem users votes: "+err.message);
+          persistentLog(LOG_GENERAL, " - error, can't get steem users votes for "+steem_user+": "+err.message);
         } else {
           for (var i = 0 ; i < votes.length ; i++) {
             if ((timeNow - getEpochMillis(votes[i].time)) < (1000 * 60 * 60 * 24)) {
@@ -609,7 +614,7 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
-          if (voter.localeCompare(process.env.STEEM_USER) != 0) {
+          if (voter.localeCompare(steem_user) != 0) {
             if (!users[voter]) {
               fetchUsers.push(voter);
             }
@@ -669,7 +674,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].up_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
-          if (voter.localeCompare(process.env.STEEM_USER) != 0
+          if (voter.localeCompare(steem_user) != 0
               && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -713,7 +718,7 @@ function runBot(callback, options) {
         for (var j = 0 ; j < posts[i].down_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
-          if (voter.localeCompare(process.env.STEEM_USER) != 0
+          if (voter.localeCompare(steem_user) != 0
             && users[voter]) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
@@ -1285,8 +1290,8 @@ function runBot(callback, options) {
                 // #7 now voting here
                 // vote!
                 try {
-                  var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
-                    process.env.STEEM_USER, postsMetadata[i].author,
+                  var upvoteResult = wait.for(steem.broadcast.vote, posting_key,
+                    steem_user, postsMetadata[i].author,
                     postsMetadata[i].permlink, parseInt(configVars.VOTE_VOTING_POWER * 100));
                   persistentLog(LOG_GENERAL, " - - - - upvoted with result: " + JSON.stringify(upvoteResult));
                 } catch (err) {
@@ -1305,7 +1310,7 @@ function runBot(callback, options) {
 		wait.for(timeOutWrapper, process.env.VOTING_DELAY);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
                 // update accounts _after_ attempting vote
-		var account = wait.for(steem_getAccounts_wrapper)[0];
+		var account = wait.for(steem_getAccounts_wrapper,steem_user)[0];
                 // don't do regeneration, will be up to date
                 owner.voting_power = account.voting_power;
                 persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
@@ -1475,8 +1480,8 @@ getPersistentJson("users", function(err, usersResult) {
 /*  helper functions
 /*********************************************************************************************************/
 
-function steem_getAccounts_wrapper(callback) {
-   steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
+function steem_getAccounts_wrapper(steem_user,callback) {
+   steem.api.getAccounts([steem_user], function(err, result) {
      callback(err, result);
   });
 }

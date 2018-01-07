@@ -1948,9 +1948,9 @@ function getUserAccount(callback) {
     callback({message: "Fatal error in getUserAccount"});
     return;
   }
-  console.log("Calling steem.api.getAccounts for "+process.env.STEEM_USER");
+  console.log("Calling steem.api.getAccounts for "+process.env.STEEM_USER);
   if (process.env.STEEM_USER) {
-      console.log("Calling steem.api.getAccounts for "+ process.env.STEEM_USER");
+      console.log("Calling steem.api.getAccounts for "+ process.env.STEEM_USER);
       steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
       console.log(err, result);
       if (err || result.length < 1) {

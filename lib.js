@@ -1837,20 +1837,25 @@ function initSteem(callback) {
       var deferred = Q.defer();
       testEnvVars(function(err) {
         if (err) {
-          throw err;
+          console.log ("error from testEnvVars");
+	  throw err;
         } else {
-          deferred.resolve(true);
+          console.log ("return from testEnvVars");
+	  deferred.resolve(true);
         }
       });
       return deferred.promise;
     },
     function() {
       var deferred = Q.defer();
+      console.log ("calling getUserAccount");
       getUserAccount(function(err) {
         if (err) {
+	  console.log ("error from getUserAccount");
           throw err;
         } else {
-          deferred.resolve(true);
+	  console.log ("return from getUserAccount");
+	  deferred.resolve(true);
         }
       });
       return deferred.promise;

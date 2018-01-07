@@ -47,6 +47,9 @@ var
   html_stats_run4 = "",
   html_stats_daily_likes_3 = "",
   html_stats_daily_likes_4 = "",
+  // mth #4: add ability to load users from JSON
+  html_edit_users1 = "",
+  html_edit_users2 = "",
   html_edit_config1 = "",
   html_edit_config2 = "";
 
@@ -219,6 +222,15 @@ function loadFiles() {
     html_edit_config2 = str;
     console.log("got /html/edit-config-2.html from file");
   });
+  // mth #4: add ability to load users from JSON
+  loadFileToString("/html/edit-users-1.html", function(str) {
+    html_edit_users1 = str;
+    console.log("got /html/edit-users-1.html from file");
+  });
+  loadFileToString("/html/edit-users-2.html", function(str) {
+    html_edit_users2 = str;
+    console.log("got /html/edit-users-2.html from file");
+  }); 
   // JSON
   loadFileToString("/package.json", function(str) {
     try {
@@ -296,8 +308,8 @@ function dashboardExec(req, res) {
   } else {
     html += "<div class=\"jumbotron jumbotron_col jumbotron_smaller\"><p>Session is valid, dashboard active</p></div>";
     if (process.env.STEEM_USER && process.env.STEEM_USER.length > 0) {
-      html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" on Steemit</a>";
-      html_usercontent += "<a href=\"http://steemd.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\">"+process.env.STEEM_USER+" detailed data</a>";
+      html_usercontent = "<a href=\"http://steemit.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\"> Administrative user: "+process.env.STEEM_USER+" on Steemit</a>";
+      html_usercontent += "<a href=\"http://steemd.com/@"+process.env.STEEM_USER+"\" class=\"list-group-item\"> Administrative user: "+process.env.STEEM_USER+" detailed data</a>";
     }
   }
   res.status(200).send(
@@ -511,7 +523,7 @@ app.get("/stats-data-json", function(req, res) {
       handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no data in store, no keys", 500);
       return;
     }
-    console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
+    // console.log(" - /stats-data-json got keys: "+JSON.stringify(keys));
     if (req.query.count_only) {
       res.json({num_keys: keys.length});
       return;
@@ -536,7 +548,7 @@ app.get("/stats-data-json", function(req, res) {
               limit = resultList.length;
             }
           }
-          console.log("get num keys: "+limit+" of "+resultList.length);
+          // console.log("get num keys: "+limit+" of "+resultList.length);
           for (var i = 0 ; i < limit ; i++) {
             postsMetadataList.push(JSON.parse(resultList[i]));
           }
@@ -561,7 +573,7 @@ app.get("/stats-data-json", function(req, res) {
               num_votes: numVotes
             });
           }
-          console.log("Sending summary: "+JSON.stringify(summary));
+          // console.log("Sending summary: "+JSON.stringify(summary));
           res.json({summary: summary});
         } else {
           res.json({postsMetadataList: postsMetadataList});
@@ -691,7 +703,7 @@ app.get("/run-bot", function(req, res) {
       return;
     }
     lib.runBot(function(obj) {
-      //console.log("lib.runBot returned: " + JSON.stringify(obj));
+      console.log("lib.runBot returned: " + JSON.stringify(obj));
       if (obj) {
         if (req.query.json) {
           // return json directly
@@ -708,9 +720,9 @@ app.get("/run-bot", function(req, res) {
                 handleError(res, "can't save temp file", "/stats: can't save temp file", 500);
               } else {
                 // #2, redirect to stats page instead
-                execStats(req, res);
-                //res.status(200).send(
-                //  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
+                // execStats(req, res);
+                res.status(200).send(
+                  createMsgPageHTML("Run bot success", html_msg_run_bot_body));
               }
             });
           });
@@ -1285,6 +1297,65 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     + html_edit_config2
   );
 });
+
+app.get("/edit-users", function(req, res) {
+// left here in case wewant to handle users individually someday.
+  var Users = lib.getUsers();
+  var change = false;
+  var html_title = "<h3 class=\"sub-header\">";
+    html_title += "</h3>"
+  if (change) {
+    lib.updateUsers(Users, function(err) {
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
+  }
+  res.status(200).send(
+    html_edit_users1
+    + html_title
+    + html_edit_users2
+  );
+});
+
+app.post("/edit-users", bodyParser.urlencoded({extended: false}), function(req, res) {
+  if (!req.session.api_key) {
+    handleError(res, "/stats Unauthorized", "edit-users: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/stats Unauthorized", "edit-users: session is invalid (out of date session key), please restart from Dashboard", 401);
+    return;
+  }
+  
+  // update users
+  var change=false;
+  try {
+    var newUsers = JSON.parse(req.body.users);
+    console.log("number of imported users: "+ newUsers.length);
+     if (newUsers.length>0) change = true;
+  } catch (err) {
+    console.log("POST /edit-users error: "+err.message);
+    handleError(res, "/stats Internal Server Error", "edit-users: updated users object could not be read", 500);
+    return;
+  }
+  var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated Users" : "Nothing to update!") + "</h3>";
+  if (change) {
+  console.log("POST /edit-users: sending users: "+JSON.stringify(newUsers));
+    lib.updateUsers(newUsers, function(err) {  
+      //just log it
+      if (err) {
+        console.log(err)
+      }
+    });
+  }
+  res.status(200).send(
+    html_edit_users1
+    + html_title
+    + html_edit_users2
+  );
+});
+
 
 app.get("/api-error", function(req, res) {
   var title = "Api Error";

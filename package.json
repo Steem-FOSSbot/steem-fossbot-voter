@@ -29,7 +29,7 @@
     "body-parser": "^1.13.3",
     "cookie-parser": "^1.4.3",
     "cookies": "^0.6.2",
-    "steem": "git://github.com/steemit/steem-js.git",
+    "steem-js": "git://github.com/steemit/steem-js.git",
     "sendgrid": "^4.2.0",
     "q": "1.4.1",
     "redis": "2.6.3",

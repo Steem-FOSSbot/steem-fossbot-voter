@@ -156,7 +156,6 @@ const
   ];
 
 const
-	steem = require("Steem"),
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),
@@ -173,6 +172,10 @@ const
   langDetector = new LanguageDetect(),
   moment_tz = require('moment-timezone'),
   moment = require('moment');
+
+import {
+  steem as Steem
+} from '@steemit/steem-js';
 
 const
   MILLIS_IN_DAY = 86400000,

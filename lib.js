@@ -156,7 +156,7 @@ const
   ];
 
 const
-	steem = require("steem"),
+	steem = require("Steem"),
   Q = require("q"),
   redis = require("redis"),
   redisClient = require('redis').createClient(process.env.REDIS_URL),

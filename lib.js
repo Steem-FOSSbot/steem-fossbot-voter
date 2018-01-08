@@ -513,7 +513,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-    // transform post data to metrics 1, get owner metrics
+    // transform post data to metrics 1, get owner metrics 
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 1: owner metrics...");
       var deferred = Q.defer();
@@ -595,7 +595,7 @@ function runBot(callback, options) {
           if (err) {
             persistentLog(LOG_GENERAL, " - error, can't get "+voter+" votes: "+err.message);
           } else {
-            for (var k = 0 ; k < userAccounts.length ; k++) {
+            for (var k = 0 ; k < userAccounts.length ; k++) { 
               users[userAccounts[k].name] = userAccounts[k];
             }
           }
@@ -737,8 +737,8 @@ function runBot(callback, options) {
         if (users[posts[i].author]) {
           // get capital value
           var steemPower = getSteemPowerFromVest(users[posts[i].author].vesting_shares);
-          //metrics.author.capital_val: Capital (Steem Power) by value
-          postsMetrics[i].author_capital_val = steemPower;
+          //metrics.author.capital_val: Capital (Steem Power) by value 
+          postsMetrics[i].author_capital_val = steemPower; 
           if (steemPower >= configVars.CAPITAL_WHALE_MIN) {
             postsMetrics[i].author_is_minnow = 0;
             postsMetrics[i].author_is_dolphin = 0;
@@ -924,7 +924,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_num_links_video = 0;
         postsMetrics[i].post_num_links_image = 0;
         postsMetrics[i].post_num_links_page = 0;
-        postsMetrics[i].post_num_links_total = 0;
+        postsMetrics[i].post_num_links_total = 0; 
         postsMetrics[i].post_num_link_domains_whitelisted = 0;
         postsMetrics[i].post_num_link_domains_blacklisted = 0;
         //persistentLog(LOG_VERBOSE, " - - classifying urls");
@@ -1294,7 +1294,7 @@ function runBot(callback, options) {
         // back to http if not called locally
         callback(
           {
-            status: 200,
+            status: 200, 
             message: "Scores calculated, votes will now be cast. Check log and / or email for full log and result.",
             posts: postsMetadata
           });
@@ -1692,9 +1692,8 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem(callback) {
-  // ~~#50, fix Websocket address, server has migrated to new URL~~
-  // #93, set Websocket address to new address, doesn't seem to be updated in steem-js yet
-  steem.api.setWebSocket('wss://api.steemit.com');
+  // #50, fix Websocket address, server has migrated to new URL
+  //steem.api.setWebSocket('wss://steemd.steemit.com');
   // #71, no longer need to set this
   var processes = [
     function() {
@@ -2386,7 +2385,7 @@ function sendEmail(subject, message, isHtml, callback) {
 	}
   persistentLog(LOG_VERBOSE, "sendEmail to:"+process.env.EMAIL_ADDRESS_TO+", subject: "+subject);
 	var helper = require('sendgrid').mail;
-	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER
+	var from_email = new helper.Email((process.env.EMAIL_ADDRESS_SENDER 
       && process.env.EMAIL_ADDRESS_SENDER.localeCompare("none") != 0)
 		? process.env.EMAIL_ADDRESS_SENDER : 'bot@fossbot.org');
 	var to_email = new helper.Email(process.env.EMAIL_ADDRESS_TO);

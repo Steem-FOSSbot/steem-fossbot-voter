@@ -20,7 +20,7 @@ This means _you own the server_ and control it completely. There are no fees or 
 
 You control the running of the bot, set the algorithm and view stats and logs with a simple web dashboard, which will be live at your Heroku URL. See [Usage](https://github.com/Steem-FOSSbot/steem-fossbot-voter#usage) below for more details.
 
-A plugin system has been proposed and will hopefully be implemented. Please refer to [the ticket](https://github.com/Steem-FOSSbot/project-tracker/issues/8) on the main [Steem FOSSbot organization project-tracker](https://github.com/Steem-FOSSbot/project-tracker) for more information. 
+A plugin system has been proposed and will hopefully be implemented. Please refer to [the ticket](https://github.com/Steem-FOSSbot/project-tracker/issues/8) on the main [Steem FOSSbot organization project-tracker](https://github.com/Steem-FOSSbot/project-tracker) for more information.
 
 Lastly, check out [our ethos](/docs/ethos.md). Bots can be a divisive subject and this document clearly lays out our position.
 
@@ -97,7 +97,7 @@ Several other Node NPM libraries are used as dependencies. Their source is not i
 - [string](https://www.npmjs.com/package/string) by az7arul, for misc super powered string manipulation
 - [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
-- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written langauge of the content (latin script only) 
+- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written langauge of the content (latin script only)
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
 - [moment](https://www.npmjs.com/package/moment) by ichernev and [moment-timezone](https://www.npmjs.com/package/moment-timezone) by maggiepint, for better date handling, formatting and time zone adjustment
 
@@ -113,11 +113,13 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Note
 
-In the next minor version of Voter the Redis database will be changed for a 
+In the next minor version of Voter the Redis database will be changed for a
 MongoDB database.
 
 ## Changelog
 
+- v0.2.10
+  - Emergency bug fix, change WebSocket server to GTG hosted, fixes #93
 - v0.2.9
   - Swtich to voting power conservation instead of max votes per day
   - Completed issues #7, #87, 25, #71, #90

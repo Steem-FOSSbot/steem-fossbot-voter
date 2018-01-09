@@ -9,13 +9,13 @@ A good algorithm starts with a hypothesis about what makes a good post. This sho
 As an example, let's say I like long form articles about interesting subjects, I see they get good rewards and I think they contribute to the culture of Steemit. So I hypothesise that good long form articles have more than 200 words, some images, not too many videos and that the best ones are usually written by someone with a bit of reputation, they've been here a while. Also, they are in English, because I cannot read another language and so would not vote for any in another language naturally.
 
 In that case I might set the following algorithm:
-- ```post_num_words in range 200 to 600, weight = -0.5```
+- ```post_num_words in range 200 to 600, weight = 0.5```
 - ```post_num_links_image in range 0 to 5, weight = 10```
 - ```post_num_links_video, weight = -25```
 - ```author_repuation, weight = 1```
 - ```post_has_english_language_use, weight = 50```
 
-We're using ranges here in some cases to make the metric values more sensible. We don't care if there are more than 5 images, and don't want to over score based on that. This is similar for number of words and the reputation range. Also note that the ```post_has_english_language_use``` is a true or false, so if true then 40 will be added to score, if false nothing will.
+We're using ranges here in some cases to make the metric values more sensible. We don't care if there are more than 5 images, and don't want to over score based on that. This is similar for number of words range. Also note that the ```post_has_english_language_use``` is a true or false, so if true then 50 will be added to score, if false nothing will.
 
 ### Example 2, artistic posts
 
@@ -25,7 +25,7 @@ Perhaps we're just interested in artistic posts. The hypothesis is that these ki
 - ```post_images_only, weight = 500```
 - ```post_num_links_image, weight = 20```
 
-So for every word we loose 5 score post. If the post is images only (less than 100 words) then we add 1000, which is a lot but will high skew the score up for these kind of posts which we're mostly interested in. Additionally we add 100 for every image.
+So for every word we loose 1 score point. If the post is images only (less than 100 words) then we add 500, which is a lot but will high skew the score up for these kind of posts which we're mostly interested in. Additionally we add 20 for every image.
 
 ### Example 3, the sell out
 

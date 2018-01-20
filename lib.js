@@ -1717,7 +1717,7 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 }
 
 function persistObj(collection, obj, replacementQuery, callback) {
-  db.collection(collection).update(replacementQuery, obj, true, function (err, existing) {
+  db.collection(collection).updateOne(replacementQuery, obj, true, function (err, existing) {
     if (err) {
       callback(err);
     } else {

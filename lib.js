@@ -1724,9 +1724,9 @@ function persistObj(collection, obj, replacementQuery, callback) {
     }
     var saveObj;
     if (existing === undefined || existing === null) {
-      saveObj = clone(obj);
+      saveObj = obj;
     } else {
-      saveObj = clone(existing);
+      saveObj = existing;
       for (var key in obj) {
         saveObj[key] = obj[key];
       }

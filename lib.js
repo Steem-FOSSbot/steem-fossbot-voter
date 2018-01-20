@@ -305,7 +305,6 @@ runBot(messageCallback):
 * Process a bot iteration
 */
 function runBot(callback, options) {
-  setupLogging();
   persistentLog(LOG_GENERAL, "runBot started...");
   // begin bot logic, use promises with Q
   // some general vars
@@ -1453,6 +1452,7 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem(callback) {
+  setupLogging();
   // #93, use alternate websocket temporarily
   steem.api.setOptions({ url: 'https://api.steemit.com'});
   // #71, no longer need to set this

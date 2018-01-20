@@ -1717,32 +1717,13 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 }
 
 function persistObj(collection, obj, replacementQuery, callback) {
-  db.collection(collection).find(replacementQuery, function (err1, existing) {
-    if (err1) {
-      callback(err1);
-      return;
-    }
-    var saveObj;
-    if (existing === undefined || existing === null) {
-      saveObj = obj;
+  db.collection(collection).update(replacementQuery, obj, true, function (err, existing) {
+    if (err) {
+      callback(err);
     } else {
-      saveObj = existing;
-      for (var key in obj) {
-        saveObj[key] = obj[key];
-      }
+      persistentLog(LOG_VERBOSE, "persistObj save to db "+collection);
+      callback();
     }
-    if (saveObj === undefined || saveObj === null) {
-      callback("persistObj couldn't create save object");
-      return;
-    }
-    db.collection(collection).save(saveObj, function (err2, data) {
-      if (err2) {
-        callback(err2);
-      } else {
-        persistentLog(LOG_VERBOSE, "persistObj save for key "+key);
-        callback();
-      }
-    });
   });
 }
 

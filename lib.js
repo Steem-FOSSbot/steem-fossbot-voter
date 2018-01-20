@@ -1796,6 +1796,7 @@ function updateWeightMetric(query, apiKey, callback) {
     persistentLog(LOG_VERBOSE, "algorithm to save: "+JSON.stringify(algorithm));
     persistObj(DB_ALGORITHM, algorithm, {}, function (err2, result) {
       if (err2) {
+        console.error(err2);
         callback({status: 200, message: "Failed to save updated" +
         " algorithm: "+err2});
       } else {

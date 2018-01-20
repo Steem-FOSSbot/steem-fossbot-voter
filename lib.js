@@ -1453,10 +1453,8 @@ initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
 function initSteem(callback) {
-  // #50, fix Websocket address, server has migrated to new URL
-  //steem.api.setWebSocket('wss://steemd.steemit.com');
   // #93, use alternate websocket temporarily
-  steem.config.set('websocket','wss://gtg.steem.house:8090');
+  steem.api.setOptions({ url: 'https://api.steemit.com'});
   // #71, no longer need to set this
   var processes = [
     function() {

@@ -1323,7 +1323,7 @@ function runBot(callback, options) {
     }
   })
   .catch(function (err) {
-    setError("stopped", false, err.message);
+    console.error(err);
     if (callback !== undefined && callback !== null) {
       setTimeout(function () {
         callback(postsMetadata);
@@ -1557,7 +1557,7 @@ function initSteem(callback) {
       }
     })
     .catch(function (err) {
-      setError("stopped", false, err.message);
+      console.error(err);
       callback(false);
     });
 }
@@ -1566,20 +1566,16 @@ function initSteem(callback) {
 getUserAccount():
 */
 function getUserAccount(callback) {
-  if (showFatalError()) {
-    callback({message: "Fatal error in getUserAccount"});
-    return;
-  }
   if (process.env.STEEM_USER) {
     steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
       console.log(err, result);
       if (err || result.length < 1) {
-        setError("init_error", true, "Could not fetch STEEM_USER"+(err ? ": "+err.message : ""));
+        console.error(err);
         callback({message: "Fatal error in getUserAccount"});
       } else {
         // check if user can vote, if not this app is useless
         if (!result[0].can_vote) {
-          setError("init_error", true, "User "+process.env.STEEM_USER+"cannot vote!");
+          console.error("User "+process.env.STEEM_USER+"cannot vote!");
           callback({message: "Fatal error in getUserAccount"});
           return;
         }
@@ -1590,7 +1586,7 @@ function getUserAccount(callback) {
         steem.api.getDynamicGlobalProperties(function(err, properties) {
           //console.log(err, properties);
           if (err) {
-            setError("init_error", false, "Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
+            console.error("Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
             callback({message: "Fatal error in getUserAccount"});
           } else {
             steemGlobalProperties = properties;
@@ -1600,7 +1596,7 @@ function getUserAccount(callback) {
           steem.api.getBlockHeader(properties.head_block_number, function(err, headBlock) {
             //callback(err, result);
             if (err) {
-              setError("init_error", false, "Can't get head block info");
+              console.error("Can't get head block info");
             } else {
               owner.latest_block_time = moment(headBlock.timestamp, moment.ISO_8601);
               console.log("latest block time: "+owner.latest_block_time.toISOString());
@@ -1620,7 +1616,7 @@ function getUserAccount(callback) {
                 console.log("getFollowing");
                 following = [];
                 if (err || followersResult === undefined) {
-                  setError("init_error", false, "Can't get following accounts");
+                  console.error("Can't get following accounts");
                   callback({message: "Fatal error in getUserAccount"});
                 } else {
                   following = followersResult;
@@ -2013,7 +2009,7 @@ function getSteemPowerFromVest(vest) {
       parseFloat(steemGlobalProperties.total_vesting_fund_steem)
     );
   } catch(err) {
-    setError(null, false, "Error formatting owner vest shares to Steem");
+    console.error(err);
   }
   return 0;
 }
@@ -2106,21 +2102,17 @@ testEnvVars():
 * Test environment variables and log results
 */
 function testEnvVars(callback) {
-  if (showFatalError()) {
-    callback({message: "Fatal error in testEnvVars"});
-    return;
-  }
   console.log("steem user: "+process.env.STEEM_USER);
   if (!process.env.STEEM_USER) {
-    setError("init_error", true, "No STEEM_USER config var set, minimum env vars requirements not met");
+    console.error("No STEEM_USER config var set, minimum env vars requirements not met");
   }
   console.log("private posting key?: "+(process.env.POSTING_KEY_PRV ? "true" : "false"));
   if (!process.env.POSTING_KEY_PRV) {
-    setError("init_error", true, "No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
+    console.error("No POSTING_KEY_PRV config var set, minimum env vars requirements not met");
   }
   console.log("api key?: "+(process.env.BOT_API_KEY ? "true" : "false"));
   if (!process.env.BOT_API_KEY) {
-    setError("init_error", true, "No BOT_API_KEY config var set, minimum env vars requirements not met");
+    console.error("No BOT_API_KEY config var set, minimum env vars requirements not met");
   }
 
   if (!fatalError) {
@@ -2151,10 +2143,6 @@ module.exports.DB_ALGORITHM = DB_ALGORITHM;
 module.exports.runBot = runBot;
 module.exports.testEnvVars = testEnvVars;
 module.exports.initSteem = initSteem;
-module.exports.setError = setError;
-module.exports.hasFatalError = hasFatalError;
-module.exports.getServerState = getServerState;
-module.exports.showFatalError = showFatalError;
 module.exports.persistObj = persistObj;
 module.exports.getPersistentObj = getPersistentObj;
 module.exports.getDailyLikedPosts = getDailyLikedPosts;

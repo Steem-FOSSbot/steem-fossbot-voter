@@ -74,14 +74,7 @@ app.use(expressSession({
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
   lib.initSteem(function() {
-    if (!lib.hasFatalError()) {
-      console.log("Dashboard min requirements met, will be active on HTTPS");
-      loadFiles();
-    } else {
-      // kill node server to stop dashboard from showing and let owner know there is a problem without
-      // giving any information away
-      process.exit();
-    }
+    loadFiles();
   });
 });
 
@@ -465,7 +458,7 @@ app.get("/last-log", function(req, res) {
         handleError(res, "can't save temp file", "/last-log: can't save temp file", 500);
       } else {
         res.status(200).send(
-          html_last_log1 
+          html_last_log1
           + "/tmp-stats.html"
           + html_last_log2);
       }
@@ -559,7 +552,7 @@ app.get("/get-algo", function(req, res) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
     return;
   }
-  lib.getPersistentObj("algorithm", function(err, algorithm) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algorithm) {
     console.log("attempted to get algorithm: "+algorithm);
     if (algorithm != null) {
       res.json(JSON.stringify(algorithm));
@@ -625,7 +618,7 @@ app.get("/run-bot", function(req, res) {
     handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
-  lib.getPersistentObj("algorithm", function(err, algo) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algo) {
     if (err || algo === null) {
       res.status(200).send(
         createMsgPageHTML("Run Bot", "Algorithm is not yet set!<br/>Go to <strong>Edit Algo</strong> from the dashboard to create it."));
@@ -664,7 +657,7 @@ app.get("/edit-algo", function(req, res) {
     lib.deleteWeightMetric(req.query.delete, process.env.BOT_API_KEY, function(result) {
       console.log("lib.deleteWeightMetric result: "+JSON.stringify(result));
       // show edit-algo as normal
-      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");
     });
     return;
   }
@@ -700,11 +693,11 @@ app.get("/edit-algo", function(req, res) {
     lib.updateMetricList(str, contents, process.env.BOT_API_KEY, function(result) {
       console.log("lib.updateMetricList result: "+JSON.stringify(result));
       // show edit-algo as normal
-      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+      editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");
     });
     return;
   }
-  editAlgoExec(res);  
+  editAlgoExec(res);
 });
 
 // POST /edit-algo
@@ -770,13 +763,13 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
       return;
     }
     console.log(" - update algorithm");
-    lib.persistObj("algorithm", JSON.parse(req.body.json_algo), function(err) {
+    lib.persistObj(lib.DB_ALGORITHM, JSON.parse(req.body.json_algo), {}, function(err) {
       if (err !== undefined) {
         console.log(" - - ERROR SAVING algorithm");
         // TODO : show this on page
       }
     });
-    editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");  
+    editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");
     return;
   }
   // create query
@@ -794,12 +787,12 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   lib.updateWeightMetric(query, process.env.BOT_API_KEY, function(result) {
     console.log("lib.updateWeightMetric result: "+JSON.stringify(result));
     // show edit-algo as normal
-    editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");  
+    editAlgoExec(res, "<h2 class=\"sub-header\">"+result.message+"</h2>");
   });
 });
 
 function editAlgoExec(res, message) {
-  lib.getPersistentObj("algorithm", function(err, algorithmResult) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algorithmResult) {
     var algorithm = {};
     if (err || algorithmResult === undefined || algorithmResult === null) {
       console.log(" - no algorithm in db, USING DEFAULT");

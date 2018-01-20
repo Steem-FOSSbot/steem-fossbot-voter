@@ -494,7 +494,7 @@ function runBot(callback, options) {
       // update last fetched post
       if (options == null || !options.hasOwnProperty("test") || !options.test ) {
         lastPost = posts[0];
-        persistObj(DB_LAST_POST, lastPost, {}, function(err, data) {});
+        persistObj(DB_LAST_POST, lastPost, function(err, data) {});
       } else {
         persistentLog(LOG_VERBOSE, "didn't set lastpost, this is a test run");
       }
@@ -1262,7 +1262,7 @@ function runBot(callback, options) {
         }
         // save updated avgWindowInfo
         persistentLog(LOG_VERBOSE, " - saving avg_window_info");
-        persistObj(DB_AVG_WINDOW_INFO, avgWindowInfo, {}, function (err) {
+        persistObj(DB_AVG_WINDOW_INFO, avgWindowInfo, function (err) {
           if (err) {
             persistentLog(LOG_GENERAL, " - - ERROR SAVING avg_window_info");
           }
@@ -1729,7 +1729,7 @@ function persistObj(collection, obj, callback) {
 }
 
 function getPersistentObj(collection, callback) {
-  db.collection(collection).find({}}).toArray(function(err, obj) {
+  db.collection(collection).find({}).toArray(function(err, obj) {
     if (err) {
       callback(err);
     } else if (obj !== undefined && obj !== null && obj.length !== 0){

@@ -1621,6 +1621,9 @@ function getUserAccount(callback) {
         });
       }
     });
+  } else {
+    console.error("No STEEM_USER environment variable set");
+    callback({message: "Fatal error in getUserAccount"});
   }
 }
 

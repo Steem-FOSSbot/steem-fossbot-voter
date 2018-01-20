@@ -1716,7 +1716,7 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
   });
 }
 
-function persistObj(collection, obj, replacementQuery, callback) {
+function persistObj(collection, obj, callback) {
   db.collection(collection).drop();
   db.collection(collection).save(obj, function (err, existing) {
     if (err) {
@@ -1729,7 +1729,7 @@ function persistObj(collection, obj, replacementQuery, callback) {
 }
 
 function getPersistentObj(collection, callback) {
-  db.collection(collection).find(query).toArray(function(err, obj) {
+  db.collection(collection).find({}}).toArray(function(err, obj) {
     if (err) {
       callback(err);
     } else if (obj !== undefined && obj !== null && obj.length !== 0){
@@ -1776,7 +1776,7 @@ function updateWeightMetric(query, apiKey, callback) {
       algorithm.weights.push(query);
     }
     persistentLog(LOG_VERBOSE, "algorithm to save: "+JSON.stringify(algorithm));
-    persistObj(DB_ALGORITHM, algorithm, {}, function (err2, result) {
+    persistObj(DB_ALGORITHM, algorithm, function (err2, result) {
       if (err2) {
         console.error(err2);
         callback({status: 200, message: "Failed to save updated" +
@@ -1815,7 +1815,7 @@ function deleteWeightMetric(key, apiKey, callback) {
       } // else don't add, effectively delete
     }
     algorithm.weights = newWeights;
-    persistObj(DB_ALGORITHM, algorithm, {}, function(err, data) {
+    persistObj(DB_ALGORITHM, algorithm, function(err, data) {
       // do nothing
     });
     if (callback !== undefined) {
@@ -1860,7 +1860,7 @@ function updateMetricList(list, contents, apiKey, callback) {
       persistentLog(LOG_VERBOSE, " - updated algorithm from db: "+JSON.stringify(algorithm));
     }
     algorithm[list] = parts;
-    persistObj(DB_ALGORITHM, algorithm, {}, function(err, data) {});
+    persistObj(DB_ALGORITHM, algorithm, function(err, data) {});
     if (callback !== undefined) {
       callback({status: 200, message: "Updated black / white list: "+list});
     }
@@ -2018,7 +2018,7 @@ function updateConfigVars(newConfigVars, callback) {
   }
   configVars = newConfigVars;
   persistentLog(LOG_VERBOSE, "updateConfigVars: "+JSON.stringify(newConfigVars));
-  persistObj(DB_CONFIG_VARS, newConfigVars, {}, function(err) {
+  persistObj(DB_CONFIG_VARS, newConfigVars, function(err) {
     if (err) {
       persistentLog(LOG_VERBOSE, "Error updating config vars: "+err.message);
       callback({message: "Fatal error in updateConfigVars"});

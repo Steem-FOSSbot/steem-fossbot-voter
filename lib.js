@@ -1777,7 +1777,7 @@ function updateWeightMetric(query, apiKey, callback) {
     }
     return;
   }
-  getPersistentObj(DB_ALGORITHM, {}, function(err, algorithmResult) {
+  getPersistentObj(DB_ALGORITHM, {}, function(err1, algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
       persistentLog(LOG_VERBOSE, " - updated algorithm from db: "+JSON.stringify(algorithm));
@@ -1793,10 +1793,10 @@ function updateWeightMetric(query, apiKey, callback) {
     if (!match) {
       algorithm.weights.push(query);
     }
-    persistObj(DB_ALGORITHM, algorithm, {}, function (err, result) {
-      if (err) {
+    persistObj(DB_ALGORITHM, algorithm, {}, function (err2, result) {
+      if (err2) {
         callback({status: 200, message: "Failed to save updated" +
-        " algorithm: "+err});
+        " algorithm: "+err2});
       } else {
         callback({status: 200, message: "Added key to algorithm: "+query.key});
       }

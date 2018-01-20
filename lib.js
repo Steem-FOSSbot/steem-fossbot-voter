@@ -226,9 +226,6 @@ var configVars = {
 var db;
 
 /* Private variables */
-var fatalError = false;
-var serverState = "stopped";
-
 var steemGlobalProperties = {};
 
 // algorithm
@@ -310,14 +307,6 @@ runBot(messageCallback):
 function runBot(callback, options) {
   setupLogging();
   persistentLog(LOG_GENERAL, "runBot started...");
-  persistentLog(LOG_VERBOSE, "mainLoop: started, state: "+serverState);
-  // first, check bot can run
-  if (fatalError) {
-    if (callback) {
-      callback(null);
-    }
-    return;
-  }
   // begin bot logic, use promises with Q
   // some general vars
   var timeNow = new Date();
@@ -2115,12 +2104,7 @@ function testEnvVars(callback) {
     console.error("No BOT_API_KEY config var set, minimum env vars requirements not met");
   }
 
-  if (!fatalError) {
-    serverState = "started";
-    callback();
-  } else {
-    callback({message: "Error in testEnvVars"});
-  }
+  callback();
 }
 
 function startDb(callback) {

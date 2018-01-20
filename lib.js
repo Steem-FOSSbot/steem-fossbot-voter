@@ -506,7 +506,7 @@ function runBot(callback, options) {
       // update last fetched post
       if (options == null || !options.hasOwnProperty("test") || !options.test ) {
         lastPost = posts[0];
-        persistObj(DB_LAST_POST, lastPost, {}, funtion(err, data) {});
+        persistObj(DB_LAST_POST, lastPost, {}, function(err, data) {});
       } else {
         persistentLog(LOG_VERBOSE, "didn't set lastpost, this is a test run");
       }

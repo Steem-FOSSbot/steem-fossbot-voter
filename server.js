@@ -552,7 +552,7 @@ app.get("/get-algo", function(req, res) {
     handleError(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401);
     return;
   }
-  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algorithm) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithm) {
     console.log("attempted to get algorithm: "+algorithm);
     if (algorithm != null) {
       res.json(JSON.stringify(algorithm));
@@ -618,7 +618,7 @@ app.get("/run-bot", function(req, res) {
     handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
     return;
   }
-  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algo) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algo) {
     if (err || algo === null) {
       res.status(200).send(
         createMsgPageHTML("Run Bot", "Algorithm is not yet set!<br/>Go to <strong>Edit Algo</strong> from the dashboard to create it."));
@@ -792,7 +792,7 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
 });
 
 function editAlgoExec(res, message) {
-  lib.getPersistentObj(lib.DB_ALGORITHM, {}, function(err, algorithmResult) {
+  lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithmResult) {
     var algorithm = {};
     if (err || algorithmResult === undefined || algorithmResult === null) {
       console.log(" - no algorithm in db, USING DEFAULT");

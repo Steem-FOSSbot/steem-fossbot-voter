@@ -510,7 +510,7 @@ function runBot(callback, options) {
       deferred.resolve(true);
       return deferred.promise;
     },
-    // transform post data to metrics 1, get owner metrics 
+    // transform post data to metrics 1, get owner metrics
     function () {
       persistentLog(LOG_GENERAL, "metrics generation 1: owner metrics...");
       var deferred = Q.defer();
@@ -592,7 +592,7 @@ function runBot(callback, options) {
           if (err) {
             persistentLog(LOG_GENERAL, " - error, can't get "+voter+" votes: "+err.message);
           } else {
-            for (var k = 0 ; k < userAccounts.length ; k++) { 
+            for (var k = 0 ; k < userAccounts.length ; k++) {
               users[userAccounts[k].name] = userAccounts[k];
             }
           }
@@ -734,8 +734,8 @@ function runBot(callback, options) {
         if (users[posts[i].author]) {
           // get capital value
           var steemPower = getSteemPowerFromVest(users[posts[i].author].vesting_shares);
-          //metrics.author.capital_val: Capital (Steem Power) by value 
-          postsMetrics[i].author_capital_val = steemPower; 
+          //metrics.author.capital_val: Capital (Steem Power) by value
+          postsMetrics[i].author_capital_val = steemPower;
           if (steemPower >= configVars.CAPITAL_WHALE_MIN) {
             postsMetrics[i].author_is_minnow = 0;
             postsMetrics[i].author_is_dolphin = 0;
@@ -921,7 +921,7 @@ function runBot(callback, options) {
         postsMetrics[i].post_num_links_video = 0;
         postsMetrics[i].post_num_links_image = 0;
         postsMetrics[i].post_num_links_page = 0;
-        postsMetrics[i].post_num_links_total = 0; 
+        postsMetrics[i].post_num_links_total = 0;
         postsMetrics[i].post_num_link_domains_whitelisted = 0;
         postsMetrics[i].post_num_link_domains_blacklisted = 0;
         //persistentLog(LOG_VERBOSE, " - - classifying urls");
@@ -1461,6 +1461,8 @@ initSteem():
 function initSteem(callback) {
   // #50, fix Websocket address, server has migrated to new URL
   //steem.api.setWebSocket('wss://steemd.steemit.com');
+  // #93, use alternate websocket temporarily
+  steem.config.set('websocket','wss://gtg.steem.house:8090');
   // #71, no longer need to set this
   var processes = [
     function() {

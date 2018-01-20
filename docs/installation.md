@@ -2,9 +2,11 @@
 
 This node server is designed to be flexible enough to run on a cloud service or locally on any machine. You also have the option of how to trigger bot updates (when the bot will run to process posts), either together on the cloud or by GET requesting a URI. 
 
-## Locally (Desktop)
+## Locally (Desktop or Server)
 
-_Guide not available yet (will require some supporting changes) but you are free to try yourself!_
+The Docker can run on almost any device such as a server, desktop, laptop or phone. 
+Installation instructions here: https://github.com/Steem-FOSSbot/voter-docker
+
 
 ## On Heroku
 

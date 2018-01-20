@@ -26,7 +26,7 @@
     "body-parser": "^1.13.3",
     "cookie-parser": "^1.4.3",
     "cookies": "^0.6.2",
-    "steem": "^0.4.7",
+    "steem": "0.6.4",
     "q": "1.4.1",
     "glossary": "0.1.1",
     "string": "3.3.3",

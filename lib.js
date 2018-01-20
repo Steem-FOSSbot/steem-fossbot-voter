@@ -334,7 +334,7 @@ function runBot(callback, options) {
       persistentLog(LOG_GENERAL, "pre set up...");
       var deferred = Q.defer();
       // update average window details
-      getPersistentObj(DB_AVG_WINDOW_INFO, {}, function(err, info) {
+      getPersistentObj(DB_AVG_WINDOW_INFO, function(err, info) {
         if (err || info === undefined || info == null) {
           persistentLog(LOG_VERBOSE, " - no avgWindowInfo in db, probably" +
             " first time bot run");
@@ -347,7 +347,7 @@ function runBot(callback, options) {
           avgWindowInfo = info;
           persistentLog(LOG_VERBOSE, " - updated avgWindowInfo from db: "+JSON.stringify(avgWindowInfo));
         }
-        getPersistentObj(DB_ALGORITHM, {}, function(err, algorithmResult) {
+        getPersistentObj(DB_ALGORITHM, function(err, algorithmResult) {
           if (err || algorithmResult === undefined || algorithmResult === null) {
             algorithmSet = false;
             persistentLog(LOG_VERBOSE, " - no algorithm in db, empty");
@@ -1493,7 +1493,7 @@ function initSteem(callback) {
     function() {
       var deferred = Q.defer();
       // get last post
-      getPersistentObj(DB_LAST_POST, {}, function(err, post) {
+      getPersistentObj(DB_LAST_POST, function(err, post) {
         if (err) {
           console.log("no last post, probably this is first run for server");
           throw err;
@@ -1511,7 +1511,7 @@ function initSteem(callback) {
     },
     function() {
       var deferred = Q.defer();
-      getPersistentObj(DB_CONFIG_VARS, {}, function(err, configVarsResult) {
+      getPersistentObj(DB_CONFIG_VARS, function(err, configVarsResult) {
         if (err !== undefined && err !== null && configVarsResult !== undefined && configVarsResult !== null) {
           updateConfigVars(configVarsResult, function(err) {
             if (err) {
@@ -1717,6 +1717,7 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 }
 
 function persistObj(collection, obj, replacementQuery, callback) {
+  db.collection(collection).drop();
   db.collection(collection).save(obj, function (err, existing) {
     if (err) {
       callback(err);
@@ -1727,14 +1728,14 @@ function persistObj(collection, obj, replacementQuery, callback) {
   });
 }
 
-function getPersistentObj(collection, query, callback) {
+function getPersistentObj(collection, callback) {
   db.collection(collection).find(query).toArray(function(err, obj) {
     if (err) {
       callback(err);
-    } else if (obj === null || obj.length === 0 || obj[0] === null) {
-      callback(null, null);
+    } else if (obj !== undefined && obj !== null && obj.length !== 0){
+      callback(null, obj[0]);
     } else {
-      callback(null, obj[0].obj);
+      callback(null, null);
     }
   });
 }
@@ -1758,7 +1759,7 @@ function updateWeightMetric(query, apiKey, callback) {
     }
     return;
   }
-  getPersistentObj(DB_ALGORITHM, {}, function(err1, algorithmResult) {
+  getPersistentObj(DB_ALGORITHM, function(err1, algorithmResult) {
     if (algorithmResult != null) {
       algorithm = algorithmResult;
       persistentLog(LOG_VERBOSE, " - updated algorithm from db: "+JSON.stringify(algorithm));
@@ -1799,7 +1800,7 @@ function deleteWeightMetric(key, apiKey, callback) {
     }
     return;
   }
-  getPersistentObj(DB_ALGORITHM, {}, function(err, algorithmResult) {
+  getPersistentObj(DB_ALGORITHM, function(err, algorithmResult) {
     if (err) {
       persistentLog(LOG_VERBOSE, " - coudln't get from db, using" +
         " local version");
@@ -1837,7 +1838,7 @@ function updateMetricList(list, contents, apiKey, callback) {
   }
   // format contents
   var parts = S(contents.replace("  ", " ")).splitLeft(" ");
-  getPersistentObj(DB_ALGORITHM, {}, function(err, algorithmResult) {
+  getPersistentObj(DB_ALGORITHM, function(err, algorithmResult) {
     if (err) {
       persistentLog(LOG_VERBOSE, " - coudln't from db, using local" +
         " version");

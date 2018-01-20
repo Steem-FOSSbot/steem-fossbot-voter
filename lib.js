@@ -1761,9 +1761,11 @@ getPersistentObj(key):
 */
 function getPersistentObj(key, callback) {
   db.collection(DB_GENERAL).find({key: key}).toArray(function(err, obj) {
-    if (err || obj === null || obj.length === 0 || obj[0] === null) {
+    if (err) {
       setError(null, false, "getPersistentObj error for key "+key+": "+err);
       callback(err);
+    } else (obj === null || obj.length === 0 || obj[0] === null) {
+      callback(null, null);
     } else {
       callback(null, obj[0].obj);
     }

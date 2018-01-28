@@ -6,8 +6,8 @@ const
 
 // start bot iteration, this node script should be run as a job
 console.log("calling initSteem...");
-lib.initSteem(function(hasError) {
-  if (hasError) {
+lib.initSteem(function(success) {
+  if (!success) {
     console.log("initSteem failed!");
     process.exit();
   } else {

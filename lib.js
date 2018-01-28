@@ -417,8 +417,8 @@ function runBot(callback, options) {
               configVars = configVarsResult;
               persistentLog(LOG_VERBOSE, " - updated config from db: "+JSON.stringify(configVars));
             }
+            deferred.resolve(true);
           });
-          deferred.resolve(true);
         });
       });
       return deferred.promise;
@@ -1520,18 +1520,13 @@ function initSteem(callback) {
     function() {
       var deferred = Q.defer();
       getPersistentObj(DB_CONFIG_VARS, function(err, configVarsResult) {
-        if (err !== undefined && err !== null && configVarsResult !== undefined && configVarsResult !== null) {
-          updateConfigVars(configVarsResult, function(err) {
-            if (err) {
-              throw err;
-            } else {
-              deferred.resolve(true);
-            }
-          });
+        if (err || configVarsResult === undefined || configVarsResult === null) {
+          console.log("no config vars set yet, using default");
         } else {
-          // use default, already set
-          deferred.resolve(true);
+          console.log("got config vars from db");
+          configVars = configVarsResult;
         }
+        deferred.resolve(true);
       });
       return deferred.promise;
     }

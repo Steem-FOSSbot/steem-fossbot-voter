@@ -1918,7 +1918,9 @@ function savePostsMetadata(callback) {
 
 function getPostsMetadataList(save_date, callback) {
   db.collection(DB_POSTS_METADATA).find({save_date: save_date}).toArray(function(err, postsMetaDataResults) {
-    if (err || postsMetaDataResults === null && postsMetaDataResults.length === 0 || postsMetaDataResults[0] === null) {
+    if (err || postsMetaDataResults === undefined || postsMetaDataResults === null
+        || postsMetaDataResults.length === 0 || postsMetaDataResults[0] === undefined
+        || postsMetaDataResults[0] === null) {
       callback(err, null);
     } else {
       callback(null, postsMetaDataResults[0].posts_metadata_list);

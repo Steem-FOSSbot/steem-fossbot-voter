@@ -1917,6 +1917,7 @@ function savePostsMetadata(callback) {
 }
 
 function getPostsMetadataList(save_date, callback) {
+  persistentLog(LOG_VERBOSE, " - fetching posts metadata for save_date: "+save_date);
   db.collection(DB_POSTS_METADATA).find({"save_date": save_date}).toArray(function(err, postsMetaDataResults) {
     if (err || postsMetaDataResults === undefined || postsMetaDataResults === null
         || postsMetaDataResults.length === 0 || postsMetaDataResults[0] === undefined

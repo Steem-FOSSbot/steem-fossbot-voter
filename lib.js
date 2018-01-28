@@ -1908,7 +1908,7 @@ function savePostsMetadata(callback) {
         } else {
           persistentLog(LOG_VERBOSE, " - - saved posts metadata");
           if (callback !== undefined) {
-            callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata with key: " + key});
+            callback({status: 200, message: "savePostsMetadata, success, saved postsMetadata"});
           }
         }
       });

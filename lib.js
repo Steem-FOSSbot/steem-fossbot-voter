@@ -1956,7 +1956,7 @@ function getPostsMetadataSummary(callback) {
                 numVotes++;
               }
             }
-            var dateTime = moment_tz.tz(doc.save_date, lib.getConfigVars().TIME_ZONE);
+            var dateTime = moment_tz.tz(doc.save_date, configVars.TIME_ZONE);
             summary.push({
               date: doc.save_date,
               date_str: (dateTime.format("MM/DD/YY HH:mm")),

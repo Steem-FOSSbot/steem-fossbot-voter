@@ -1941,33 +1941,45 @@ function getPostsMetadataAllDates(callback) {
 }
 
 function getPostsMetadataSummary(callback) {
-  wait.launchFiber(function() {
-    var summary = [];
-    var cursor = db.collection(DB_POSTS_METADATA).find({});
-    var doc = {};
-    while (doc !== null) {
-      try {
-        doc = wait.for(cursor.each);
-        var numVotes = 0;
-        for (var j = 0; j < doc.posts_metadata_list.length; j++) {
-          if (doc.posts_metadata_list[j].vote) {
-            numVotes++;
+  var summary = [];
+  db.collection(DB_POSTS_METADATA).find({}).count(function(err, count) {
+      if (err) {
+        console.error(err);
+        callback(summary);
+      } else {
+        var recordsCount = count;
+        db.collection(DB_POSTS_METADATA).find({}).forEach(function(doc) {
+          wait.launchFiber(function() {
+            var numVotes = 0;
+            for (var j = 0; j < doc.posts_metadata_list.length; j++) {
+              if (doc.posts_metadata_list[j].vote) {
+                numVotes++;
+              }
+            }
+            var dateTime = moment_tz.tz(doc.save_date, lib.getConfigVars().TIME_ZONE);
+            summary.push({
+              date: doc.save_date,
+              date_str: (dateTime.format("MM/DD/YY HH:mm")),
+              date_day: dateTime.date(),
+              num_posts: doc.posts_metadata_list.length,
+              num_votes: numVotes
+            });
+
+            // TODO : use a better method than a counter to know when forEach done
+            if (--recordsCount <= 0) {
+              // done
+              persistentLog(LOG_VERBOSE, "Finished getPostsMetadataSummary");
+              callback(summary);
+            }
+          });
+        }, function(err) {
+          if (err) {
+            console.error(err);
+            callback(summary);
           }
-        }
-        var dateTime = moment_tz.tz(doc.save_date, lib.getConfigVars().TIME_ZONE);
-        summary.push({
-          date: doc.save_date,
-          date_str: (dateTime.format("MM/DD/YY HH:mm")),
-          date_day: dateTime.date(),
-          num_posts: doc.posts_metadata_list.length,
-          num_votes: numVotes
         });
-      } catch (err) {
-        console.log(" - getPostsMetadataSummary, no docs left");
       }
-    }
-    callback(summary);
-  });
+    });
 }
 
 /*

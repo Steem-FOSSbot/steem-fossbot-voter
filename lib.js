@@ -410,6 +410,14 @@ function runBot(callback, options) {
               break;
             }
           }
+          getPersistentObj(DB_CONFIG_VARS, function(err, configVarsResult) {
+            if (err || configVarsResult === undefined || configVarsResult === null) {
+              persistentLog(LOG_VERBOSE, " - couldnt update config, using default: "+JSON.stringify(configVars));
+            } else {
+              configVars = configVarsResult;
+              persistentLog(LOG_VERBOSE, " - updated config from db: "+JSON.stringify(configVars));
+            }
+          });
           deferred.resolve(true);
         });
       });

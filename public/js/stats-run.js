@@ -6,16 +6,16 @@ function getKey() {
 	var key = "";
 	var parts = window.location.href.split("&");
 	for (var i = 0 ; i < parts.length ; i++) {
-		var idx = parts[i].search("pd_key=");
+		var idx = parts[i].search("save_date=");
 		if (idx >= 0) {
-			key = parts[i].substring(idx + 7, parts[i].length);
+			key = parts[i].substring(idx + 10, parts[i].length);
 		}
 	}
 	return key;
 }
 
 function loadChart() {
-	$.getJSON( "/stats-data-json?session_key="+getCookie("session_key")+"&pd_key="+getKey(), function(data) {
+	$.getJSON( "/stats-data-json?session_key="+getCookie("session_key")+"&save_date="+getKey(), function(data) {
 		var xTicks = ['x'];
 		var numData_score_total = ['Total score'];
 		var numData_threshold = ['Threshold'];

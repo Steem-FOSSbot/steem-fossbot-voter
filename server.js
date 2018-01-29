@@ -486,26 +486,23 @@ app.get("/stats-data-json", function(req, res) {
       res.json(postsMetadataList);
     });
     return;
-  }
-  lib.getPostsMetadataAllDates(function(err, dates) {
-    if (err || dates === undefined || dates === null) {
-      handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no data in store, no keys", 500);
-      return;
-    }
-    console.log(" - /stats-data-json dates: "+JSON.stringify(dates));
-    if (req.query.count_only) {
+  } else if (req.query.summary) {
+    lib.getPostsMetadataSummary(function (summary) {
+      console.log("Sending summary: "+JSON.stringify(summary));
+      res.json({summary: summary});
+    });
+  } else if (req.query.count_only) {
+    lib.getPostsMetadataAllDates(function(err, dates) {
+      if (err || dates === undefined || dates === null) {
+        handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no data in store, no keys", 500);
+        return;
+      }
+      console.log(" - /stats-data-json dates: "+JSON.stringify(dates));
       res.json({num_keys: dates.length});
-      return;
-    }
-    if (req.query.summary) {
-      lib.getPostsMetadataSummary(function (summary) {
-        console.log("Sending summary: "+JSON.stringify(summary));
-        res.json({summary: summary});
-      });
-    } else {
-      res.json({postsMetadataList: postsMetadataList});
-    }
-  });
+    });
+  } else {
+    handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: no query", 500);
+  }
 });
 
 app.get("/get-config-vars", function(req, res) {

@@ -479,7 +479,7 @@ app.get("/stats-data-json", function(req, res) {
   }
   if (req.query.save_date) {
     lib.getPostsMetadataList(req.query.save_date, function(err, postsMetadataList) {
-      if (err || postsMetadataList === null) {
+      if (err || postsMetadataList === undefined || postsMetadataList === null) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.save_date+" could not be fetched", 500);
         return;
       }

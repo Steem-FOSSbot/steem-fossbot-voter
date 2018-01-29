@@ -575,7 +575,7 @@ app.get("/get-daily-liked-posts", function(req, res) {
     query = req.query.date_str;
   }
   lib.getDailyLikedPosts(query, function(err, dailyLikedPostsResults) {
-    if (err !== undefined
+    if (err
         || dailyLikedPostsResults === undefined
         || dailyLikedPostsResults === null) {
       handleErrorJson(res, "/get-daily-liked-posts Server error", "get-daily-liked-posts: no data in store", 500);

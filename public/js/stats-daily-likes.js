@@ -25,7 +25,6 @@ function loadChart() {
 		var metricsNames = [];
 		// first, create metrics arrays
 		// metrics
-		console.log("temp log data: "+JSON.stringify(data));
 		var metrics = data.posts[0].scoreDetail.metrics;
 		for (var i = 1 ; i < data.posts.length ; i++) {
 			if (data.posts[i].scoreDetail.metrics.length > metrics.length) {

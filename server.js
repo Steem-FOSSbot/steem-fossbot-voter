@@ -360,7 +360,7 @@ function execStats(req, res) {
           res.status(200).send(
             createMsgPageHTML("Stats", "No data for daily liked posts, there may be an internal data inconsistency or corrupt key (err stage 1)"));
         } else {
-          var thisDate = moment(req.query.date_str);
+          var thisDate = moment(req.query.date_str); // TODO : fix this parsing, soon to be deprecated
           var html_header = "";
           if (dailyLikedPostsResults === null) {
             // #58, no votes cast today, is not system failure, display meaningful message

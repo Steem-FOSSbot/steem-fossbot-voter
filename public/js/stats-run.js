@@ -24,23 +24,23 @@ function loadChart() {
 		var metricsNames = [];
 		// first, create metrics arrays
 		// metrics
-		var metrics = data.postsMetadata[0].scoreDetail.metrics;
-		for (var i = 1 ; i < data.postsMetadata.length ; i++) {
-			if (data.postsMetadata[i].scoreDetail.metrics.length > metrics.length) {
-				metrics = data.postsMetadata[i].scoreDetail.metrics;
+		var metrics = data[0].scoreDetail.metrics;
+		for (var i = 1 ; i < data.length ; i++) {
+			if (data[i].scoreDetail.metrics.length > metrics.length) {
+				metrics = data[i].scoreDetail.metrics;
 			}
 		}
 		for (var j = 0 ; j < metrics.length ; j++) {
 			numData_metrics.push([metrics[j].key]);
 			metricsNames.push(metrics[j].key);
 		}
-		for (var i = 0 ; i < data.postsMetadata.length ; i++) {
-			xTicks.push(data.postsMetadata[i].title);
-			numData_score_total.push(data.postsMetadata[i].score.toFixed(2));
-			numData_threshold.push(data.postsMetadata[i].thresholdInfo.total.toFixed(2));
-      numData_min.push(data.postsMetadata[i].thresholdInfo.hasOwnProperty("min") ? data.postsMetadata[i].thresholdInfo.min.toFixed(2) : 0);
+		for (var i = 0 ; i < data.length ; i++) {
+			xTicks.push(data[i].title);
+			numData_score_total.push(data[i].score.toFixed(2));
+			numData_threshold.push(data[i].thresholdInfo.total.toFixed(2));
+      numData_min.push(data[i].thresholdInfo.hasOwnProperty("min") ? data[i].thresholdInfo.min.toFixed(2) : 0);
 			// metrics
-			metrics = data.postsMetadata[i].scoreDetail.metrics;
+			metrics = data[i].scoreDetail.metrics;
 			for (var j = 0 ; j < metricsNames.length ; j++) {
 				var match = false;
 				for (var k = 0 ; k < metrics.length ; k++) {

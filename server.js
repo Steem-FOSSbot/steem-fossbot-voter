@@ -483,7 +483,7 @@ app.get("/stats-data-json", function(req, res) {
         handleErrorJson(res, "/stats-data-json Server error", "stats-data-json: key "+req.query.save_date+" could not be fetched", 500);
         return;
       }
-      res.json(postsMetadataList);
+      res.json({data: postsMetadataList});
     });
     return;
   } else if (req.query.summary) {

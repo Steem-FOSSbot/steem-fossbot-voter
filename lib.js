@@ -1432,9 +1432,10 @@ function addDailyLikedPost(postsMetadataObj, isFirst) {
 }
 
 function getDailyLikedPosts(date_str, callback) {
+  persistentLog(LOG_VERBOSE, " - getDailyLikedPosts, for date_str = "+date_str);
   var query = {};
   if (date_str !== undefined && date_str !== null) {
-    query = {date_str: date_str};
+    query = {"date_str": date_str};
   }
   db.collection(DB_DAILY_LIKED_POSTS).find(query).toArray(function(err, data) {
     if (err || data === null && data.length === 0 || data[0] === null) {

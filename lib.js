@@ -1438,7 +1438,7 @@ function getDailyLikedPosts(date_str, callback) {
     query = {"date_str": date_str};
   }
   db.collection(DB_DAILY_LIKED_POSTS).find(query).toArray(function(err, data) {
-    if (err || data === null && data.length === 0 || data[0] === null) {
+    if (err || data === undefined || data === null || data.length === 0 || data[0] === undefined || data[0] === null) {
       persistentLog(LOG_GENERAL, " - failed to get daily liked post");
       callback(err);
     } else {

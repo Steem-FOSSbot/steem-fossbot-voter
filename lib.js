@@ -1214,20 +1214,20 @@ function runBot(callback, options) {
           // check if post score is above threshold, set to vote if is
           postsMetadata[i].vote = false;
           if (postsMetadata[i].score >= avgWindowInfo.scoreThreshold) {
-            if (options == null || !options.hasOwnProperty("test") || !options.test) {
-              // #7 first check if we have voting power
-              var percentageVp = owner.voting_power / 100;
-              persistentLog(LOG_VERBOSE, " - - - checking if enough" +
-                " voting power" +
-                " (" + percentageVp + " >= " + configVars.MIN_VOTING_POWER + ") ?");
-              if (percentageVp >= configVars.MIN_VOTING_POWER) {
-                // housekeeping
-                persistentLog(LOG_VERBOSE, " - - " + postsMetadata[i].score + " >= " + avgWindowInfo.scoreThreshold + ", WILL vote on post [" + posts[i].permlink + "]");
-                postsMetadata[i].vote = true;
-                upVotesProcessed++;
-                addDailyLikedPost(postsMetadata[i], isFirst);
-                isFirst = false;
-                // #7 now voting here
+            // #7 first check if we have voting power
+            var percentageVp = owner.voting_power / 100;
+            persistentLog(LOG_VERBOSE, " - - - checking if enough" +
+              " voting power" +
+              " (" + percentageVp + " >= " + configVars.MIN_VOTING_POWER + ") ?");
+            if (percentageVp >= configVars.MIN_VOTING_POWER) {
+              // housekeeping
+              persistentLog(LOG_VERBOSE, " - - " + postsMetadata[i].score + " >= " + avgWindowInfo.scoreThreshold + ", WILL vote on post [" + posts[i].permlink + "]");
+              postsMetadata[i].vote = true;
+              upVotesProcessed++;
+              addDailyLikedPost(postsMetadata[i], isFirst);
+              isFirst = false;
+              // #7 now voting here
+              if (options == null || !options.hasOwnProperty("test") || !options.test) {
                 // vote!
                 try {
                   var upvoteResult = wait.for(steem.broadcast.vote, process.env.POSTING_KEY_PRV,
@@ -1247,17 +1247,16 @@ function runBot(callback, options) {
                 };
                 wait.for(timeOutWrapper, 5000);
                 persistentLog(LOG_VERBOSE, " - - - finished waiting");
-                // update accounts _after_ attempting vote
-                var account = wait.for(steem_getAccounts_wrapper)[0];
-                // don't do regeneration, will be up to date
-                owner.voting_power = account.voting_power;
-                persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
               } else {
-                persistentLog(LOG_GENERAL, " - - - - NOT voting on " + postsMetadata[i].permlink + ", VP is " + percentageVp);
+                persistentLog(LOG_VERBOSE, " - - - would have voted, but running in test mode");
               }
+              // update accounts _after_ attempting vote
+              var account = wait.for(steem_getAccounts_wrapper)[0];
+              // don't do regeneration, will be up to date
+              owner.voting_power = account.voting_power;
+              persistentLog(LOG_VERBOSE, " - - - update voting power to "+owner.voting_power);
             } else {
-              persistentLog(LOG_VERBOSE, " - - - not voting, this is a" +
-                " test");
+              persistentLog(LOG_GENERAL, " - - - - NOT voting on " + postsMetadata[i].permlink + ", VP is " + percentageVp);
             }
           } else {
             persistentLog(LOG_VERBOSE, " - - " + postsMetadata[i].score + " < " + avgWindowInfo.scoreThreshold + ", WILL NOT vote on post [" + posts[i].permlink + "]");

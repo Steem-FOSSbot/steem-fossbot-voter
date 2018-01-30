@@ -1459,7 +1459,7 @@ function getDailyLikedPosts(date_str, callback) {
 initSteem():
 * Initialize steem, test API connection and get minimal required data
 */
-function initSteem(callback) {
+function initLib(initSteem, callback) {
   setupLogging();
   // #93, use alternate websocket temporarily
   steem.api.setOptions({ url: 'https://api.steemit.com'});
@@ -1489,13 +1489,17 @@ function initSteem(callback) {
     },
     function() {
       var deferred = Q.defer();
-      getUserAccount(function(err) {
-        if (err) {
-          throw err;
-        } else {
-          deferred.resolve(true);
-        }
-      });
+      if (initSteem) {
+        getUserAccount(function(err) {
+          if (err) {
+            throw err;
+          } else {
+            deferred.resolve(true);
+          }
+        });
+      } else {
+        deferred.resolve(true);
+      }
       return deferred.promise;
     },
     function() {

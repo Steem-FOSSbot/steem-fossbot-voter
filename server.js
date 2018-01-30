@@ -714,8 +714,8 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
       return;
     }
     console.log(" - update algorithm");
-    lib.persistObj(lib.DB_ALGORITHM, JSON.parse(req.body.json_algo), {}, function(err) {
-      if (err !== undefined) {
+    lib.persistObj(lib.DB_ALGORITHM, JSON.parse(req.body.json_algo), function(err) {
+      if (err) {
         console.log(" - - ERROR SAVING algorithm");
         // TODO : show this on page
       }

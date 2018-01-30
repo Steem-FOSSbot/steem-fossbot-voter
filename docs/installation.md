@@ -101,7 +101,7 @@ call or delay it.
 
 ## Updates and version migration
 
-#### IMPORTANT for upgrade to v0.3.0
+**IMPORTANT for upgrade to v0.3.0**
 
 Since the database was changed to MongoDB as per #64, you must do a clean reinstall for the bot to work correct. BEFORE YOU DO THIS you should export both your algorithm and you config, and then import to the app again using the interfaces in Edit Algo and Edit Config web app sections.
 

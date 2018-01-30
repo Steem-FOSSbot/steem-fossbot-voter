@@ -2133,7 +2133,7 @@ module.exports.DB_ALGORITHM = DB_ALGORITHM;
 
 module.exports.runBot = runBot;
 module.exports.testEnvVars = testEnvVars;
-module.exports.initSteem = initSteem;
+module.exports.initLib = initLib;
 module.exports.persistObj = persistObj;
 module.exports.getPersistentObj = getPersistentObj;
 module.exports.getDailyLikedPosts = getDailyLikedPosts;

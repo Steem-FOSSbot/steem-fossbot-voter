@@ -469,7 +469,9 @@ app.get("/get-config-vars", function(req, res) {
     handleErrorJson(res, "/stats-data-json Unauthorized", "stats-data-json: session_key invalid", 401, "3");
     return;
   }
-  res.json(lib.getConfigVars());
+  var config = lib.getConfigVars();
+  delete config["_id"];
+  res.json();
 });
 
 /*

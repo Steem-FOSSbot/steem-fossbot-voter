@@ -471,7 +471,7 @@ app.get("/get-config-vars", function(req, res) {
   }
   var config = lib.getConfigVars();
   delete config["_id"];
-  res.json();
+  res.json(config);
 });
 
 /*

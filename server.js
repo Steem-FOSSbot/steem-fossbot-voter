@@ -1073,11 +1073,25 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     handleError(res, "/stats Internal Server Error", "edit-config: updated config var object could not be read", 500);
     return;
   }
+  // deprecated
   if (newConfigVars.MAX_VOTES_IN_24_HOURS !== undefined) {
     // nothing
   }
+  // active
   if (newConfigVars.MIN_POST_AGE_TO_CONSIDER !== undefined) {
     configVars.MIN_POST_AGE_TO_CONSIDER = newConfigVars.MIN_POST_AGE_TO_CONSIDER;
+    change = true;
+  }
+  if (newConfigVars.TIME_ZONE !== undefined) {
+    configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
+    change = true;
+  }
+  if (newConfigVars.MIN_VOTING_POWER !== undefined) {
+    configVars.MIN_VOTING_POWER = newConfigVars.MIN_VOTING_POWER;
+    change = true;
+  }
+  if (newConfigVars.VOTE_VOTING_POWER !== undefined) {
+    configVars.VOTE_VOTING_POWER = newConfigVars.VOTE_VOTING_POWER;
     change = true;
   }
   if (newConfigVars.MAX_POST_TO_READ !== undefined) {
@@ -1118,10 +1132,6 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   }
   if (newConfigVars.MIN_LANGUAGE_USAGE_PC !== undefined) {
     configVars.MIN_LANGUAGE_USAGE_PC = newConfigVars.MIN_LANGUAGE_USAGE_PC;
-    change = true;
-  }
-  if (newConfigVars.TIME_ZONE !== undefined) {
-    configVars.TIME_ZONE = newConfigVars.TIME_ZONE;
     change = true;
   }
   if (newConfigVars.MIN_KEYWORD_FREQ) {

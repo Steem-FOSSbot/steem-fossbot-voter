@@ -552,6 +552,7 @@ app.get("/get-algo", function(req, res) {
   lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithm) {
     console.log("attempted to get algorithm: "+algorithm);
     if (algorithm != null) {
+      delete algorithm["_id"];
       res.json(JSON.stringify(algorithm));
     } else if (err || algorithm === undefined || algorithm === null) {
       handleErrorJson(res, "/get-algo Server error", "get-algo: no data in store", 500);

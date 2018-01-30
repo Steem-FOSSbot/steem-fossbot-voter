@@ -205,7 +205,7 @@ var defaultConfigVars = {
 };
 
 var configVars = {
-  MAX_POST_TO_READ: 400,
+  MAX_POST_TO_READ: 800,
   CAPITAL_DOLPHIN_MIN: 25000,
   CAPITAL_WHALE_MIN: 100000,
   MIN_KEYWORD_LEN: 4,

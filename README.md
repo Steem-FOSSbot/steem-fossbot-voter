@@ -59,7 +59,7 @@ _Dashboard with active session_
 
 _Stats for post metrics breakdown_
 
-![](/img/bot-run-overview-2.png)
+![](/img/stats-overview-4.png)
 
 ## Installation
 
@@ -96,7 +96,7 @@ Several other Node NPM libraries are used as dependencies. Their source is not i
 - [string](https://www.npmjs.com/package/string) by az7arul, for misc super powered string manipulation
 - [remark](https://www.npmjs.com/package/remark) and [strip-markdown](https://www.npmjs.com/package/strip-markdown) by wooorm, for de-markdown-ing Steem post body contents
 - [retext](https://www.npmjs.com/package/retext) and [retext-sentiment](https://www.npmjs.com/package/retext-sentiment) also by wooorm, for determining sentiment using NLP
-- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written language of the content (latin script only) 
+- [languagedetect](https://www.npmjs.com/package/languagedetect) by fgribreau, to detect the written language of the content (latin script only)
 - [wait.for](https://www.npmjs.com/package/wait.for) by luciotato, for turning async functions into sync functions
 - [moment](https://www.npmjs.com/package/moment) by ichernev and [moment-timezone](https://www.npmjs.com/package/moment-timezone) by maggiepint, for better date handling, formatting and time zone adjustment
 

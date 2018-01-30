@@ -231,7 +231,6 @@ var steemGlobalProperties = {};
 // algorithm
 // - lists
 var algorithm = {
-  type: "algorithm", //to make searchable in db
   weights: [],
   authorWhitelist: [],
   authorBlacklist: [],

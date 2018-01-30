@@ -6,7 +6,7 @@ We do not need a privacy policy, because we are not operating a service. Steem F
 
 Privacy and data protection are not often at the fore of online services, with often only lip service paid. Even the web industry standards and most common protection patterns take ownership out of your hands. With our software we aim to keep your data completely under your control.
 
-We do not use CDN (content delivery networks) to fetch commonly used services, such as jQuery or Google Fonts API, with the exception of NPM (look at their [privacy policy](https://docs.npmjs.com/policies/privacy) to make sure you're happy about that). Why this matters is that CDNs, especially those run by Google, are well known to track usage and can be a subtle and hidden addition to their already extensive tracking programme. 
+We do not use CDN (content delivery networks) to fetch commonly used services, such as jQuery or Google Fonts API, with the exception of NPM (look at their [privacy policy](https://docs.npmjs.com/policies/privacy) to make sure you're happy about that). Why this matters is that CDNs, especially those run by Google, are well known to track usage and can be a subtle and hidden addition to their already extensive tracking programme.
 
 Please see the [discussion doc page](/docs/discussion.md) for more information on how your information is protected.
 
@@ -14,7 +14,7 @@ Please see the [discussion doc page](/docs/discussion.md) for more information o
 
 #### 1. Excellent algorithm
 
-To the best of our knowledge, this bot is the most flexible and intellegent bot freely available for use. The potential bot configurations are endless.
+To the best of our knowledge, this bot is the most flexible and intelligent bot freely available for use. The potential bot configurations are endless.
 
 No other bot uses NLP processing, article type inference, and wide use of statistics, not only about the post but about the author and those who've already voted on it.
 
@@ -34,6 +34,6 @@ All access to the apps and bots is authenticated using an API keys which you set
 
 #### 5. No tracking or data retention of any kind
 
-We take the idea of Do Not Track seriously. There is no social media login, no analyitcs platform, nothing. You can deploy the server to Heroku without so much as a whisper to us.
+We take the idea of Do Not Track seriously. There is no social media login, no analytics platform, nothing. You can deploy the server to Heroku without so much as a whisper to us.
 
 However, of course we have no control over if and how third parties may track you. We are developing the local install support soon so you can stay completely away from third party services, except NPM. As mentioned above, we do not even use CDNs.

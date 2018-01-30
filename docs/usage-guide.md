@@ -6,7 +6,7 @@ A good algorithm starts with a hypothesis about what makes a good post. This sho
 
 ### Example 1, long form articles
 
-As an example, let's say I like long form articles about interesting subjects, I see they get good rewards and I think they contribute to the culture of Steemit. So I hypothesise that good long form articles have more than 200 words, some images, not too many videos and that the best ones are usually written by someone with a bit of reputation, they've been here a while. Also, they are in English, because I cannot read another language and so would not vote for any in another language naturally.
+As an example, let's say I like long form articles about interesting subjects, I see they get good rewards and I think they contribute to the culture of Steem. So I hypothesise that good long form articles have more than 200 words, some images, not too many videos and that the best ones are usually written by someone with a bit of reputation, they've been here a while. Also, they are in English, because I cannot read another language and so would not vote for any in another language naturally.
 
 In that case I might set the following algorithm:
 - ```post_num_words in range 200 to 600, weight = 0.5```
@@ -29,7 +29,7 @@ So for every word we loose 1 score point. If the post is images only (less than 
 
 ### Example 3, the sell out
 
-Say we just care about curation rewards and want to maximise that, completely disregarding content. Our hypothesis could be that certain authors consistently get high curation rewards, so with our Steemit account we follow them and then use one metric only:
+Say we just care about curation rewards and want to maximise that, completely disregarding content. Our hypothesis could be that certain authors consistently get high curation rewards, so with our Steem account we follow them and then use one metric only:
 
 - ```author_is_followed```, weight = 1000
 
@@ -41,7 +41,7 @@ The first two examples are contradictory in goals and represent two completely d
 
 The last example is very simple and might be effective, but it is not really intelligent. If the authors I follow stop producing content, or their content becomes poor quality, or even post too much, this will stop working. The problem with that approach is that it cannot react to changes in the system. However the first two methods will always look for different posts which fit the criteria.
 
-In summary, I recommend you try to find out how to translate an idea you have about post quality that is a bit deeper than just who and what is popular _now_, because I've personally seen that Steemit is very dynamic and changes a lot, even from week to week.
+In summary, I recommend you try to find out how to translate an idea you have about post quality that is a bit deeper than just who and what is popular _now_, because I've personally seen that Steem is very dynamic and changes a lot, even from week to week.
 
 ## Reflexivity with tests and stats
 

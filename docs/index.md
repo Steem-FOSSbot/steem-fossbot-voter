@@ -37,9 +37,3 @@ Outlines our ethos regarding data protection, privacy, and looks at how some oth
 **[Algorithm and Metrics](/docs/algorithm.md)**
 
 Operational and technical details of algorithm process and metrics, including full listing of metrics.
-
-## Future plans
-
-**[Steem FOSSbot ecosystem](/docs/ecosystem.md)**
-
-Information on the larger ecosystem, how _Voter_ fits into it and what our plans are.

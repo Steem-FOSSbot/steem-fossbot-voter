@@ -4,11 +4,11 @@ This document assumes a minimum knowledge of Steem and Steemit. If you don't kno
 
 ## Bots on Steemit
 
-Bots, while controversial, have become a fact of Steemit usage. They maximise the rewards of users by voting strategically. They do game the system, but since the system is a game (and one of the co-creators is extremely ambivalent on the subject) it is tolerated.
+Bots, while controversial, are common on the Steem blockchain. They can maximise the rewards of users by voting strategically. They do game the system, but since the system is a game (and one of the co-creators is extremely ambivalent on the subject) it is tolerated.
 
-However it's a concern that good bots are currently only the hands of a few users. While this is their purview, it's ours to use whatever we can within the system to compete with them. They do not really want much high quality bot competition, as it lowers their potential take, but if we don't level the playing field they will dominate the platform too much.
+It's a concern that good bot software are mainly in the hands of a few users. While this is their purview, it's ours to use whatever we can within the system to compete with them. We attempt here to level the playing field by providing a free, actively supported tool.
 
-Where the general tools exist to add automatic curation, they come at a cost, which can be a mandatory vote for the services' posts, direct payment, or even by relinquishing data control by tracking. To use these services you must also hand over your private posting keys, which is comes with its own risks.
+Where the general tools exist to add automatic curation, they come at a cost, which can be a mandatory vote for the services' posts, direct payment, or even by relinquishing data control by tracking.
 
 ### So what is this?
 
@@ -30,7 +30,7 @@ This bot is not
 
 ## How it works
 
-See the [original Steemit post here](https://steemit.com/curation/@personz/5qnnnx-free-open-source-steemit-bot-proposal-and-question) where this idea was proposed.
+See the [original Steem post here](https://steemit.com/curation/@personz/5qnnnx-free-open-source-steemit-bot-proposal-and-question) where this idea was proposed.
 
 ### Definition of problem
 
@@ -58,7 +58,7 @@ A holistic solution will include both aspects, cultural and strategy. They inter
 
 #### Reducing complexity
 
-When we visit at Steemit.com, we see new posts since our last visit. If we visit periodically we will have a collection of new posts which we could potentially vote for. We will only vote on posts that are at least 30 minutes old, since this is the period after which curation payout is at 100% (see [this article](https://steemit.com/steem/@abit/new-curation-reward-algorithm-huge-penalty-to-early-voters)), and it also gives us some data about what kind of attention the post has already attracted.
+When we visit at Steemit.com or another portal to the Steem blockchain, we see new posts since our last visit. If we visit periodically we will have a collection of new posts which we could potentially vote for. We may only vote on posts that are at least 30 minutes old, since this is the period after which curation payout is at 100% (see [this article](https://steemit.com/steem/@abit/new-curation-reward-algorithm-huge-penalty-to-early-voters)), and it also gives us some data about what kind of attention the post has already attracted.
 
 We must reduce the complex question of whether or not to vote on a post to a simple yes or no for each post. To reduce it a little less, say we calculate a numeric score for each post, and choose the post to vote on based on some criteria. This scoring process will be multi-dimensional but we can make each dimension simple enough to calculate with a simple test, and then combine each individual score.
 
@@ -74,14 +74,9 @@ From the [Steem White Paper](https://steem.io/SteemWhitePaper.pdf), pg 18:
 
 > Through rate limiting, stakeholders who vote more frequently have each vote count for less than stakeholders who vote less frequently. [...] a user’s voting power decreases every time they vote and then regenerates as time passes without voting. [...] Note that voting power rapidly drops off during periods of continuous voting, and then slowly recovers.
 
-From a strategy point of view, it makes sense to restrict the number of 
-votes cast. Previously the algorithm limited votes to a maximum number 
-per day but now we vote and keep voting power above a certain percentage.
- This is especially relevant since Hard Fork 19 which changed the 
- effective number of votes one can make per day.
+From a strategy point of view, it makes sense to restrict the number of votes cast. Previously the algorithm limited votes to a maximum number per day but now we vote and keep voting power above a certain percentage. This is especially relevant since Hard Fork 19 which changed the effective number of votes one can make per day.
 
-If votes are too few  you cannot have an cultural impact nor get enough 
-curation rewards; too many and you dilute your impact. Another strategy factor is that the earlier you vote for a post which _will be_ successful, the larger your curation reward. So clearly it is prudent to check for new posts often.
+If votes are too few  you cannot have an cultural impact nor get enough curation rewards; too many and you dilute your impact. Another strategy factor is that the earlier you vote for a post which _will be_ successful, the larger your curation reward. So clearly it is prudent to check for new posts often.
 
 Though on average you should vote every 30 to 60 minutes, the best posts will most likely not be made so regularly. A potential solution to this dilemma is to use a **sliding window score average as a threshold** to determine if a post has a high enough score to vote on, and to sample N (i.e. see if there are new posts) often. This means that the likelihood of voting on a new post is related to the scores of the previous posts.
 

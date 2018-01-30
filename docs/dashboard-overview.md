@@ -65,7 +65,7 @@ There are currently three collections of stats you can view:
 - Daily likes overview
 
 Note that in all stats charts, if you hover your mouse over elements of the chart, a popover will display with more information about that element.
- 
+
 #### General overview
 
 _General overview page_
@@ -75,7 +75,7 @@ _General overview page_
 Two charts are shown on the general overview page, which is the landing page for stats: the number of posts processed per bot run, and the number of posts liked per bot run.
 
 Days divisions are shown by block background colour.
- 
+
 On the left side there is a list of links for all recorded bot runs, headed by the daily summary of likes for that day.
 
 #### Bot Run overview
@@ -89,7 +89,7 @@ _Bot run overview, first graph: overall post scores and threshold_
 The first graph shows the score of each post as a blue bar. It also shows the ```MIN_SCORE_THRESHOLD``` in gray and the current score threshold when that post was scored.
 
 As is explained in the [algorithm doc](/docs/algorithm.md), any post score equal to or above ```MIN_SCORE_THRESHOLD``` is included in the score threshold window, which uses an adjusted averaging formula. Thus if there are a lot of posts scored low at around ```MIN_SCORE_THRESHOLD```, the score threshold will drop, lowering the "standard" of post quality so that a moderately highly scored post is more likey to be voted on. Conversely, if the standard is very high, it is less likely a post will be voted on.
-  
+
 This is moderately complex, and so it's very useful to see how it actually works in graph form.
 
 _Bot run overview, second graph: metrics scoring detail_
@@ -192,9 +192,3 @@ You can also export or import the entire set of config variables for sharing or 
 ### 5. Test Algorithm
 
 You can run a test of your algorithm which will score posts and generate logs and stats, but which will not actually cast votes.
-
-### 6. Last Log
-
-View the log of your last bot run. This starts off very human readable and gets increasingly technical.
-
-The technical part is designed with debugging and error reporting in mind, as this software is still in early release. 

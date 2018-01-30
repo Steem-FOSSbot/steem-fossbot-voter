@@ -73,6 +73,10 @@ Make sure to read the instructions though! Heroku has a basic free plan but if n
 
 Please see also the [installation guide](/docs/installation.md) for instructions on how to keep your server up to date with further releases of Voter.
 
+### IMPORTANT
+
+**If you are updating from before v0.3.0 you will need to do a clean reinstall, so please back up your data before upgrading.**
+
 ## License and acknowledgements
 
 All original programming is under the CC0 license and thus completely open and free to use in any capacity. It's in the spirit of the project that it is open to all.
@@ -117,11 +121,20 @@ MongoDB database.
 
 ## Changelog
 
+- v0.3.0
+  - Minor version upgrade!
+  - change database to MongoDB, remove Redis DB #64, and related #94, #124, #123
+  - speed up web app loading #21, #93
+  - fix Test Algo feature #116
+  - remove SendMail email update feature #95
+  - remove last log feature #122
+  - update docs #99, #42, #51, #75
+  - misc other bug fixes #121, #86
 - v0.2.10
   - Emergency bug fix, change WebSocket server to GTG hosted, fixes #93
 - v0.2.9
   - switch to voting power conservation instead of max votes per day
-  - completed issues #7, #87, 25, #71, #90
+  - completed issues #7, #87, #25, #71, #90
 - v0.2.8
   - bug fixes for issues #27, #1, #63, #41, #24, #69, #70, #54, #62, #74, #84, #77, #78
 - v0.2.7

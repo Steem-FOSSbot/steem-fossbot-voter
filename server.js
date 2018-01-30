@@ -34,8 +34,6 @@ var
   html_editAlgo4 = "",
   html_testAlgo1 = "",
   html_testAlgo2 = "",
-  html_last_log1 = "",
-  html_last_log2 = "",
   html_stats1 = "",
   html_stats2 = "",
   html_stats3 = "",
@@ -160,14 +158,6 @@ function loadFiles() {
   loadFileToString("/html/test-algo-part-2.html", function(str) {
     html_testAlgo2 = str;
     console.log("got /html/test-algo-part-2.html from file");
-  });
-  loadFileToString("/html/last-log-1.html", function(str) {
-    html_last_log1 = str;
-    console.log("got /html/last-log-1.html from file");
-  });
-  loadFileToString("/html/last-log-2.html", function(str) {
-    html_last_log2 = str;
-    console.log("got /html/last-log-2.html from file");
   });
   loadFileToString("/html/stats-1.html", function(str) {
     html_stats1 = str;
@@ -428,43 +418,6 @@ function execStats(req, res) {
 /*
 * /stats
 */
-app.get("/last-log", function(req, res) {
-  console.log("req.query.api_key = "+req.query.api_key);
-  console.log("req.session.api_key = "+req.session.api_key);
-  if (req.query.api_key) {
-    req.session.api_key = req.query.api_key;
-    var cookies = new Cookies(req, res);
-    if (cookieSessionKey.length < 1) {
-      cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
-    }
-    console.log("created session_key cookie for client: "+cookieSessionKey);
-    cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
-    console.log("check cookie for session_key: "+cookies.get("session_key"));
-  } else if (!req.session.api_key) {
-    handleError(res, "/stats Unauthorized", "stats: session is invalid (no session key), please restart from Dashboard", 401);
-    return;
-  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
-    handleError(res, "/stats Unauthorized", "stats: session is invalid (out of date session key), please restart from Dashboard", 401);
-    return;
-  }
-  lib.getPersistentString("last_log_html", function(err, logs) {
-    if (err !== undefined || logs == null) {
-      var html_logs = createMsgPageHTML("Last log", "No logs yet, please run bot for first time!");
-      res.status(200).send(html_logs);
-      return;
-    }
-    saveStringToFile("public/tmp-stats.html", logs, function(err) {
-      if (err) {
-        handleError(res, "can't save temp file", "/last-log: can't save temp file", 500);
-      } else {
-        res.status(200).send(
-          html_last_log1
-          + "/tmp-stats.html"
-          + html_last_log2);
-      }
-    });
-  });
-});
 
 app.get("/stats-data-json", function(req, res) {
   if (!req.query.api_key && !req.query.session_key) {

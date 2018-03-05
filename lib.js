@@ -1580,6 +1580,7 @@ function getUserAccount(callback) {
           //console.log(err, properties);
           if (err) {
             console.error("Can't get DynamicGlobalProperties, can't calculate user's Steem Power");
+            console.error(err);
             callback({message: "Fatal error in getUserAccount"});
           } else {
             steemGlobalProperties = properties;
@@ -1590,6 +1591,8 @@ function getUserAccount(callback) {
             //callback(err, result);
             if (err) {
               console.error("Can't get head block info");
+              console.error(err);
+              callback({message: "Fatal error in getBlockHeader"});
             } else {
               owner.latest_block_time = moment(headBlock.timestamp, moment.ISO_8601);
               console.log("latest block time: "+owner.latest_block_time.toISOString());
@@ -1610,7 +1613,8 @@ function getUserAccount(callback) {
                 following = [];
                 if (err || followersResult === undefined) {
                   console.error("Can't get following accounts");
-                  callback({message: "Fatal error in getUserAccount"});
+                  console.error(err);
+                  callback({message: "Fatal error in getFollowers_recursive"});
                 } else {
                   following = followersResult;
                 }

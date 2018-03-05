@@ -1,6 +1,6 @@
 {
   "name": "Voter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A curation bot built for the Steemit social media platform, decides which posts to vote for and casts vote on behalf of a registered user",
   "main": "server.js",
   "scripts": {
@@ -14,7 +14,7 @@
   "keywords": [
     "node", "foss", "server", "steemit", "curation", "voting"
   ],
-  "author": "evm2p",
+  "author": "thrize",
   "license": "CC0",
   "bugs": {
     "url": "https://github.com/Steem-FOSSbot/steem-fossbot-voter"

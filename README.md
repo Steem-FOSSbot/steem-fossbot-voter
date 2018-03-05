@@ -116,6 +116,8 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.3.1
+  - Update moment and moment-timezone dependency versions CVE-2017-18214 vulnerability found
 - v0.3.0
   - Minor version upgrade!
   - change database to MongoDB, remove Redis DB #64, and related #94, #124, #123

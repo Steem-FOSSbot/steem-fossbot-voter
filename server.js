@@ -398,7 +398,7 @@ function execStats(req, res) {
           html_stats_run1
           + html
           + html_stats_run2
-          + "Bot run details for run at " + (moment_tz.tz(Number(req.query.save_date), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
+          + "Sample of posts processed in bot run at " + (moment_tz.tz(Number(req.query.save_date), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);
@@ -1036,6 +1036,14 @@ app.get("/edit-config", function(req, res) {
     }
     change = true;
     html_title += "Updated VOTE_VOTING_POWER";
+  } else if (req.query.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = Number(atob(req.query.POST_METADATA_MAX_RECORD_PER_RUN));
+    change = true;
+    html_title += "Updated POST_METADATA_MAX_RECORD_PER_RUN";
+  } else if (req.query.POST_METADATA_MAX_RUNS_TO_KEEP) {
+    configVars.POST_METADATA_MAX_RUNS_TO_KEEP = Number(atob(req.query.POST_METADATA_MAX_RUNS_TO_KEEP));
+    change = true;
+    html_title += "Updated POST_METADATA_MAX_RUNS_TO_KEEP";
   }
   html_title += "</h3>"
   if (change) {

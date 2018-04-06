@@ -1735,14 +1735,25 @@ function getPosts_recursive(posts, stopAtPost, limit, callback) {
 }
 
 function persistObj(collection, obj, callback) {
-  db.collection(collection).drop();
-  db.collection(collection).save(obj, function (err, existing) {
+  db.collection(collection).count(function (err, count) {
     if (err) {
+      console.error(err);
       callback(err);
+      return;
+    } else if (count > 0) {
+      db.collection(collection).drop();
     } else {
-      persistentLog(LOG_VERBOSE, "persistObj save to db "+collection);
-      callback();
+      console.log('Cant drop db ' + collection + ', no records');
     }
+    db.collection(collection).save(obj, function (err, existing) {
+      if (err) {
+        console.error(err);
+        callback(err);
+      } else {
+        persistentLog(LOG_VERBOSE, "persistObj save to db "+collection);
+        callback();
+      }
+    });
   });
 }
 

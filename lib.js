@@ -201,7 +201,9 @@ var defaultConfigVars = {
   TIME_ZONE: "Etc/GMT+3",
   MIN_KEYWORD_FREQ: 3,
   MIN_VOTING_POWER: 50,
-  VOTE_VOTING_POWER: 100
+  VOTE_VOTING_POWER: 100,
+  POST_METADATA_MAX_RECORD_PER_RUN: 100,
+  POST_METADATA_MAX_RUNS_TO_KEEP: 5
 };
 
 var configVars = {
@@ -219,7 +221,9 @@ var configVars = {
   TIME_ZONE: "Etc/GMT+3",
   MIN_KEYWORD_FREQ: 3,
   MIN_VOTING_POWER: 50,
-  VOTE_VOTING_POWER: 100
+  VOTE_VOTING_POWER: 100,
+  POST_METADATA_MAX_RECORD_PER_RUN: 100,
+  POST_METADATA_MAX_RUNS_TO_KEEP: 5
 };
 
 // MongoDB
@@ -1083,7 +1087,7 @@ function runBot(callback, options) {
         postsMetadata.push(
           {
             title: posts[i].title,
-            url: "https://steemit.com"+posts[i].url,
+            url: 'https://steemit.com' + posts[i].url,
             author: posts[i].author,
             time: posts[i].created,
             cur_est_payout: postsMetrics[i].post_est_payout,
@@ -1093,7 +1097,7 @@ function runBot(callback, options) {
             score: scoreDetail.total,
             scoreDetail: scoreDetail,
             permlink: posts[i].permlink,
-            vote: false //may be set to true in next process
+            vote: false // may be set to true in next process
           });
       }
       deferred.resolve(true);
@@ -1285,6 +1289,11 @@ function runBot(callback, options) {
       // and save postsMetadata to persistent
       if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(LOG_VERBOSE, " - saving posts_metadata");
+        if (configVars.POST_METADATA_MAX_RECORD_PER_RUN !== undefined &&
+            configVars.POST_METADATA_MAX_RECORD_PER_RUN !== null &&
+            postsMetadata.length > Number(configVars.POST_METADATA_MAX_RECORD_PER_RUN)) {
+          postsMetadata = postsMetadata.slice(0, Number(configVars.POST_METADATA_MAX_RECORD_PER_RUN));
+        }
         savePostsMetadata(function (res) {
           persistentLog(LOG_VERBOSE, " - - SAVED posts_metadata: " + res.message);
           // finish
@@ -1888,6 +1897,7 @@ function savePostsMetadata(callback) {
       }
     } else {
       var numRemoved = 0;
+      var postsMetaDataResultsRemaining = [];
       for (var i = 0 ; i < postsMetaDataResults.length ; i++) {
         if (((new Date()).getTime() - postsMetaDataResults[i].save_date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
           // remove
@@ -1898,6 +1908,21 @@ function savePostsMetadata(callback) {
             }
           });
           numRemoved++;
+        } else {
+          postsMetaDataResultsRemaining.push(postsMetaDataResults[i]);
+        }
+      }
+      if (configVars.POST_METADATA_MAX_RUNS_TO_KEEP !== undefined &&
+          configVars.POST_METADATA_MAX_RUNS_TO_KEEP !== null &&
+          postsMetaDataResultsRemaining.length > Number(configVars.POST_METADATA_MAX_RUNS_TO_KEEP)) {
+        var postsMetaDataResultsToRemove = postsMetaDataResultsRemaining.slice(0, Number(configVars.POST_METADATA_MAX_RUNS_TO_KEEP));
+        for (var i = 0 ; i < postsMetaDataResultsToRemove.length ; i++) {
+          db.collection(DB_POSTS_METADATA).remove(postsMetaDataResultsToRemove[i], function (err, data) {
+            if (err) {
+              persistentLog(LOG_GENERAL, " - - failed to remove old" +
+                " posts metadata obj");
+            }
+          });
         }
       }
       // add new obj

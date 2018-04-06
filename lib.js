@@ -1289,10 +1289,9 @@ function runBot(callback, options) {
       // and save postsMetadata to persistent
       if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(LOG_VERBOSE, " - saving posts_metadata");
-        if (configVars.POST_METADATA_MAX_RECORD_PER_RUN !== undefined &&
-            configVars.POST_METADATA_MAX_RECORD_PER_RUN !== null &&
-            postsMetadata.length > Number(configVars.POST_METADATA_MAX_RECORD_PER_RUN)) {
-          postsMetadata = postsMetadata.slice(0, Number(configVars.POST_METADATA_MAX_RECORD_PER_RUN));
+        if (postsMetadata.length > configVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+          persistentLog(LOG_VERBOSE, " - - cutting number of posts metadata saved from " + postsMetadata.length + " to " + configVars.POST_METADATA_MAX_RECORD_PER_RUN);
+          postsMetadata = postsMetadata.slice(0, configVars.POST_METADATA_MAX_RECORD_PER_RUN);
         }
         savePostsMetadata(function (res) {
           persistentLog(LOG_VERBOSE, " - - SAVED posts_metadata: " + res.message);
@@ -1912,10 +1911,10 @@ function savePostsMetadata(callback) {
           postsMetaDataResultsRemaining.push(postsMetaDataResults[i]);
         }
       }
-      if (configVars.POST_METADATA_MAX_RUNS_TO_KEEP !== undefined &&
-          configVars.POST_METADATA_MAX_RUNS_TO_KEEP !== null &&
-          postsMetaDataResultsRemaining.length > Number(configVars.POST_METADATA_MAX_RUNS_TO_KEEP)) {
-        var postsMetaDataResultsToRemove = postsMetaDataResultsRemaining.slice(0, Number(configVars.POST_METADATA_MAX_RUNS_TO_KEEP));
+      persistentLog(LOG_VERBOSE, " - - - removed " + numRemoved + " runs of post metadata from db due to age");
+      if (postsMetaDataResultsRemaining.length > configVars.POST_METADATA_MAX_RUNS_TO_KEEP) {
+        persistentLog(LOG_VERBOSE, " - - - removing a further " + (postsMetaDataResultsRemaining.length - configVars.POST_METADATA_MAX_RUNS_TO_KEEP) + " runs of post metadata from db");
+        var postsMetaDataResultsToRemove = postsMetaDataResultsRemaining.slice(0, configVars.POST_METADATA_MAX_RUNS_TO_KEEP);
         for (var i = 0 ; i < postsMetaDataResultsToRemove.length ; i++) {
           db.collection(DB_POSTS_METADATA).remove(postsMetaDataResultsToRemove[i], function (err, data) {
             if (err) {

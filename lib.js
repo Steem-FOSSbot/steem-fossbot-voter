@@ -591,11 +591,13 @@ function runBot(callback, options) {
       }
       // get relevant users account details, used in next step
       if (fetchUsers.length > 0) {
+        persistentLog(LOG_VERBOSE, ' - - - fetching info for ' + fetchUsers.length + 'users: ' + JSON.stringify(fetchUsers));
         // get user info
-        steem.api.getAccounts(fetchUsers, function(err, userAccounts) {
+        steem.api.getAccounts(fetchUsers, function (err, userAccounts) {
           if (err) {
-            persistentLog(LOG_GENERAL, " - error, can't get "+voter+" votes: "+err.message);
+            persistentLog(LOG_GENERAL, " - error, can't get user accounts: " + err);
           } else {
+            persistentLog(LOG_VERBOSE, ' - - - fetched info for ' + userAccounts.length + 'users');
             for (var k = 0 ; k < userAccounts.length ; k++) {
               users[userAccounts[k].name] = userAccounts[k];
             }
@@ -638,7 +640,7 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].up_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
-              && users[voter]) {
+              && users[voter] !== undefined && users[voter] !== null) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
             var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
@@ -682,7 +684,7 @@ function runBot(callback, options) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].down_votes[j].voter;
           if (voter.localeCompare(process.env.STEEM_USER) != 0
-            && users[voter]) {
+            && users[voter] !== undefined && users[voter] !== null) {
             var voterAccount = users[voter];
             // determine if dolphin or whale, count
             var steemPower = getSteemPowerFromVest(voterAccount.vesting_shares);
@@ -735,7 +737,7 @@ function runBot(callback, options) {
       for (var i = 0 ; i < postsMetrics.length ; i++) {
         persistentLog(LOG_VERBOSE, " - postsMetrics ["+i+"]");
         // check we have author account, we should
-        if (users[posts[i].author]) {
+        if (users[posts[i].author] !== undefined && users[posts[i].author] != null) {
           // get capital value
           var steemPower = getSteemPowerFromVest(users[posts[i].author].vesting_shares);
           //metrics.author.capital_val: Capital (Steem Power) by value
@@ -1080,7 +1082,7 @@ function runBot(callback, options) {
             scoreDetail.metrics.push(metricScore);
             persistentLog(LOG_VERBOSE, " - - - - "+algorithm.weights[j].key+": "+value+" * weight("+weight+") = "+metricScore.score);
           } else {
-            persistentLog(LOG_VERBOSE, " - - - - error, key not found in metrics: "+weight);
+            persistentLog(LOG_VERBOSE, " - - - - error, key not found in metrics: "+algorithm.weights[j].key);
           }
         }
         persistentLog(LOG_VERBOSE, " - - FINAL SCORE: "+scoreDetail.total);

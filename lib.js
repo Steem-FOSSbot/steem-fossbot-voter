@@ -1336,8 +1336,12 @@ function runBot(callback, options) {
 }
 
 function steem_getAccounts_wrapper(callback) {
-  steem.api.getAccounts([process.env.STEEM_USER], function(err, result) {
-    callback(err, result);
+  var called = false;
+  steem.api.getAccounts([process.env.STEEM_USER], function (err, result) {
+    if (!called) {
+      called = true;
+      callback(err, result);
+    }
   });
 }
 

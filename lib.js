@@ -575,13 +575,15 @@ function runBot(callback, options) {
         persistentLog(LOG_VERBOSE, " - - metrics.post.post_num_upvotes: "+metric.post_num_upvotes);
         persistentLog(LOG_VERBOSE, " - - metrics.post.post_num_downvotes: "+metric.post_num_downvotes);
         // add author and voters to user fetch list
-        fetchUsers.push(posts[i].author);
+        if (users[posts[i].author] == undefined || users[posts[i].author] == null) {
+          fetchUsers.push(posts[i].author);
+        }
         for (var j = 0 ; j < posts[i].active_votes.length ; j++) {
           //persistentLog(LOG_VERBOSE, " - - - ["+j+"]: "+JSON.stringify(posts[i].active_votes[j]));
           var voter = posts[i].active_votes[j].voter;
           // make sure this voter isn't the owner user
           if (voter.localeCompare(process.env.STEEM_USER) != 0) {
-            if (!users[voter]) {
+            if (users[voter] == undefined || users[voter] == null) {
               fetchUsers.push(voter);
             }
           }
@@ -591,24 +593,21 @@ function runBot(callback, options) {
       }
       // get relevant users account details, used in next step
       if (fetchUsers.length > 0) {
-        persistentLog(LOG_VERBOSE, ' - - - fetching info for ' + fetchUsers.length + 'users: ' + JSON.stringify(fetchUsers));
+        persistentLog(LOG_VERBOSE, ' - fetching info for ' + fetchUsers.length + 'users: ' + JSON.stringify(fetchUsers));
         // get user info
-        steem.api.getAccounts(fetchUsers, function (err, userAccounts) {
-          if (err) {
-            persistentLog(LOG_GENERAL, " - error, can't get user accounts: " + err);
+        addAccountsToUserList_recursive(fetchUsers, 0, function (err, success) {
+          if (err || !success) {
+            persistentLog(LOG_GENERAL, ' - error, cant get user accounts: ' + err);
           } else {
-            persistentLog(LOG_VERBOSE, ' - - - fetched info for ' + userAccounts.length + 'users');
-            for (var k = 0 ; k < userAccounts.length ; k++) {
-              users[userAccounts[k].name] = userAccounts[k];
-            }
+            persistentLog(LOG_VERBOSE, ' - fetched user account info');
           }
           // finish
-          persistentLog(LOG_VERBOSE, " - - finished getting voters for post");
+          persistentLog(LOG_VERBOSE, ' - - finished getting voters for post');
           deferred.resolve(true);
         });
       } else {
         // finish
-        persistentLog(LOG_VERBOSE, " - - no voters account information to get for post");
+        persistentLog(LOG_VERBOSE, ' - - no account information to get for all posts');
         deferred.resolve(true);
       }
       // return promise
@@ -1643,6 +1642,34 @@ function getUserAccount(callback) {
     console.error("No STEEM_USER environment variable set");
     callback({message: "Fatal error in getUserAccount"});
   }
+}
+
+function addAccountsToUserList_recursive(accounts, idx, callback) {
+  persistentLog(LOG_VERBOSE, 'addAccountsToUserList_recursive');
+
+  var size = accounts.length - idx < 1000 ? accounts.length - idx : 1000;
+  var fetchAccounts = accounts.slice(idx, idx + size);
+
+  persistentLog(LOG_VERBOSE, ' - addAccountsToUserList_recursive fetching info for ' + size + ' users from idx ' + idx);
+
+  steem.api.getAccounts(fetchAccounts, function (err, userAccounts) {
+    if (err || userAccounts === undefined || userAccounts === null) {
+      persistentLog(LOG_GENERAL, " - addAccountsToUserList_recursive error, can't get user accounts: " + err);
+      callback(err, false);
+      return;
+    }
+    persistentLog(LOG_VERBOSE, ' - - addAccountsToUserList_recursive fetched info for ' + userAccounts.length + ' users');
+    for (var k = 0; k < userAccounts.length; k++) {
+      // overwrite old info if exists (don't check for dup)
+      users[userAccounts[k].name] = userAccounts[k];
+    }
+    if (size < 1000) {
+      // finished
+      callback(null, true);
+    } else {
+      addAccountsToUserList_recursive(accounts, idx + size, callback);
+    }
+  });
 }
 
 function getFollowers_recursive(username, followers, callback) {

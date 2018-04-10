@@ -1,5 +1,13 @@
 <div class="row">
         <div class="col-sm-4">
+          <form class="form-add" action="/edit-algo-comment" method="post" onload="javascript:getComment()">
+            <textarea name="comment-block" id="comment-block" cols="150" rows="10"></textarea>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Save comment</button>
+          </form>
+        </div>
+      </div>
+<div class="row">
+        <div class="col-sm-4">
           <form class="form-add" action="/edit-algo" method="post">
             <label for="inputKey" class="sr-only">Key</label>
             <input type="text" name="key" id="inputKey" class="form-control" placeholder="Key" required autofocus>

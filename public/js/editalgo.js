@@ -36,6 +36,15 @@ function exportAlgo() {
 	});
 }
 
+function getComment() {
+  $.getJSON( "/get-comment?session_key="+getCookie("session_key"), function(data) {
+		var textArea = document.getElementById('comment-block');
+		if (textArea) {
+			textArea.value = atob(data);
+		}
+	});
+}
+
 function getCookie(cname) {
   console.log("getCookie: all cookies: "+document.cookie);
   var name = cname + "=";

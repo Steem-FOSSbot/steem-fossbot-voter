@@ -13,7 +13,8 @@ const
   extra = require('./extra.js'),
   moment_tz = require('moment-timezone'),
   moment = require('moment'),
-  atob = require('atob');
+  atob = require('atob'),
+  btoa = require('btoa');
 
 var cookieSessionKey = "";
 
@@ -540,6 +541,32 @@ app.get("/get-daily-liked-posts", function(req, res) {
       res.json(dailyLikedPostsResults);
     }
   });
+});
+
+app.get("/get-comment", function(req, res) {
+  if (!req.query.api_key && !req.query.session_key) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: api_key or session_key not supplied", 401);
+    return;
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: session_key invalid", 401);
+    return;
+  }
+  /*
+  lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithm) {
+    console.log("attempted to get algorithm: "+algorithm);
+    if (algorithm != null) {
+      delete algorithm["_id"];
+      res.json(JSON.stringify(algorithm));
+    } else if (err || algorithm === undefined || algorithm === null) {
+      handleErrorJson(res, "/get-algo Server error", "get-algo: no data in store", 500);
+    }
+  });
+  */
+  // TODO : actually get comment
+  res.status(200).send(btoa('Test comment text'));
 });
 
 /*

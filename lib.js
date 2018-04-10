@@ -1878,11 +1878,10 @@ function deleteWeightMetric(key, apiKey, callback) {
     }
     algorithm.weights = newWeights;
     persistObj(DB_ALGORITHM, algorithm, function(err, data) {
-      // do nothing
+      if (callback !== undefined) {
+        callback({status: 200, message: "Removed key from algorithm: "+key});
+      }
     });
-    if (callback !== undefined) {
-      callback({status: 200, message: "Removed key from algorithm: "+key});
-    }
   });
 }
 
@@ -1922,10 +1921,11 @@ function updateMetricList(list, contents, apiKey, callback) {
       persistentLog(LOG_VERBOSE, " - updated algorithm from db: "+JSON.stringify(algorithm));
     }
     algorithm[list] = parts;
-    persistObj(DB_ALGORITHM, algorithm, function(err, data) {});
-    if (callback !== undefined) {
-      callback({status: 200, message: "Updated black / white list: "+list});
-    }
+    persistObj(DB_ALGORITHM, algorithm, function(err, data) {
+      if (callback !== undefined) {
+        callback({status: 200, message: "Updated black / white list: "+list});
+      }
+    });
   });
 }
 

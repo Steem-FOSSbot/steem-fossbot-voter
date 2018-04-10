@@ -718,11 +718,12 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     console.log(" - update algorithm");
     lib.persistObj(lib.DB_ALGORITHM, JSON.parse(req.body.json_algo), function(err) {
       if (err) {
+        editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING algorithm</h2>");
         console.log(" - - ERROR SAVING algorithm");
-        // TODO : show this on page
+      } else {
+        editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");
       }
     });
-    editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");
     return;
   }
   // create query

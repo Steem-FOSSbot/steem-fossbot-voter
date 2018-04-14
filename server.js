@@ -567,7 +567,7 @@ app.get("/get-comment", function(req, res) {
   */
   // TODO : actually get comment
   console.log('/get-comment, sending comment: ' + 'Test comment text');
-  res.json({comment: 'Test comment text'});
+  res.json({comment: btoa('Test comment text')});
 });
 
 /*

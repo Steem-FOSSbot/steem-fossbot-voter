@@ -46,6 +46,8 @@ function getComment() {
 	});
 }
 
+window.onload = getComment;
+
 function getCookie(cname) {
   console.log("getCookie: all cookies: "+document.cookie);
   var name = cname + "=";

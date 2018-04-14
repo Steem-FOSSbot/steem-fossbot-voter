@@ -1134,8 +1134,7 @@ app.get("/edit-config", function(req, res) {
     change = true;
     html_title += "Updated POST_METADATA_MAX_RUNS_TO_KEEP";
   } else if (req.query.COMMENT_ENABLED) {
-    console.log('req.query.COMMENT_ENABLED = ' + req.query.COMMENT_ENABLED);
-    configVars.COMMENT_ENABLED = req.query.COMMENT_ENABLED.localeCompare('true');
+    configVars.COMMENT_ENABLED = atob(req.query.COMMENT_ENABLED).localeCompare('on');
     change = true;
     html_title += "Updated COMMENT_ENABLED";
   }

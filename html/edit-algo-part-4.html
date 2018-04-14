@@ -16,12 +16,10 @@
 <div class="container-fluid">
   <h1 class="page-header">Edit comment</h1>
   <div class="row">
-    <div class="col-sm-4">
-      <form class="form-add" action="/edit-algo-comment" method="post">
-        <textarea name="comment_block" id="comment_block" cols="80" rows="5"></textarea>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Save comment</button>
-      </form>
-    </div>
+    <form class="form-add" action="/edit-algo-comment" method="post">
+      <textarea name="comment_block" id="comment_block" cols="80" rows="5"></textarea>
+      <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Save comment</button>
+    </form>
   </div>
   <p>Note, to enable commenting on voted posts, turn on the comment in Edit Config variable COMMENT_ENABLED<p>
 </div>

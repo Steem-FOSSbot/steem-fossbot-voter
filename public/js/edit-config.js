@@ -49,7 +49,12 @@ function setupConfigVars() {
         var elementId = "input_field_" + i;
         var element = document.getElementById(elementId);
         if (element) {
-          element.value = data[fieldNames[i]];
+          // Adding as exception to the rule
+          if (i === 19) { // checkbox COMMENT_ENABLED
+            element.checked = data[fieldNames[i]] === 'on';
+          } else {
+            element.value = data[fieldNames[i]];
+          }
         }
       }
     }

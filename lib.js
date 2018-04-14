@@ -1253,7 +1253,43 @@ function runBot(callback, options) {
                   }, delay);
                 };
                 wait.for(timeOutWrapper, 5000);
-                persistentLog(LOG_VERBOSE, " - - - finished waiting");
+                persistentLog(LOG_VERBOSE, " - - - finished waiting for vote");
+                // comment on post if enabled and comment text exists
+                if (configVars.COMMENT_ENABLED !== undefined && configVars.COMMENT_ENABLED !== null &&
+                    configVars.COMMENT_ENABLED.localeCompare('on') === 0 &&
+                    algorithm.comment !== undefined && algorithm.comment !== null &&
+                    algorithm.comment.length > 0) {
+                  console.log(' - - - commenting on post: ' + algorithm.comment);
+                  var commentPermlink = steem.formatter.commentPermlink(postsMetadata[i].author, postsMetadata[i].permlink)
+                    .toLowerCase()
+                    .replace('.', '');
+                  if (commentPermlink.length >= 256) {
+                    commentPermlink = steem.formatter.commentPermlink(postsMetadata[i].author, postsMetadata[i].author + '-' + process.env.STEEM_USER)
+                      .toLowerCase()
+                      .replace('.', '');
+                  }
+                  try {
+                    var commentResult = wait.for(steem.broadcast.comment,
+                      process.env.POSTING_KEY_PRV,
+                      postsMetadata[i].author,
+                      postsMetadata[i].permlink
+                      process.env.STEEM_USER,
+                      commentPermlink,
+                      'fossbot voter comment',
+                      algorithm.comment,
+                      {});
+                    console.log(' - - - - comment result: ' + JSON.stringify(commentResult));
+                  } catch (err) {
+                    console.log(' - - - - comment posting error');
+                    console.error(err);
+                  }
+                  console.log(' - - - - - Waiting for comment timeout...');
+                  wait.for(timeOutWrapper, 20000);
+                  console.log(' - - - - - finished waiting');
+                } else {
+                  // alert user why not commenting if in verbose logging mode
+                  persistentLog(LOG_VERBOSE, " - - - not commenting, because config var COMMENT_ENABLED is '" + configVars.COMMENT_ENABLED + "' and comment in algorithm is '" + algorithm.comment + "'");
+                }
               } else {
                 persistentLog(LOG_VERBOSE, " - - - would have voted, but running in test mode");
               }

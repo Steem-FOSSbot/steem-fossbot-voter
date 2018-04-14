@@ -554,20 +554,16 @@ app.get("/get-comment", function(req, res) {
     handleError(res, "/get-comment Unauthorized", "get-comment: session_key invalid", 401);
     return;
   }
-  /*
-  lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithm) {
-    console.log("attempted to get algorithm: "+algorithm);
-    if (algorithm != null) {
-      delete algorithm["_id"];
-      res.json(JSON.stringify(algorithm));
+  lib.getPersistentObj(lib.DB_ALGORITHM, function (err, algorithm) {
+    console.log("attempted to get algorithm: " + algorithm);
+    if (algorithm != null && algorithm.comment !== undefined) {
+      console.log('/get-comment, sending comment: ' + algorithm.comment);
+      res.json({comment: algorithm.comment});
     } else if (err || algorithm === undefined || algorithm === null) {
-      handleErrorJson(res, "/get-algo Server error", "get-algo: no data in store", 500);
+      console.log('/get-comment, no comment or couldnt get algo');
+      res.json({comment: ''});
     }
   });
-  */
-  // TODO : actually get comment
-  console.log('/get-comment, sending comment: ' + 'Test comment text');
-  res.json({comment: btoa('Test comment text')});
 });
 
 /*
@@ -773,6 +769,69 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   });
 });
 
+app.post("/edit-algo-comment", bodyParser.urlencoded({extended: false}), function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+    var cookies = new Cookies(req, res);
+    if (cookieSessionKey.length < 1) {
+      cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
+    }
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
+  } else if (!req.session.api_key) {
+    handleError(res, "/edit-algo-comment Unauthorized", "edit-algo-comment: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/edit-algo-comment Unauthorized", "edit-algo-comment: session is invalid (out of date session key), please restart from Dashboard", 401);
+    return;
+  }
+  console.log("/edit-algo-comment POST request");
+  // get options from post data
+  console.log(" - req.body: "+JSON.stringify(req.body));
+  if (req.body.comment_block) {
+    // is update algorithm query
+    var comment = req.body.comment_block;
+    console.log(" - update comment to: " + comment);
+    lib.getPersistentObj(lib.DB_ALGORITHM, function (err, algorithmResult) {
+      var algorithm = {};
+      if (err || algorithmResult === undefined || algorithmResult === null) {
+        console.log(" - no algorithm in db, USING DEFAULT");
+        // TODO : remove this default algorithm setting
+        algorithm = {
+          weights: [],
+          authorWhitelist: [],
+          authorBlacklist: [],
+          contentCategoryWhitelist: [],
+          contentCategoryBlacklist: [],
+          contentWordWhitelist: [],
+          contentWordBlacklist: [],
+          domainWhitelist: [],
+          domainBlacklist: [],
+          commment: ''
+        };
+      } else {
+        algorithm = algorithmResult;
+        console.log(" - got algorithm from db: "+JSON.stringify(algorithm));
+      }
+      algorithm.comment = btoa(comment);
+      lib.persistObj(lib.DB_ALGORITHM, algorithm, function (err) {
+        if (err) {
+          editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING comment</h2>");
+          console.log(" - - ERROR SAVING algorithm");
+        } else {
+          editAlgoExec(res, "<h2 class=\"sub-header\">Updated comment</h2>");
+        }
+      });
+    });
+    return;
+  }
+  // else
+  editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING comment</h2>");
+});
+
 function editAlgoExec(res, message) {
   lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithmResult) {
     var algorithm = {};
@@ -788,7 +847,8 @@ function editAlgoExec(res, message) {
         contentWordWhitelist: [],
         contentWordBlacklist: [],
         domainWhitelist: [],
-        domainBlacklist: []
+        domainBlacklist: [],
+        comment: ''
       };
     } else {
       algorithm = algorithmResult;

@@ -243,7 +243,8 @@ var algorithm = {
   contentWordWhitelist: [],
   contentWordBlacklist: [],
   domainWhitelist: [],
-  domainBlacklist: []
+  domainBlacklist: [],
+  comment: ''
 };
 var algorithmUsesVotingAnalysis = false;
 var algorithmUsesAuthorAnalysis = false;

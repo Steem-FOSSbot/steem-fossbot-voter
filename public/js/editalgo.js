@@ -41,7 +41,7 @@ function getComment() {
 		var textArea = document.getElementById('comment_block');
 		if (textArea !== undefined &&
         data !== undefined && data.comment !== undefined) {
-			textArea.value = atob(data.comment);
+			textArea.value = data.comment;
 		}
 	});
 }

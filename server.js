@@ -816,7 +816,7 @@ app.post("/edit-algo-comment", bodyParser.urlencoded({extended: false}), functio
         algorithm = algorithmResult;
         console.log(" - got algorithm from db: "+JSON.stringify(algorithm));
       }
-      algorithm.comment = btoa(comment);
+      algorithm.comment = comment;
       lib.persistObj(lib.DB_ALGORITHM, algorithm, function (err) {
         if (err) {
           editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING comment</h2>");

@@ -566,7 +566,8 @@ app.get("/get-comment", function(req, res) {
   });
   */
   // TODO : actually get comment
-  res.status(200).send(btoa('Test comment text'));
+  console.log('/get-comment, sending comment: ' + 'Test comment text');
+  res.json({comment: 'Test comment text'});
 });
 
 /*

@@ -31,6 +31,15 @@ function updateVar(index) {
   }
 }
 
+function updateVarChecked(index) {
+  var name = fieldNames[index];
+  var elementId = "input_field_" + index;
+  var element = document.getElementById(elementId);
+  if (element) {
+    window.location.href = "/edit-config?"+name+"="+btoa(element.checked ? 'on' : 'off');
+  }
+}
+
 function setupConfigVars() {
   $.getJSON( "/get-config-vars?session_key="+getCookie("session_key"), function(data) {
     if (data && data.error) {

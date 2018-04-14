@@ -1272,7 +1272,7 @@ function runBot(callback, options) {
                     var commentResult = wait.for(steem.broadcast.comment,
                       process.env.POSTING_KEY_PRV,
                       postsMetadata[i].author,
-                      postsMetadata[i].permlink
+                      postsMetadata[i].permlink,
                       process.env.STEEM_USER,
                       commentPermlink,
                       'fossbot voter comment',

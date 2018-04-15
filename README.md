@@ -44,7 +44,7 @@ The operations you can perform are:
 
 - Run bot now (WILL VOTE)
 - Check bot stats (this is pretty cool)
-- Edit curation algorithm weights and white / black lists
+- Edit curation algorithm weights and white / black lists, set comment
 - Edit configuration and settings of bot
 - Run algorithm test (does not actually vote)
 - View last log

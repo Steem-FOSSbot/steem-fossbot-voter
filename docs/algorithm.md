@@ -152,6 +152,7 @@ Edit with caution, setting these incorrectly can really break the bot
 11. **MIN_KEYWORD_FREQ** (```3```): Minimum appearances of a word in a post for it to be considered a keyword
 12. **POST_METADATA_MAX_RECORD_PER_RUN** (```100```): Maximum number of post details to record per bot run. Sample size for algorithm tuning.
 13. **POST_METADATA_MAX_RUNS_TO_KEEP** (```5```): Maximum sets of post detail per run to keep in db.
+14. **COMMENT_ENABLED** (```unchecked```): Enables commenting on every posted voted for by bot. Comment text must be set in Edit Algo.
 
 ## Metrics in detail
 

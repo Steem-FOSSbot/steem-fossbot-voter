@@ -1981,10 +1981,19 @@ function savePostsMetadata(callback) {
           " new object: " + err.message});
       }
     } else {
+      // get summary details before removing data
+      var numPosts = postsMetadata.length;
+      var numVotes = 0;
+      for (var j = 0; j < postsMetadata.length; j++) {
+        if (postsMetadata[j].vote) {
+          numVotes++;
+        }
+      }
+      // then remove
       var numRemoved = 0;
       var postsMetaDataResultsRemaining = [];
       for (var i = 0 ; i < postsMetaDataResults.length ; i++) {
-        if (((new Date()).getTime() - postsMetaDataResults[i].save_date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
+        if (((new Date()).getTime() - postsMetaDataResults[i].date) > (configVars.DAYS_KEEP_LOGS * MILLIS_IN_DAY)) {
           // remove
           db.collection(DB_POSTS_METADATA).remove(postsMetaDataResults[i], function (err, data) {
             if (err) {
@@ -2010,9 +2019,15 @@ function savePostsMetadata(callback) {
           });
         }
       }
+      var timestamp = (new Date()).getTime();
+      var dateTime = moment_tz.tz(timestamp, configVars.TIME_ZONE);
       // add new obj
       var postsMetadataList = {
-        save_date: (new Date()).getTime(),
+        date: timestamp,
+        date_str: (dateTime.format("MM/DD/YY HH:mm")),
+        date_day: dateTime.date(),
+        num_posts: numPosts,
+        num_votes: numVotes,
         posts_metadata_list: postsMetadata
       };
       db.collection(DB_POSTS_METADATA).save(postsMetadataList, function (err, data) {
@@ -2033,9 +2048,9 @@ function savePostsMetadata(callback) {
   });
 }
 
-function getPostsMetadataList(save_date, callback) {
-  persistentLog(LOG_VERBOSE, " - fetching posts metadata for save_date: "+save_date);
-  db.collection(DB_POSTS_METADATA).find({"save_date": Number(save_date)}).toArray(function(err, postsMetaDataResults) {
+function getPostsMetadataList(date, callback) {
+  persistentLog(LOG_VERBOSE, " - fetching posts metadata for date: "+date);
+  db.collection(DB_POSTS_METADATA).find({"date": Number(date)}).toArray(function(err, postsMetaDataResults) {
     if (err || postsMetaDataResults === undefined || postsMetaDataResults === null
         || postsMetaDataResults.length === 0 || postsMetaDataResults[0] === undefined
         || postsMetaDataResults[0] === null) {
@@ -2053,7 +2068,7 @@ function getPostsMetadataAllDates(callback) {
     } else {
       var result = [];
       for (var i = 0 ; i < postsMetaDataResults.length ; i++) {
-        result.push(postsMetaDataResults[i].save_date);
+        result.push(postsMetaDataResults[i].date);
       }
       callback(null, result);
     }
@@ -2070,20 +2085,8 @@ function getPostsMetadataSummary(callback) {
         var recordsCount = count;
         db.collection(DB_POSTS_METADATA).find({}).forEach(function(doc) {
           wait.launchFiber(function() {
-            var numVotes = 0;
-            for (var j = 0; j < doc.posts_metadata_list.length; j++) {
-              if (doc.posts_metadata_list[j].vote) {
-                numVotes++;
-              }
-            }
-            var dateTime = moment_tz.tz(doc.save_date, configVars.TIME_ZONE);
-            summary.push({
-              date: doc.save_date,
-              date_str: (dateTime.format("MM/DD/YY HH:mm")),
-              date_day: dateTime.date(),
-              num_posts: doc.posts_metadata_list.length,
-              num_votes: numVotes
-            });
+            delete doc.posts_metadata_list;
+            summary.push(doc);
 
             // TODO : use a better method than a counter to know when forEach done
             if (--recordsCount <= 0) {

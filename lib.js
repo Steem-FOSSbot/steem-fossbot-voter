@@ -1332,10 +1332,6 @@ function runBot(callback, options) {
       // and save postsMetadata to persistent
       if (options === undefined || !options.hasOwnProperty("test") || !options.test ) {
         persistentLog(LOG_VERBOSE, " - saving posts_metadata");
-        if (postsMetadata.length > configVars.POST_METADATA_MAX_RECORD_PER_RUN) {
-          persistentLog(LOG_VERBOSE, " - - cutting number of posts metadata saved from " + postsMetadata.length + " to " + configVars.POST_METADATA_MAX_RECORD_PER_RUN);
-          postsMetadata = postsMetadata.slice(0, configVars.POST_METADATA_MAX_RECORD_PER_RUN);
-        }
         savePostsMetadata(function (res) {
           persistentLog(LOG_VERBOSE, " - - SAVED posts_metadata: " + res.message);
           // finish
@@ -2019,6 +2015,12 @@ function savePostsMetadata(callback) {
           });
         }
       }
+      // cut posts metadata list down
+      if (postsMetadata.length > configVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+        persistentLog(LOG_VERBOSE, " - - cutting number of posts metadata saved from " + postsMetadata.length + " to " + configVars.POST_METADATA_MAX_RECORD_PER_RUN);
+        postsMetadata = postsMetadata.slice(0, configVars.POST_METADATA_MAX_RECORD_PER_RUN);
+      }
+      // save
       var timestamp = (new Date()).getTime();
       var dateTime = moment_tz.tz(timestamp, configVars.TIME_ZONE);
       // add new obj

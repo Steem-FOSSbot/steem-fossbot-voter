@@ -322,6 +322,9 @@ function runBot(callback, options) {
       persistentLog(LOG_GENERAL, "checking we have enough voting power...");
       var deferred = Q.defer();
       // get posts
+      if (isNan(owner.voting_power) || owner.voting_power <= 0) {
+        throw {message: "Zero voting power or error getting voting power: vp = (" + owner.voting_power};
+      }
       var percentageVp = owner.voting_power / 100;
       persistentLog(LOG_VERBOSE, "Enough voting power ("+percentageVp+" < "+configVars.MIN_VOTING_POWER+") ?");
       if (percentageVp < configVars.MIN_VOTING_POWER) {

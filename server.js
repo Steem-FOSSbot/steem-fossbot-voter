@@ -1239,6 +1239,18 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
     configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
     change = true;
   }
+  if (newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN;
+    change = true;
+  }
+  if (newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN;
+    change = true;
+  }
+  if (newConfigVars.COMMENT_ENABLED) {
+    configVars.COMMENT_ENABLED = newConfigVars.COMMENT_ENABLED;
+    change = true;
+  }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";
   if (change) {
     lib.updateConfigVars(configVars, function(err) {

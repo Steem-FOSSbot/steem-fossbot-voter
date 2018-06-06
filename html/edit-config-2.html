@@ -183,6 +183,37 @@
             </td>
             <th><p><a class="btn btn-default" href="javascript:updateVar(14)" role="button">Update</a></p></th>
         </tr>
+
+        <tr>
+            <td>POST_METADATA_MAX_RECORD_PER_RUN</td>
+            <td>Maximum number of post details to record per bot run. Sample size for algorithm tuning.</td>
+            <td>
+                <form class="form-add">
+                    <input type="number" step="1" name="input_field_17" id="input_field_17" placeholder="100">
+                </form>
+            </td>
+            <th><p><a class="btn btn-default" href="javascript:updateVar(17)" role="button">Update</a></p></th>
+        </tr>
+        <tr>
+            <td>POST_METADATA_MAX_RUNS_TO_KEEP</td>
+            <td>Maximum sets of post detail per run to keep in db.</td>
+            <td>
+                <form class="form-add">
+                    <input type="number" step="1" name="input_field_18" id="input_field_18" placeholder="5">
+                </form>
+            </td>
+            <th><p><a class="btn btn-default" href="javascript:updateVar(18)" role="button">Update</a></p></th>
+        </tr>
+        <tr>
+            <td>COMMENT_ENABLED</td>
+            <td>Enables commenting on every posted voted for by bot. Comment text must be set in Edit Algo.</td>
+            <td>
+                <form class="form-add">
+                    <input type="checkbox" name="input_field_19" id="input_field_19">
+                </form>
+            </td>
+            <th><p><a class="btn btn-default" href="javascript:updateVarChecked(19)" role="button">Update</a></p></th>
+        </tr>
         </tbody>
     </table>
 </div>

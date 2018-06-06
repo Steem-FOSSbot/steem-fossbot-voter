@@ -137,10 +137,11 @@ In order for the bot to function _at all_, you must set your algorithm for it. T
 
 For a more detailed explanation, see the [algorithm doc](/docs/algorithm.md).
 
-To summarise, there are two parts to the algorithm:
+There are several parts to the algorithm:
 
 - A collection of weights
 - Some white / blacklists
+- Comment to make on voted posts (optional)
 
 #### Weights
 
@@ -165,6 +166,14 @@ By themselves these lists do nothing but they are used for certain metrics. Ther
 _Edit Algorithm, top of page_
 
 ![](/img/edit-algo-1.png)
+
+#### Comment
+
+Optionally you can set the bot to comment on every post you vote for. This must be plain text but can include any normal characters as well as unicode, so there is support for emoji and the characters of the world's languages.
+
+To enable this feature you must set the text here and also turn it on in the configuration variable. Go to Edit Config to set this.
+
+![](/img/edit-algo-comment.png)
 
 #### Features
 

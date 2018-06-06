@@ -13,6 +13,17 @@
   </div>
 </div>
 
+<div class="container-fluid">
+  <h1 class="page-header">Edit comment</h1>
+  <div class="row">
+    <form class="form-add" action="/edit-algo-comment" method="post">
+      <textarea name="comment_block" id="comment_block" cols="80" rows="5"></textarea>
+      <button class="btn btn-lg btn-primary btn-block" type="submit" value="POST">Save comment</button>
+    </form>
+  </div>
+  <p>Note, to enable commenting on voted posts, turn on the comment in Edit Config variable COMMENT_ENABLED<p>
+</div>
+
 <h2 class="sub-header">Keys Reference</h2>
 <p>See the <a href="https://github.com/Steem-FOSSbot/steem-fossbot-voter/blob/develop/docs/algorithm.md">algorithm and metrics docs</a> for more details</p>
 <p>Note that all boolean data types are intepreted numerically as false = 0, true = 1</p>

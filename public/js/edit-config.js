@@ -16,7 +16,10 @@ var fieldNames = [
   "MIN_LANGUAGE_USAGE_PC",
   "MIN_KEYWORD_FREQ",
   "MIN_VOTING_POWER",
-  "VOTE_VOTING_POWER"
+  "VOTE_VOTING_POWER",
+  "POST_METADATA_MAX_RECORD_PER_RUN",
+  "POST_METADATA_MAX_RUNS_TO_KEEP",
+  "COMMENT_ENABLED"
 ];
 
 function updateVar(index) {
@@ -25,6 +28,15 @@ function updateVar(index) {
   var element = document.getElementById(elementId);
   if (element) {
     window.location.href = "/edit-config?"+name+"="+btoa(element.value);
+  }
+}
+
+function updateVarChecked(index) {
+  var name = fieldNames[index];
+  var elementId = "input_field_" + index;
+  var element = document.getElementById(elementId);
+  if (element) {
+    window.location.href = "/edit-config?"+name+"="+btoa(element.checked ? 'on' : 'off');
   }
 }
 
@@ -46,7 +58,12 @@ function setupConfigVars() {
         var elementId = "input_field_" + i;
         var element = document.getElementById(elementId);
         if (element) {
-          element.value = data[fieldNames[i]];
+          // Adding as exception to the rule
+          if (i === 19) { // checkbox COMMENT_ENABLED
+            element.checked = data[fieldNames[i]] === 'on';
+          } else {
+            element.value = data[fieldNames[i]];
+          }
         }
       }
     }

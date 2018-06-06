@@ -44,7 +44,7 @@ The operations you can perform are:
 
 - Run bot now (WILL VOTE)
 - Check bot stats (this is pretty cool)
-- Edit curation algorithm weights and white / black lists
+- Edit curation algorithm weights and white / black lists, set comment
 - Edit configuration and settings of bot
 - Run algorithm test (does not actually vote)
 - View last log
@@ -116,6 +116,13 @@ Finally, as mentioned in the [discussion](/docs/discussion.md), this project is 
 
 ## Changelog
 
+- v0.3.2
+  - new feature to allow for posting a comment on voted posts #92
+  - fix stats page issues #129, #143
+  - fix accounts information not fetching, causing author related metrics to have no effect #133
+  - fix double processing posts on next run #140
+  - minor issues #132, #134
+  - and error logging for ongoing issue #142
 - v0.3.1
   - Update moment and moment-timezone dependency versions CVE-2017-18214 vulnerability found
   - Small improvement to error handling in Steem initialization phase

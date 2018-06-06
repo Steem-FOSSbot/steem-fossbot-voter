@@ -13,7 +13,8 @@ const
   extra = require('./extra.js'),
   moment_tz = require('moment-timezone'),
   moment = require('moment'),
-  atob = require('atob');
+  atob = require('atob'),
+  btoa = require('btoa');
 
 var cookieSessionKey = "";
 
@@ -398,7 +399,7 @@ function execStats(req, res) {
           html_stats_run1
           + html
           + html_stats_run2
-          + "Bot run details for run at " + (moment_tz.tz(Number(req.query.save_date), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
+          + "Sample of posts processed in bot run at " + (moment_tz.tz(Number(req.query.save_date), lib.getConfigVars().TIME_ZONE).format("MMM Do YYYY HH:mm"))
           + html_stats_run3
           + html_list
           + html_stats_run4);
@@ -538,6 +539,29 @@ app.get("/get-daily-liked-posts", function(req, res) {
     } else {
       console.log("got daily_liked_posts");
       res.json(dailyLikedPostsResults);
+    }
+  });
+});
+
+app.get("/get-comment", function(req, res) {
+  if (!req.query.api_key && !req.query.session_key) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: api_key or session_key not supplied", 401);
+    return;
+  } else if (req.query.api_key && req.query.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: api_key invalid", 401);
+    return;
+  } else if (req.query.session_key && req.query.session_key.localeCompare(cookieSessionKey) != 0) {
+    handleError(res, "/get-comment Unauthorized", "get-comment: session_key invalid", 401);
+    return;
+  }
+  lib.getPersistentObj(lib.DB_ALGORITHM, function (err, algorithm) {
+    console.log("attempted to get algorithm: " + algorithm);
+    if (algorithm != null && algorithm.comment !== undefined) {
+      console.log('/get-comment, sending comment: ' + algorithm.comment);
+      res.json({comment: algorithm.comment});
+    } else if (err || algorithm === undefined || algorithm === null) {
+      console.log('/get-comment, no comment or couldnt get algo');
+      res.json({comment: ''});
     }
   });
 });
@@ -718,11 +742,12 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
     console.log(" - update algorithm");
     lib.persistObj(lib.DB_ALGORITHM, JSON.parse(req.body.json_algo), function(err) {
       if (err) {
+        editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING algorithm</h2>");
         console.log(" - - ERROR SAVING algorithm");
-        // TODO : show this on page
+      } else {
+        editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");
       }
     });
-    editAlgoExec(res, "<h2 class=\"sub-header\">Imported algorithm</h2>");
     return;
   }
   // create query
@@ -744,6 +769,69 @@ app.post("/edit-algo", bodyParser.urlencoded({extended: false}), function(req, r
   });
 });
 
+app.post("/edit-algo-comment", bodyParser.urlencoded({extended: false}), function(req, res) {
+  console.log("req.query.api_key = "+req.query.api_key);
+  console.log("req.session.api_key = "+req.session.api_key);
+  if (req.query.api_key) {
+    req.session.api_key = req.query.api_key;
+    var cookies = new Cookies(req, res);
+    if (cookieSessionKey.length < 1) {
+      cookieSessionKey = extra.calcMD5("" + (Math.random() * 7919));
+    }
+    console.log("created session_key cookie for client: "+cookieSessionKey);
+    cookies.set("session_key", cookieSessionKey, {overwrite: true, httpOnly: false});
+    console.log("check cookie for session_key: "+cookies.get("session_key"));
+  } else if (!req.session.api_key) {
+    handleError(res, "/edit-algo-comment Unauthorized", "edit-algo-comment: session is invalid (no session key), please restart from Dashboard", 401);
+    return;
+  } else if (req.session.api_key.localeCompare(process.env.BOT_API_KEY) != 0) {
+    handleError(res, "/edit-algo-comment Unauthorized", "edit-algo-comment: session is invalid (out of date session key), please restart from Dashboard", 401);
+    return;
+  }
+  console.log("/edit-algo-comment POST request");
+  // get options from post data
+  console.log(" - req.body: "+JSON.stringify(req.body));
+  if (req.body.comment_block) {
+    // is update algorithm query
+    var comment = req.body.comment_block;
+    console.log(" - update comment to: " + comment);
+    lib.getPersistentObj(lib.DB_ALGORITHM, function (err, algorithmResult) {
+      var algorithm = {};
+      if (err || algorithmResult === undefined || algorithmResult === null) {
+        console.log(" - no algorithm in db, USING DEFAULT");
+        // TODO : remove this default algorithm setting
+        algorithm = {
+          weights: [],
+          authorWhitelist: [],
+          authorBlacklist: [],
+          contentCategoryWhitelist: [],
+          contentCategoryBlacklist: [],
+          contentWordWhitelist: [],
+          contentWordBlacklist: [],
+          domainWhitelist: [],
+          domainBlacklist: [],
+          commment: ''
+        };
+      } else {
+        algorithm = algorithmResult;
+        console.log(" - got algorithm from db: "+JSON.stringify(algorithm));
+      }
+      algorithm.comment = comment;
+      lib.persistObj(lib.DB_ALGORITHM, algorithm, function (err) {
+        if (err) {
+          editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING comment</h2>");
+          console.log(" - - ERROR SAVING algorithm");
+        } else {
+          editAlgoExec(res, "<h2 class=\"sub-header\">Updated comment</h2>");
+        }
+      });
+    });
+    return;
+  }
+  // else
+  editAlgoExec(res, "<h2 class=\"sub-header\">ERROR SAVING comment</h2>");
+});
+
 function editAlgoExec(res, message) {
   lib.getPersistentObj(lib.DB_ALGORITHM, function(err, algorithmResult) {
     var algorithm = {};
@@ -759,7 +847,8 @@ function editAlgoExec(res, message) {
         contentWordWhitelist: [],
         contentWordBlacklist: [],
         domainWhitelist: [],
-        domainBlacklist: []
+        domainBlacklist: [],
+        comment: ''
       };
     } else {
       algorithm = algorithmResult;
@@ -892,7 +981,7 @@ app.get("/test-algo", function(req, res) {
   }
   // check for options from query data
   if (req.query.limit) {
-    testAlgoExec(res, {test: true, limit: 5});
+    testAlgoExec(res, {test: true, limit: req.query.limit});
   } else {
     res.status(200).send(
       html_testAlgo1
@@ -1036,6 +1125,18 @@ app.get("/edit-config", function(req, res) {
     }
     change = true;
     html_title += "Updated VOTE_VOTING_POWER";
+  } else if (req.query.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = Number(atob(req.query.POST_METADATA_MAX_RECORD_PER_RUN));
+    change = true;
+    html_title += "Updated POST_METADATA_MAX_RECORD_PER_RUN";
+  } else if (req.query.POST_METADATA_MAX_RUNS_TO_KEEP) {
+    configVars.POST_METADATA_MAX_RUNS_TO_KEEP = Number(atob(req.query.POST_METADATA_MAX_RUNS_TO_KEEP));
+    change = true;
+    html_title += "Updated POST_METADATA_MAX_RUNS_TO_KEEP";
+  } else if (req.query.COMMENT_ENABLED) {
+    configVars.COMMENT_ENABLED = atob(req.query.COMMENT_ENABLED).localeCompare('on') === 0 ? 'on' : 'off';
+    change = true;
+    html_title += "Updated COMMENT_ENABLED";
   }
   html_title += "</h3>"
   if (change) {
@@ -1136,6 +1237,18 @@ app.post("/edit-config", bodyParser.urlencoded({extended: false}), function(req,
   }
   if (newConfigVars.MIN_KEYWORD_FREQ) {
     configVars.MIN_KEYWORD_FREQ = newConfigVars.MIN_KEYWORD_FREQ;
+    change = true;
+  }
+  if (newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN;
+    change = true;
+  }
+  if (newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN) {
+    configVars.POST_METADATA_MAX_RECORD_PER_RUN = newConfigVars.POST_METADATA_MAX_RECORD_PER_RUN;
+    change = true;
+  }
+  if (newConfigVars.COMMENT_ENABLED) {
+    configVars.COMMENT_ENABLED = newConfigVars.COMMENT_ENABLED;
     change = true;
   }
   var html_title = "<h3 class=\"sub-header\">" + (change ? "Updated config vars" : "Nothing to update!") + "</h3>";

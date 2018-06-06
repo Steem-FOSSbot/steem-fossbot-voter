@@ -71,12 +71,12 @@ The threshold is calculated in two steps:
 
 1. Get average of post scores in the sliding window, i.e. up to the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts
 2. Increase this average by ```SCORE_THRESHOLD_INC_PC```
-3. Increase this average approaching maximum threshold for vote as 
+3. Increase this average approaching maximum threshold for vote as
 account voting power approaches ```MIN_VOTING_POWER```
 
 #### 1. Calculate average score
 
-The threshold uses a _sliding window_ to first calculate average post score, ending at the current post, and this is updated when scoring each post. So the window will consist of the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts which scored equal to or above ```MIN_SCORE_THRESHOLD```. You can think of the ```MIN_SCORE_THRESHOLD``` as the minimum absolute post score. This should be positive and above zero to keep the threshold at least a little above zero. 
+The threshold uses a _sliding window_ to first calculate average post score, ending at the current post, and this is updated when scoring each post. So the window will consist of the last ```NUM_POSTS_FOR_AVG_WINDOW``` number of posts which scored equal to or above ```MIN_SCORE_THRESHOLD```. You can think of the ```MIN_SCORE_THRESHOLD``` as the minimum absolute post score. This should be positive and above zero to keep the threshold at least a little above zero.
 
 #### 2. Increase by percentage
 
@@ -88,18 +88,18 @@ Values of up to 0.6 or 60% can also work.
 
 #### 3. Increase in as voting power decreases to minimum
 
-In order to maintain voting power and spread votes over a longer period 
-of time (not vote all in one go and then have no voting power left), we 
-increase the threshold as voting power decreases after every vote, as 
+In order to maintain voting power and spread votes over a longer period
+of time (not vote all in one go and then have no voting power left), we
+increase the threshold as voting power decreases after every vote, as
 voting power approaches ```MIN_VOTING_POWER```
 
-Voting power will regenerate according to the blockchain algorithm (see 
-[the discussion doc](/docs/discussion.md) for more information on the 
+Voting power will regenerate according to the blockchain algorithm (see
+[the discussion doc](/docs/discussion.md) for more information on the
 rate-limited voting of Steem).
 
 ```increase amount = (max score in window - (average + percentage_increase)) * (difference_in_voting_power_from_100% / (100 - MIN_VOTING_POWER))```
 
-Note also that the effect is linear (as of change in issue #24). 
+Note also that the effect is linear (as of change in issue #24).
 
 #### Summary of threshold calculation
 
@@ -116,7 +116,7 @@ Be warned against changing the post window size to be too small or too large. To
 Finally, most of this assumes that you have a somewhat complex algorithm, i.e. that a few metrics are used which make the score result complex. However if only one metric is used, the system becomes simple and some of these assumptions do not hold. Please read the next subsection if you use a simple algorithm.
 
 ### Settings and constants
- 
+
 Most settings which effect the algorithm are editable. I have set sensible defaults, but these will not be appropriate for every situation.
 
 The number in brackets is the default value:
@@ -125,13 +125,13 @@ The number in brackets is the default value:
 
 Most people will want to edit these
 
-1. **MIN_POST_AGE_TO_CONSIDER** (```21.22```): Number of minutes minimum 
-to consider voting on a post. Any post younger than this time will be 
-discarded for consideration at next run, if old enough then. For number 
+1. **MIN_POST_AGE_TO_CONSIDER** (```21.22```): Number of minutes minimum
+to consider voting on a post. Any post younger than this time will be
+discarded for consideration at next run, if old enough then. For number
 explanation see [the discussion doc](/docs/discussion.md).
 2. **TIME_ZONE_OFFSET** (```Etc/GMT+3```): Time zone for date display, in
  tz format ([see here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of formats). Used in UI, logging, etc.
-3. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on 
+3. **MIN_VOTING_POWER** (```50```): Do not vote if voting power left on
 account is less than this value
 4. **VOTE_VOTING_POWER** (```100```): Vote power used when casting votes
 
@@ -150,6 +150,9 @@ Edit with caution, setting these incorrectly can really break the bot
 9. **DAYS_KEEP_LOGS** (```2```): Number of days for logs to expire at. These are kept in a 25 MB limit database currently if you're using a free Heroku set up so we keep this number low.
 10. **MIN_LANGUAGE_USAGE_PC** (```0.3``` i.e. ```35%```): Minimum amount (expressed as a ratio, between 0.0 and 1.0) of document required to contain a language before it will be considered having a _signification amount_ of that language as content.
 11. **MIN_KEYWORD_FREQ** (```3```): Minimum appearances of a word in a post for it to be considered a keyword
+12. **POST_METADATA_MAX_RECORD_PER_RUN** (```100```): Maximum number of post details to record per bot run. Sample size for algorithm tuning.
+13. **POST_METADATA_MAX_RUNS_TO_KEEP** (```5```): Maximum sets of post detail per run to keep in db.
+14. **COMMENT_ENABLED** (```unchecked```): Enables commenting on every posted voted for by bot. Comment text must be set in Edit Algo.
 
 ## Metrics in detail
 
@@ -229,7 +232,7 @@ _Note: we'll skip the minnows when testing votes!_
 
 ##### Numeric
 
-1. ```author_capital_val```: Capital (Steem Power) by value 
+1. ```author_capital_val```: Capital (Steem Power) by value
 
 **Proposed, not implemented**
 

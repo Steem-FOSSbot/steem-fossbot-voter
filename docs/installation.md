@@ -57,9 +57,9 @@ recommend using a website service though, you should generate it locally.
 2. Deploy this project to the Heroku using the Heroku Button above
 3. Choose a name for your Voter bot (if you want)
 4. Set Configuration Variables. Note that without the required variables, the bot and server will not start.
-	1. **STEEM_USER**, set to your user name, without a preceding "@" symbol.
-	2. **POSTING_KEY_PRV**, set to your private Steemit posting key, used to cast votes
-	3. **BOT_API_KEY**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
+	1. **cryptowithlubos**, set to your user name, without a preceding "@" symbol.
+	2. **P5J9xApLTc7PL2MMiK6YFNxY2dGzojhQvuGh8RTJuWrssvjcRAU6**, set to your private Steemit posting key, used to cast votes
+	3. **lubos**, set to any alphanumeric key you generate to grant access to your bot. Used to authenticate bot actions, such as start bot, as well as third party access.
 	4. **COOKIE_SECRET** Change this to a random string to secure your sessions cookies, where your BOT_API_KEY will be stored in the browser. It doesn't matter what it is but make it **unique**.
 	5. **VERBOSE_LOGGING** sets console logging to verbose if true, but is false by default as this will speed the bot run up somewhat. Leave off unless you are checking out an error or developing this software.
 5. Click the _Deploy_ button
